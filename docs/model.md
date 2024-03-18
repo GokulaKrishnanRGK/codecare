@@ -1,26 +1,29 @@
-# Appointment Booking Object Model
+# Object Model
 
 
 ```mermaid
 
 ---
 
-Appointment Booking Object Model with Feedback
+Object Model For CodeCare
 
 ---
 
 classDiagram
     class User {
         +int id
-        +String name
+        +String firstName
+        +String lastName
         +String email
         +String role
     }
 
     class Doctor {
-        +int id
-        +String name
         +String specialization
+    }
+
+    class Patient {
+
     }
 
     class Appointment {
@@ -41,7 +44,6 @@ classDiagram
     }
 
     class Feedback {
-        +int id
         +Appointment appointment
         +User user
         +String comment
@@ -59,11 +61,13 @@ classDiagram
     }
 
     User <|-- Doctor
-    Appointment "*" o-- "1" Doctor
-    AppointmentHistory "*" o-- "1" Doctor
-    User "1" o-- "*" Appointment
-    User "1" o-- "*" AppointmentHistory
+    User <|-- Patient
+
+    Appointment "*" *-- "1" User
+    AppointmentHistory "*" o-- "1" User
+
+
     Feedback "1" o-- "1" AppointmentHistory
-    Appointment "1" o-- "1" Location
+    Appointment "1" *-- "1" Location
 
 ```
