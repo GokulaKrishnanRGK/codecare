@@ -1,21 +1,34 @@
 # Object Model
 
-
 ```mermaid
-
 ---
-
 Object Model For CodeCare
-
 ---
 
 classDiagram
+    class Role {
+        +int id
+        +String roleName
+        +String description
+    }
+    class RoleApis {
+        +int id
+        +String name
+        +Role role
+        +String path
+    }
+    class Login {
+        +int id;
+        +String username;
+        +String password;
+        +User user;
+        +Role role;
+    }
     class User {
         +int id
-        +String firstName
-        +String lastName
-        +String email
-        +String role
+        +String username
+        +String firstname
+        +String lastname
     }
 
     class Doctor {
@@ -60,14 +73,26 @@ classDiagram
         +String postalCode
     }
 
+    class Donation {
+        +int id
+        +User user
+        +double amount
+        +DateTime donationDate
+    }
+
     User <|-- Doctor
     User <|-- Patient
 
     Appointment "*" *-- "1" User
     AppointmentHistory "*" o-- "1" User
 
-
     Feedback "1" o-- "1" AppointmentHistory
     Appointment "1" *-- "1" Location
+    
+    Login "1" *-- "1" Role
+    Login "1" *-- "1" User
+    User "1" *-- "1" Role
+    Role "1" -- "n" RoleApis
+    User "1" -- "n" Donation
 
 ```
