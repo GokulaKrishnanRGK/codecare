@@ -38,12 +38,19 @@ enhance user experience and facilitate efficient healthcare interactions.
   regimens effectively. Additionally, CodeCare incorporates general health checkup reminders to
   promote preventive healthcare practices and regular screenings.
 
+- **Events:**
+  The "Events" module in our health website provides a centralized platform for users to access 
+  and engage with various healthcare events such as blood donation camps, free health checkups, 
+  vaccination drives,etc. Users can explore upcoming events and access 
+  essential information regarding the events. Through this module, we aim to promote proactive 
+  health management and community participation in critical healthcare initiatives.
+
 ## Contributors
 
-- Gokul (User management, RBAC, Donation)
-- Venkat (Vaccination Management)
-- George (Appointment Bookings)
-- Rohith (Medical History Maintenance)
+- Gokulakrishnan R - r.go@northeastern.edu
+- Yakgna Venkatesh Ramasamy - ramasamy.y@northeastern.edu
+- George Chempumthara - chempumthara.g@northeastern.edu
+- Badrinath Rohith Varma Datla - datla.b@northeastern.edu
 
 # Object Model
 
@@ -65,11 +72,11 @@ classDiagram
         +String path
     }
     class Login {
-        +int id;
-        +String username;
-        +String password;
-        +User user;
-        +Role role;
+        +int id
+        +String username
+        +String password
+        +User user
+        +Role role
     }
     class User {
         +int id
@@ -141,11 +148,25 @@ classDiagram
     }
     class VaccinationForm {
         +Patient patient
-        +boolean covid_vaccine
-        +boolean polio_vaccine
-        +boolean influenza_vaccine
-        +boolean varicella_vaccine
-        +boolean hcp_vaccine
+        +List~Vaccine~ vaccines
+    }
+
+    class Vaccine {
+      +int id
+      +String vaccineName
+      +String manufacturer
+      +String description
+    }
+
+    class Event {
+      +int id
+      +String type
+      +String title
+      +String organizer
+      +String description
+      +Location location
+      +DateTime date
+      +String contactInfo
     }
 
     User <|-- Doctor
@@ -166,4 +187,7 @@ classDiagram
     Medication "1" *-- "1" Diagnosis
     VaccinationForm "1" *-- "1" User
 
+    Event o-- Location
+    User "*" o-- "*" Event
+    VaccinationForm "0..*" o-- "1..n" Vaccine
 ```
