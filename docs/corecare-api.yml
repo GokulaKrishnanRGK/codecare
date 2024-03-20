@@ -221,6 +221,115 @@ paths:
           $ref: '#/components/schemas/Unauthorized'
         500:
           $ref: '#/components/schemas/UnexpectedError'
+  /medical-history/{user_id}:
+    parameters:
+      - in: path
+        name: user_id
+        required: true
+        description: Unique identifier for the user
+        schema:
+          type: string
+    get:
+      summary: Retrieve the medical history of a specific user
+      responses:
+        "200":
+          description: Medical history data returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MedicalHistoryEntry"
+        "400":
+          $ref: '#/components/schemas/UnexpectedError'
+        "500":
+          $ref: '#/components/schemas/UnexpectedError'
+
+  /medical-history:
+    post:
+      summary: Add a new medical history entry for a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicalHistoryEntry"
+      responses:
+        "400":
+          $ref: '#/components/schemas/UnexpectedError'
+        "500":
+          $ref: '#/components/schemas/UnexpectedError'
+
+  /previous-appointments/{user_id}:
+    parameters:
+      - in: path
+        name: user_id
+        required: true
+        description: Unique identifier for the user
+        schema:
+          type: string
+    get:
+      summary: Retrieve previous appointments of a specific user
+      responses:
+        "200":
+          description: Previous appointments data returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Previous-Appointment"
+        "400":
+          $ref: '#/components/schemas/UnexpectedError'
+        "500":
+          $ref: '#/components/schemas/UnexpectedError'
+
+  /upcoming-appointments/{user_id}:
+    parameters:
+      - in: path
+        name: user_id
+        required: true
+        description: Unique identifier for the user
+        schema:
+          type: string
+    get:
+      summary: Retrieve upcoming appointments of a specific user
+      responses:
+        "200":
+          description: Upcoming appointments data returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Upcoming-Appointment"
+        "400":
+          $ref: '#/components/schemas/UnexpectedError'
+        "500":
+          $ref: '#/components/schemas/UnexpectedError'
+
+  /vaccination-form/{user_id}:
+    parameters:
+      - in: path
+        name: user_id
+        required: true
+        description: Unique identifier for the user
+        schema:
+          type: string
+    get:
+      summary: Retrieve vaccination form for a specific user
+      responses:
+        "200":
+          description: Vaccination form data returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VaccinationForm"
+        "400":
+          $ref: '#/components/schemas/UnexpectedError'
+        "500":
+          $ref: '#/components/schemas/UnexpectedError'
+
 
 components:
   schemas:
@@ -326,6 +435,88 @@ components:
           type: string
           example:
             - jane.doe@gmail.com
+    MedicalHistoryEntry:
+      type: object
+      properties:
+        user_id:
+          type: string
+          example: John Doe
+        doctor_name:
+          type: string
+          example: Dr.Suess
+        doctor_specialization:
+          type: string
+          example: Cardiologist
+        visit_date:
+          type: string
+          format: date
+          example: 01-09-2024
+        diagnosis:
+          type: string
+          example: Coronary Artery Disease
+        treatment:
+          type: string
+          example: PTCA (Stunt)
+    
+    Upcoming-Appointment:
+      type: object
+      properties:
+        user_id:
+          type: string
+          example: Phoebe Buffay
+        doctor_name:
+          type: string
+          example: Dr.Green
+        doctor_specialization:
+          type: string
+          example: Ob-Gyn
+        appointment_date:
+          type: string
+          format: date-time
+          example: 15rd April - 2:00 pm
+        status:
+          type: string
+          enum: [incomplete]
+    Previous-Appointment:
+      type: object
+      properties:
+        user_id:
+          type: string
+          example: Chandler Bing
+        doctor_name:
+          type: string
+          example: Dr.Geller
+        doctor_specialization:
+          type: string
+          example: ENT
+        appointment_date:
+          type: string
+          format: date-time
+          example: 3rd March - 5:00 pm
+        status:
+          type: string
+          enum: [completed]
+    VaccinationForm:
+      type: object
+      properties:
+        user_id:
+          type: string
+          example: Joey Tribbiani
+        covid_vaccine:
+          type: boolean
+          example: true
+        polio_vaccine:
+          type: boolean
+          example: true
+        influenza_vaccine:
+          type: boolean
+          example: false
+        varicella_vaccine:
+          type: boolean
+          exapmle: false
+        hpv_vaccine:
+          type: boolean
+          exapmle: true        
     Unauthorized:
       content:
         application/json:

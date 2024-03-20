@@ -79,6 +79,29 @@ classDiagram
         +double amount
         +DateTime donationDate
     }
+     class Diagnosis{
+        + appointment : Appointment
+        + condition : string
+        + remarks : string
+
+    }
+    class Medication {
+        + tablets : string
+        + toniques : string
+        + injection : string
+        + time : string
+        + operation : string
+    }
+    class VaccinationForm {
+        + patient : Patient
+        + covid_vaccine : boolean
+        + polio_vaccine : boolean
+        + influenza_vaccine : boolean
+        + varicella_vaccine : boolean
+        + hcp_vaccine : boolean
+    }
+
+   
 
     User <|-- Doctor
     User <|-- Patient
@@ -94,5 +117,9 @@ classDiagram
     User "1" *-- "1" Role
     Role "1" -- "n" RoleApis
     User "1" -- "n" Donation
+    
+    Diagnosis "1" o-- "1" Appointment
+    Medication "1" *-- "1" Diagnosis 
+    VaccinationForm "1" *-- "1" User
 
 ```
