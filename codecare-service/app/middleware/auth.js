@@ -23,6 +23,9 @@ const auth = async (req, res, next) => {
             throw new Error("UnauthorizedUserDetected!");
         }
 
+        //user is authenticated
+        //add checks to check if the user is allowed to access the path
+
         req.user = user;
         req.token = token;
         next();
