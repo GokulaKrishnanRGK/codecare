@@ -16,6 +16,9 @@ export const register = async (request, response) => {
     try {
         const {username, password, firstname, lastname} = {...request.body};
         const user = {username:username, firstname:firstname, lastname:lastname};
+        //create user
+        //create login --> use user id from above, //ROLE --> get role id from db
+
 
 
     } catch (error) {
