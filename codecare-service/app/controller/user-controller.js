@@ -1,8 +1,7 @@
-import {setError, setResponse} from "../utils/response-handler.js";
+import {setSuccessResponse} from "../utils/response-handler.js";
+import {StatusCodes} from "http-status-codes";
 
 export const getUser = async (req, res, next) => {
     const user = req.user; //username, role, firstname, lastname
-
-    setResponse({message:req.params.id}, res);
-    next();
+    setSuccessResponse(StatusCodes.OK, {user: user}, res);
 }

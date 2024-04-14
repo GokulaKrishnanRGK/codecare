@@ -1,12 +1,6 @@
+import User from "../models/user.js";
 
-
-export const save = async (request, response) => {
-    try {
-        const newNote = {...request.body};
-        newNote._id = null;
-        const meetingNote = await meetingNotesService.save(newNote);
-        setResponse(meetingNote, response);
-    } catch (error) {
-        setError(error, response);
-    }
+export const save = async (user) => {
+    const userModel = new User(user);
+    return await userModel.save();
 }

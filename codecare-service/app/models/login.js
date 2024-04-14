@@ -1,12 +1,9 @@
 import mongoose, {Schema} from "mongoose";
 import schemaConfig from "./schema-config.js";
-import User from "./user.js";
-import Role from "./role.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 const saltRounds = 10;
-const secretKey = process.env.JWT_KEY;
 
 const loginSchema = new mongoose.Schema({
     id: String,
@@ -46,7 +43,7 @@ loginSchema.pre('save', async function (next) {
     }
     next();
 });
-loginSchema.methods.generateAuthToken = async function () {
+loginSchema.methods.generateAuthToken = async function (secretKey) {
     const user = this;
     const token = jwt.sign({_id: user._id.toString()}, secretKey);
     user.tokens = user.tokens.concat({token});

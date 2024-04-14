@@ -1,36 +1,38 @@
 import jwt from "jsonwebtoken";
-import Login from "../models/login.js";
+import * as authService from "../services/auth-service.js";
+import mongoose from "mongoose";
+import {setErrorCode, setResponseCode} from "../utils/response-handler.js";
+import {
+    StatusCodes,
+} from 'http-status-codes';
 
-const auth = async (req, res, next) => {
+const auth = (roles) => async (request, response, next) => {
     try {
-        console.log('>Auth');
-
-        const authorizationHeader = req.header("Authorization");
+        const authorizationHeader = request.header("Authorization");
         if (!authorizationHeader) {
-            throw new Error("Authorization header missing");
+            setErrorCode(StatusCodes.UNAUTHORIZED);
+            return;
         }
-
         const token = authorizationHeader.replace("Bearer ", "");
         const secretKey = process.env.JWT_KEY
         const decoded = jwt.verify(token, secretKey);
-
-        const user = await Login.findOne({
-            _id: decoded._id,
+        const login = await authService.search({
+            _id: new mongoose.Types.ObjectId(decoded._id),
             "tokens.token": token,
         });
-
-        if (!user) {
-            throw new Error("UnauthorizedUserDetected!");
+        if (!login) {
+            setErrorCode(StatusCodes.UNAUTHORIZED);
+            return;
         }
-
-        //user is authenticated
-        //add checks to check if the user is allowed to access the path
-
-        req.user = user;
-        req.token = token;
+        if (roles.length && !roles.includes(login.role.name)) {
+            setErrorCode(StatusCodes.FORBIDDEN);
+        }
+        request.user = login;
+        request.token = token;
         next();
-    } catch (err) {
-        res.status(401).send({ error: "Please authenticate" });
+    } catch (error) {
+        console.log(error);
+        setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR);
     }
 };
 

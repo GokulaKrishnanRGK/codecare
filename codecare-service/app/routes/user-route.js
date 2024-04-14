@@ -3,7 +3,7 @@ import * as userController from "../controller/user-controller.js";
 
 const router = express.Router();
 
-router.route('/:id')
-    .post(userController.getUser);
+router.route('/get')
+    .get(userController.getUser);
 
 export default router;

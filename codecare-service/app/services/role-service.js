@@ -1,6 +1,6 @@
 import Role from "../models/role.js"
-import mongoose from "mongoose"
 
 export const findRoleByName = async (roleName) => {
-    let query = {}
+    let query = {name:roleName}
+    return await Role.findOne(query).exec();
 }
