@@ -1,31 +1,21 @@
-import {setErrorResponse, setSuccessResponse} from "../utils/response-handler.js";
-import {findByCredentials} from "../services/auth-service.js";
-import * as userService from "../services/user-service.js";
-import * as roleService from "../services/role-service.js";
-import * as authService from "../services/auth-service.js";
-import { StatusCodes} from "http-status-codes";
+import {setErrorCode, setSuccessCode} from "../utils/response-handler.js";
+import {StatusCodes} from "http-status-codes";
+import Login from "../models/login.js";
 
-export const login = async (request, response) => {
+export const logout = async (request, response, next) => {
     try {
-        const {username, password} = {...request.body};
-        const user = await findByCredentials(username, password);
-        const token = user.generateAuthToken(process.env.JWT_KEY);
-        setSuccessResponse(StatusCodes.OK, {user: user, token: token}, response);
-    } catch (error) {
-        console.log(error);
-        setErrorResponse(error, response);
+        const user = request.user;
+        user.tokens = user.tokens.filter((token) => { //token object
+            return token.token != request.token;
+        });
+        await Login.updateOne({_id: user._id}, {$set: {tokens: user.tokens}});
+        setSuccessCode(StatusCodes.OK, response);
+    } catch (err) {
+        console.log(err);
+        setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
     }
 }
 
-export const register = async (request, response) => {
-    try {
-        const {username, password, firstname, lastname} = {...request.body};
-        const user = await userService.save({username: username, firstname: firstname, lastname: lastname});
-        const role = await roleService.findRoleByName("ADMIN");
-        const login = await authService.save({username: username, password: password, user: user._id, role: role._id});
-        setSuccessResponse(StatusCodes.OK, login, response);
-    } catch (error) {
-        console.log(error);
-        setErrorResponse(error, response);
-    }
+export const test = async (request, response) => {
+    setSuccessCode(StatusCodes.OK, response);
 }

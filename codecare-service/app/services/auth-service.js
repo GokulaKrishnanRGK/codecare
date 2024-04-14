@@ -32,9 +32,6 @@ export const search = async (params) => {
         },
         {
             $unwind: '$role'
-        },
-        {
-            $limit: 1
         }
     ]).exec().then( data=>{
         return data[0];

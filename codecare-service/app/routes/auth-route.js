@@ -1,12 +1,12 @@
-import express from "express"
 import * as authController from "../controller/auth-controller.js";
+import router from "./public-route.js";
+import auth from "../middleware/auth.js";
+import {Roles} from "../entities/roles-enum.js";
 
-const router = express.Router();
+router.route('/logout')
+    .get(auth([Roles.ADMIN, Roles.DOCTOR, Roles.USER]), authController.logout);
 
-router.route('/login')
-    .post(authController.login);
-
-router.route('/register')
-    .post(authController.register);
+router.route('/test')
+    .get(authController.test);
 
 export default router;

@@ -10,7 +10,7 @@ const auth = (roles) => async (request, response, next) => {
     try {
         const authorizationHeader = request.header("Authorization");
         if (!authorizationHeader) {
-            setErrorCode(StatusCodes.UNAUTHORIZED);
+            setErrorCode(StatusCodes.UNAUTHORIZED, response);
             return;
         }
         const token = authorizationHeader.replace("Bearer ", "");
@@ -21,18 +21,18 @@ const auth = (roles) => async (request, response, next) => {
             "tokens.token": token,
         });
         if (!login) {
-            setErrorCode(StatusCodes.UNAUTHORIZED);
+            setErrorCode(StatusCodes.UNAUTHORIZED, response);
             return;
         }
         if (roles.length && !roles.includes(login.role.name)) {
-            setErrorCode(StatusCodes.FORBIDDEN);
+            setErrorCode(StatusCodes.FORBIDDEN, response);
         }
         request.user = login;
         request.token = token;
         next();
     } catch (error) {
         console.log(error);
-        setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR);
+        setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
     }
 };
 
