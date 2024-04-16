@@ -2,17 +2,25 @@ import {
     setErrorResponse,
     setSuccessResponse,
 } from "../utils/response-handler.js";
-import {findByCredentials} from "../services/auth-service.js";
 import * as userService from "../services/user-service.js";
 import * as roleService from "../services/role-service.js";
 import * as authService from "../services/auth-service.js";
 import {StatusCodes} from "http-status-codes";
+import mongoose from "mongoose";
 
 export const login = async (request, response) => {
     try {
         const {username, password} = {...request.body};
-        const user = await findByCredentials(username, password);
-        const token = user.generateAuthToken(process.env.JWT_KEY);
+        const loginMin = await authService.findByCredentials(username, password);
+        const token = await loginMin.generateAuthToken(process.env.JWT_KEY);
+        const login = await authService.search({_id: new mongoose.Types.ObjectId(loginMin._id)});
+        const user = {
+            username: login.username,
+            firstname: login.user.firstname,
+            lastname: login.user.lastname,
+            id: login.user._id,
+            role: login.role.name
+        };
         setSuccessResponse(StatusCodes.OK, {user: user, token: token}, response);
     } catch (error) {
         console.log(error);

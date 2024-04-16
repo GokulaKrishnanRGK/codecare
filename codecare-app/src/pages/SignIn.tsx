@@ -12,6 +12,11 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Typewriter from 'typewriter-effect';
 import { useNavigate } from 'react-router-dom';
+import * as authService from '../services/auth-service.ts';
+import {LoginDO} from "../models/LoginDO.ts";
+import {loadUser} from "../store/user-slice.ts";
+import {useDispatch} from "react-redux";
+import {AppDispatch} from "../store";
 
 //Utilities
 import MyButton from '../utils/MyButton';
@@ -57,6 +62,7 @@ const defaultTheme = createTheme();
 export default function SignIn() {
 
   const navigate=useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -65,6 +71,10 @@ export default function SignIn() {
       username: data.get('username'),
       password: data.get('password'),
     });
+    authService.login(data).then((loginDo: LoginDO) => {
+        localStorage.setItem('token', loginDo.token);
+        dispatch(loadUser(loginDo.user));
+    })
   };
 
 

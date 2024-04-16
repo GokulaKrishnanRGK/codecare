@@ -1,0 +1,8 @@
+{
+    "appbar.title.label": "Course Registration",
+    "appbar.login.label": "Login",
+    "courses.table.link.button.label": "Link",
+    "courses.table.view.button.label": "View",
+    "courses.table.register.button.label": "Register",
+    "button.back": "Back"
+}

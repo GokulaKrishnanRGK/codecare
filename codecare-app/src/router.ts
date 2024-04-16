@@ -5,7 +5,7 @@ import HomePage from './pages/HomePage.tsx';
 import App from './App.tsx';
 
 
-const router= createBrowserRouter([
+const router = createBrowserRouter([
     {
         path:'/',
         Component:App,
