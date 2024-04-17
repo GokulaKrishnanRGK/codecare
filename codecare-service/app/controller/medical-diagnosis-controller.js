@@ -13,13 +13,11 @@ export const add = async (req, res) => {
     }
 };
 
-export const get = async (req, res) => {
+export const search = async (req, res) => {
     try {
-
-        const id = req.params.id;  // Ensure operation is specific to authenticated user
-        console.log(id);
-        const diagnosis = await MedicalDiagnosisService.search(id);
-        setSuccessResponse( StatusCodes.OK,diagnosis, res);
+        const userId = req.params.userId;  // Ensure operation is specific to authenticated user
+        const getDiagnosis = await MedicalDiagnosisService.search(userId);
+        setSuccessResponse( StatusCodes.OK,getDiagnosis, res);
     } catch (error) {
         console.log(error);
         setErrorResponse(error.message, res, StatusCodes.NOT_FOUND);

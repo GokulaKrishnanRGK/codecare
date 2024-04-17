@@ -7,7 +7,9 @@ router.route('/')
     .post(MedicalDiagnosisController.add);
 router.route('/:id')
     .put(MedicalDiagnosisController.update)
-    .delete(MedicalDiagnosisController.remove)
-    .get(MedicalDiagnosisController.get);
+    .delete(MedicalDiagnosisController.remove);
+router.route('/:userId')
+    .get(MedicalDiagnosisController.search);
+   
 
 export default router;

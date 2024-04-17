@@ -29,8 +29,7 @@ export const searchByUserId = async (userId) => {
                 user: {  // Construct a user object to include specific details
                     id: "$user._id",
                     username: "$user.username",
-                    firstname: "$user.firstname",
-                    lastname: "$user.lastname"
+                    fullname: { $concat: ["$user.firstname", " ", "$user.lastname"] }
                 }
             }
         }

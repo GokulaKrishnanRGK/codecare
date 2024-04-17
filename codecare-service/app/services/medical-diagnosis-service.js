@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import MedicalDiagnosis from "../models/medical-diagnosis.js";
 
+
 export const add = async (diagnosisData) => {
     const diagnosis = new MedicalDiagnosis(diagnosisData);
     return await diagnosis.save();
@@ -16,55 +17,51 @@ export const remove = async (userId) => {
     return await MedicalDiagnosis.findByIdAndDelete(objectId);
 };
 
-export const search = async (userId) => {
 
-    const objectId = new mongoose.Types.ObjectId(userId);
-    console.log(MedicalDiagnosis);
+export const search = async (userId) => {
+    const objectId = new mongoose.Types.ObjectId(userId);  // Convert string to ObjectId
+
     const result = await MedicalDiagnosis.aggregate([
-        { 
-            $match: { user : objectId } 
+        {
+            $match: { user: objectId }  // Match the diagnosis to the user
         },
         {
             $lookup: {
-                from: "users",
+                from: "users",  // Assume 'users' collection holds user data
                 localField: "user",
                 foreignField: "_id",
-                as: "userDetails"
+                as: "user"
             }
         },
         {
-            $lookup: {
-                from: "users",  // Assuming the doctor is also stored in the 'users' collection
-                localField: "doctor",
-                foreignField: "_id",
-                as: "doctorDetails"
-            }
+            $unwind: "$user"  // Flatten the array to merge user details
         },
-        { $unwind: "$userDetails" },
-        { $unwind: "$doctorDetails" },
         {
             $project: {
-                _id: 0,
+                _id: 1,  // Include diagnosis fields
                 diagnosis: 1,
                 dateOfDiagnosis: 1,
                 treatment: 1,
-                user: {
-                    id: "$userDetails._id",
-                    username: "$userDetails.username",
-                    name: { $concat: ["$userDetails.firstname", " ", "$userDetails.lastname"] }
-                },
-                doctor: {
-                    id: "$doctorDetails._id",
-                    username: "$doctorDetails.username",
-                    name: { $concat: ["$doctorDetails.firstname", " ", "$doctorDetails.lastname"] }
+                user: {  // Project the user details
+                    _id: "$user._id",
+                    username: "$user.username",
+                    fullname: { $concat: ["$user.firstname", " ", "$user.lastname"] }
                 }
             }
         }
-    ]).exec();
+    ]).exec();  
+    
+    return result[0] || null;  // Return the first result or null if no entries
 
-    if (result.length === 0) {
-        throw new Error("Medical diagnosis not found.");
-    }
-    return result[0];
 };
+
+// export const search = async (userId) => {
+
+//     const objectId = new mongoose.Types.ObjectId(userId);
+//     // Using populate to join 'user' and 'doctor' fields with corresponding data from the 'users' collection
+//     const diagnosis = await MedicalDiagnosis.findOne({ user: objectId })
+//         .populate('user', 'username firstname lastname')  // Selectively populate fields
+//         .populate('doctor', 'username firstname lastname'); // Selectively populate fields
+
+// };
 
