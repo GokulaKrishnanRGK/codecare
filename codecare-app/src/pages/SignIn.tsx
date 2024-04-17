@@ -14,9 +14,10 @@ import Typewriter from 'typewriter-effect';
 import { useNavigate } from 'react-router-dom';
 import * as authService from '../services/auth-service.ts';
 import {LoginDO} from "../models/LoginDO.ts";
-import {loadUser} from "../store/user-slice.ts";
-import {useDispatch} from "react-redux";
+import {getUser, loadLoginUser} from "../store/loginUser-slice.ts";
+import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch} from "../store";
+import {ResponseObject} from "../models/ResponseObject.ts";
 
 //Utilities
 import MyButton from '../utils/MyButton';
@@ -63,18 +64,19 @@ export default function SignIn() {
 
   const navigate=useNavigate();
   const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector(getUser());
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      username: data.get('username'),
-      password: data.get('password'),
+    authService.login(data).then((response: ResponseObject<LoginDO>) => {
+        if(response.data) {
+            localStorage.setItem('token', response.data.token);
+            dispatch(loadLoginUser(response.data.user));
+        } else {
+            alert(response.error);
+        }
     });
-    authService.login(data).then((loginDo: LoginDO) => {
-        localStorage.setItem('token', loginDo.token);
-        dispatch(loadUser(loginDo.user));
-    })
   };
 
 

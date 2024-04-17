@@ -11,6 +11,8 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Typewriter from 'typewriter-effect';
 import { useNavigate } from 'react-router-dom';
+import * as authService from "../services/auth-service.ts";
+import {ResponseObject} from "../models/ResponseObject.ts";
 
 //utitlites
 import MyButton from '../utils/MyButton';
@@ -58,12 +60,8 @@ export default function SignUp() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      username: data.get('username'),
-      firstname:data.get('firstname'),
-      lastname:data.get('lastname'),
-      password: data.get('password'),
-      
+    authService.register(data).then((response: ResponseObject<any>) => {
+        console.log(response)
     });
   };
 

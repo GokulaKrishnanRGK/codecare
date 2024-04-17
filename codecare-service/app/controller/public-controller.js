@@ -1,6 +1,7 @@
 import {
-    setErrorResponse,
-    setSuccessResponse,
+    setErrorCode,
+    setErrorResponse, setSuccessCode,
+    setSuccessResponse, setSuccessResponseMsg,
 } from "../utils/response-handler.js";
 import * as userService from "../services/user-service.js";
 import * as roleService from "../services/role-service.js";
@@ -24,7 +25,7 @@ export const login = async (request, response) => {
         setSuccessResponse(StatusCodes.OK, {user: user, token: token}, response);
     } catch (error) {
         console.log(error);
-        setErrorResponse(error, response);
+        setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
     }
 }
 
@@ -33,10 +34,10 @@ export const register = async (request, response) => {
         const {username, password, firstname, lastname} = {...request.body};
         const user = await userService.save({username: username, firstname: firstname, lastname: lastname});
         const role = await roleService.findRoleByName("ADMIN");
-        const login = await authService.save({username: username, password: password, user: user._id, role: role._id});
-        setSuccessResponse(StatusCodes.OK, login, response);
+        await authService.save({username: username, password: password, user: user._id, role: role._id});
+        setSuccessCode(StatusCodes.CREATED, response);
     } catch (error) {
         console.log(error);
-        setErrorResponse(error, response);
+        setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
     }
 }
