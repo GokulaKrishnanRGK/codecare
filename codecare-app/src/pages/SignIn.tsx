@@ -13,8 +13,11 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Typewriter from 'typewriter-effect';
 import { useNavigate } from 'react-router-dom';
 
+//Utilities
+import MyButton from '../utils/MyButton';
 
-function Copyright(props: any) {
+
+const Copyright=(props: any) =>{
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
@@ -52,7 +55,6 @@ const backgroundTemplate={
 const defaultTheme = createTheme();
 
 export default function SignIn() {
-
 
   const navigate=useNavigate();
 
@@ -104,7 +106,7 @@ export default function SignIn() {
             <Typography component="h1" variant="h5">
               Sign in
             </Typography>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            <Box component="form"  onSubmit={handleSubmit} sx={{ mt: 1 }}>
               <TextField
                 margin="normal"
                 required
@@ -127,22 +129,21 @@ export default function SignIn() {
               />
             <Grid container justifyContent="flex-end" alignItems="center" spacing={1} position="relative" right="100px">
                 <Grid item>
-                <Button
+                <MyButton
                     type="submit"
                     variant="contained"
-                    sx={{ mt: 3, mb: 2 }}
-                >
-                    Sign In
-                </Button>
+                    label="Sign In"
+                />
+
                 </Grid>
                 <Grid item>
-                <Button
-                    variant="contained"
-                    sx={{ mt: 3, mb: 2 }}
-                    onClick={()=>navigate(`/Signup`)}
-                >
-                    Register
-                </Button>
+
+                <MyButton
+                label='Register'
+                variant='contained'
+                onClick={()=>navigate(`/Signup`)}
+                />
+                
                 </Grid>
             </Grid>
               <Copyright sx={{ mt: 5 }} />

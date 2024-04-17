@@ -1,6 +1,5 @@
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
@@ -13,6 +12,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Typewriter from 'typewriter-effect';
 import { useNavigate } from 'react-router-dom';
 
+//utitlites
+import MyButton from '../utils/MyButton';
 
 function Copyright(props: any) {
   return (
@@ -103,9 +104,9 @@ export default function SignUp() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Sign in
+              Sign Up
             </Typography>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            <Box component="form"  onSubmit={handleSubmit} sx={{ mt: 1 }}>
               <TextField
                 margin="normal"
                 required
@@ -150,22 +151,21 @@ export default function SignUp() {
               />
             <Grid container justifyContent="flex-end" alignItems="center" spacing={1} position="relative" right="170px">
                 <Grid item>
-                <Button
-                    type="submit"
-                    variant="contained"
-                    sx={{ mt: 3, mb: 2 }}
-                >
-                    Sign Up
-                </Button>
+
+                  <MyButton
+                  label='Register'
+                  variant='contained'
+                  type='submit'
+                  />
+
                 </Grid>
                 <Grid item>
-                <Button
-                    variant="outlined"
-                    sx={{ mt: 3, mb: 2 }}
-                    onClick={()=>navigate(`/`)}
-                >
-                    Back To
-                </Button>
+
+                <MyButton
+                label="SIGN IN"
+                onClick={()=>navigate(`/signin`)}
+                variant='outlined'/>
+
                 </Grid>
             </Grid>
               <Copyright sx={{ mt: 5 }} />
