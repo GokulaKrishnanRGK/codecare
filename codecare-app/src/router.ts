@@ -3,6 +3,9 @@ import SignIn from './pages/SignIn.tsx';
 import SignUp from './pages/SignUp.tsx';
 import HomePage from './pages/HomePage.tsx';
 import App from './App.tsx';
+import Events from "./pages/Events.tsx";
+import Event from "./pages/Event.tsx";
+import CreateEvent from "./pages/CreateEvent.tsx";
 
 
 const router = createBrowserRouter([
@@ -24,9 +27,31 @@ const router = createBrowserRouter([
             Component:SignIn
 
         }
+        ]
+    },
+    {
+        path: '/events',
+        Component: App,
+        children: [
+            {
+                Component: Events,
+                index: true
+            },
+            {
+                path: '/events/:id',
+                Component: Event
+            },
+            {
+                path: '/events/create',
+                Component: CreateEvent
+            },
+            {
+                path: '/events/:id/edit',
+                Component: Event
+            }
+        ]
+    },
 
-    ]
-    }
 ]);
 
 export default router;

@@ -8,7 +8,7 @@ i18n.use(HttpApi)
     .init({
         lng: 'en',
         fallbackLng: 'en',
-        ns: ['common'],
+        ns: ['common','events'],
         backend: {
             loadPath: '/i18n/{{lng}}/{{ns}}.json'
         },

@@ -55,7 +55,7 @@ export default function Header(props: HeaderProps) {
 <Toolbar
   component="nav"
   variant="dense"
-  sx={{ justifyContent: 'space-between', overflowX: 'auto' }}
+  sx={{ overflowX: 'auto', gap: 2}}
 >
   {sections.map((section) => (
     <Link
@@ -64,7 +64,7 @@ export default function Header(props: HeaderProps) {
       key={section.title}
       variant="body2"
       onClick={()=>{ return navigate(section.url)}}
-      sx={{ p: 1, flexShrink: 0 }}
+      sx={{ p: 1, flexShrink: 0, cursor: 'pointer' }}
     >
       {section.title}
     </Link>

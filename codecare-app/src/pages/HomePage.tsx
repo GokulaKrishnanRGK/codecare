@@ -16,6 +16,7 @@ import { Zoom } from 'react-awesome-reveal';
 
 const sections = [
   { title: 'About CodeCare', url: `/signin` },
+  { title: 'Events', url: `/events` },
   { title: 'Contact us', url: `/signin` }
 ];
 
@@ -78,10 +79,7 @@ const defaultTheme =  createTheme({
 
 export default function HomePage() {
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <CssBaseline />
-      <Container maxWidth="lg">
-        <Header title="CodeCare" sections={sections} />
+      <>
         <main>
           <MainFeaturedPost post={mainFeaturedPost} />
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
@@ -99,11 +97,6 @@ export default function HomePage() {
                 </div>
             </div>
         </main>
-      </Container>
-      <Footer
-        title="Footer"
-        description="Something here to give the footer a purpose!"
-      />
-    </ThemeProvider>
+    </>
   );
 }
