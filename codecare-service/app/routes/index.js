@@ -6,6 +6,7 @@ import {Roles} from "../entities/roles-enum.js";
 import authRoute from "./auth-route.js";
 import profileRoute from "./profile-route.js";
 import medicalDiagnosisRoute from "./medical-diagnosis-route.js"
+import donationRoute from "./donation-route.js";
 
 const initializeRoutes = (app) => {
     app.use('/api/public', publicRoute);
@@ -14,6 +15,7 @@ const initializeRoutes = (app) => {
     app.use('/api/events', eventRoute);
     app.use('/api/profiles',profileRoute);
     app.use('/api/profiles/medical-diagnoses',medicalDiagnosisRoute);
+    app.use('/api/donations', donationRoute);
 }
 
 export default initializeRoutes;

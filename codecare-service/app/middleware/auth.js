@@ -26,8 +26,9 @@ const auth = (roles) => async (request, response, next) => {
         }
         if (roles.length && !roles.includes(login.role.name)) {
             setErrorCode(StatusCodes.FORBIDDEN, response);
+            return;
         }
-        request.user = login;
+        request.user = login.user;
         request.token = token;
         next();
     } catch (error) {

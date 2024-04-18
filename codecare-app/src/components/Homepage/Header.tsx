@@ -51,6 +51,12 @@ export default function Header(props: HeaderProps) {
     variant="outlined"
     sx={{ marginLeft: 1 }} // Add margin to the left of the button
   />
+  <MyButton
+      label="Donate"
+      onClick={() => navigate(`/donate`)}
+      variant="outlined"
+      sx={{ marginLeft: 1 }} // Add margin to the left of the button
+  />
 </Toolbar>
 <Toolbar
   component="nav"

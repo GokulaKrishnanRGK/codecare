@@ -6,6 +6,9 @@ import App from './App.tsx';
 import Events from "./pages/Events.tsx";
 import Event from "./pages/Event.tsx";
 import CreateEvent from "./pages/CreateEvent.tsx";
+import Donate from "./pages/donate/Donate.tsx";
+import Success from "./pages/donate/Success.tsx";
+import Cancel from "./pages/donate/Cancel.tsx";
 
 
 const router = createBrowserRouter([
@@ -51,7 +54,18 @@ const router = createBrowserRouter([
             }
         ]
     },
-
+    {
+        path: '/donate',
+        Component: Donate,
+    },
+    {
+        path: '/donate/success',
+        Component: Success
+    },
+    {
+        path: '/donate/cancel',
+        Component: Cancel
+    }
 ]);
 
 export default router;
