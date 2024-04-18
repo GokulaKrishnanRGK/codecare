@@ -36,11 +36,7 @@ export const searchByUserId = async (userId) => {
         
     ]).exec();
 
-    if (result.length === 0) {
-        console.log("No profiles found for the given parameters:", params);
-        return null; // Or return a more informative message or object
-    }
-    return result[0];
+    return result || null;
 };
 
 export const save = async (profileData) => {
@@ -59,6 +55,7 @@ export const remove = async (userId) => {
 };
 
 export const get = async (userId) => {
+    
     const objectId = new mongoose.Types.ObjectId(userId);  // Convert userId to ObjectId
     return await Profile.findOne({ user: objectId });
 };

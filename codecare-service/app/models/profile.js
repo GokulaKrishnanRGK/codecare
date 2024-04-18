@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import schemaConfig from "./schema-config.js";
+import {Sexes} from "../entities/sex-enum.js";
 
 
 //vaccination Schema
@@ -29,7 +30,7 @@ const profileSchema = new mongoose.Schema({
     sex: {
         type: String,
         required: true,
-        enum: ['Male', 'Female', 'Other']
+        enum: [Sexes.MALE, Sexes.FEMALE, Sexes.OTHER]
     },
     vaccinations: [vaccinationSchema],
 }, schemaConfig);

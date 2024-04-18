@@ -17,6 +17,11 @@ export const remove = async (userId) => {
     return await MedicalDiagnosis.findByIdAndDelete(objectId);
 };
 
+export const get = async (id) => {
+    const objectId = new mongoose.Types.ObjectId(id);
+    return await MedicalDiagnosis.findById(objectId);
+};
+
 
 export const search = async (userId) => {
     const objectId = new mongoose.Types.ObjectId(userId);  // Convert string to ObjectId
@@ -51,7 +56,7 @@ export const search = async (userId) => {
         }
     ]).exec();  
     
-    return result[0] || null;  // Return the first result or null if no entries
+    return result || null;  
 
 };
 
