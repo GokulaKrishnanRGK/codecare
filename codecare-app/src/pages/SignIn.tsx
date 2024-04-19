@@ -44,8 +44,8 @@ const options={
 
 
 const backgroundTemplate={
-    backgroundImage: 'url(https://source.unsplash.com/random?wallpapers)',
-    backgroundRepeat: 'no-repeat',
+    // backgroundImage: 'url(https://source.unsplash.com/random?wallpapers)',
+    // backgroundRepeat: 'no-repeat',
     backgroundColor: (t:any) =>
     t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
     backgroundSize: 'cover',
@@ -56,7 +56,6 @@ const backgroundTemplate={
     height: '100%', // Make sure the Grid item takes full height
 }
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function SignIn() {
@@ -93,7 +92,7 @@ export default function SignIn() {
             md={7}
             sx={{...backgroundTemplate}}
             >
-            <Box sx={{ color: 'white' }}>
+            <Box sx={{ color: 'black' }}>
                 <Typography variant="h1">
                 <Typewriter
                         options={{...options}}
