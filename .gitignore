@@ -298,3 +298,4 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,react,node,intellij
+/codecare-app/dev-dist/
