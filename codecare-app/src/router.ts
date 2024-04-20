@@ -9,6 +9,7 @@ import CreateEvent from "./pages/CreateEvent.tsx";
 import Donate from "./pages/donate/Donate.tsx";
 import Success from "./pages/donate/Success.tsx";
 import Cancel from "./pages/donate/Cancel.tsx";
+import Forbidden from "./components/Auth/Forbidden.tsx";
 
 
 const router = createBrowserRouter([
@@ -56,15 +57,25 @@ const router = createBrowserRouter([
     },
     {
         path: '/donate',
-        Component: Donate,
+        Component: App,
+        children: [
+            {
+                Component: Donate,
+                index: true
+            },
+            {
+                path: '/donate/success',
+                Component: Success
+            },
+            {
+                path: '/donate/cancel',
+                Component: Cancel
+            }
+        ]
     },
     {
-        path: '/donate/success',
-        Component: Success
-    },
-    {
-        path: '/donate/cancel',
-        Component: Cancel
+        path: '/forbidden',
+        Component: Forbidden
     }
 ]);
 

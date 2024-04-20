@@ -1,12 +1,14 @@
 import React, {useState} from 'react';
 import Event from '../models/Event.ts';
-import { FormLabel, OutlinedInput} from "@mui/material";
+import {FormLabel, OutlinedInput} from "@mui/material";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import * as eventService from '../services/event-service.ts'
+import AuthGuard from "../components/Auth/AuthGuard.tsx";
+import Roles from "../models/Roles.ts";
 
 const initialEventState: Event = {
     type: '',
@@ -51,173 +53,175 @@ const CreateEvent = () => {
     };
 
     return (
-        <div>
-            <form onSubmit={handleSubmit}>
-                <Stack spacing={2}>
-                    <div>
+        <AuthGuard allowedRoles={[Roles.ADMIN]}>
+            <div>
+                <form onSubmit={handleSubmit}>
+                    <Stack spacing={2}>
                         <div>
-                            <FormLabel htmlFor="title" required>
-                            Title
-                            </FormLabel>
+                            <div>
+                                <FormLabel htmlFor="title" required>
+                                Title
+                                </FormLabel>
+                            </div>
+                            <div>
+                                <OutlinedInput
+                                    id="title"
+                                    name="title"
+                                    type="text"
+                                    placeholder="Title"
+                                    required
+                                />
+                            </div>
                         </div>
                         <div>
-                            <OutlinedInput
-                                id="title"
-                                name="title"
-                                type="text"
-                                placeholder="Title"
-                                required
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            <FormLabel htmlFor="description" required>
-                                Description
-                            </FormLabel>
-                        </div>
-                        <div>
-                            <OutlinedInput
-                                id="description"
-                                name="description"
-                                type="text"
-                                placeholder="Description"
-                                multiline={true}
-                                rows={6}
-                                required
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            <FormLabel htmlFor="organizer" required>
-                                Name of the Organizer
-                            </FormLabel>
+                            <div>
+                                <FormLabel htmlFor="description" required>
+                                    Description
+                                </FormLabel>
+                            </div>
+                            <div>
+                                <OutlinedInput
+                                    id="description"
+                                    name="description"
+                                    type="text"
+                                    placeholder="Description"
+                                    multiline={true}
+                                    rows={6}
+                                    required
+                                />
+                            </div>
                         </div>
                         <div>
-                            <OutlinedInput
-                                id="organizer"
-                                name="organizer"
-                                type="text"
-                                placeholder="Organizer"
-                                required
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            <FormLabel htmlFor="type" required>
-                                Event Type
-                            </FormLabel>
-                        </div>
-                        <div>
-                            <OutlinedInput
-                                id="type"
-                                name="type"
-                                type="text"
-                                placeholder="Type"
-                                required
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            <FormLabel required>
-                                Date
-                            </FormLabel>
+                            <div>
+                                <FormLabel htmlFor="organizer" required>
+                                    Name of the Organizer
+                                </FormLabel>
+                            </div>
+                            <div>
+                                <OutlinedInput
+                                    id="organizer"
+                                    name="organizer"
+                                    type="text"
+                                    placeholder="Organizer"
+                                    required
+                                />
+                            </div>
                         </div>
                         <div>
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DateTimePicker name="date" label="Event Date"/>
-                            </LocalizationProvider>
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            <FormLabel htmlFor="address" required>
-                                Address
-                            </FormLabel>
-                        </div>
-                        <div>
-                            <OutlinedInput
-                                id="address"
-                                name="address"
-                                type="text"
-                                placeholder="Address"
-                                required
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            <FormLabel htmlFor="city" required>
-                                City
-                            </FormLabel>
+                            <div>
+                                <FormLabel htmlFor="type" required>
+                                    Event Type
+                                </FormLabel>
+                            </div>
+                            <div>
+                                <OutlinedInput
+                                    id="type"
+                                    name="type"
+                                    type="text"
+                                    placeholder="Type"
+                                    required
+                                />
+                            </div>
                         </div>
                         <div>
-                            <OutlinedInput
-                                id="city"
-                                name="city"
-                                type="text"
-                                placeholder="City"
-                                required
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            <FormLabel htmlFor="state" required>
-                                State
-                            </FormLabel>
+                            <div>
+                                <FormLabel required>
+                                    Date
+                                </FormLabel>
+                            </div>
+                            <div>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DateTimePicker name="date" label="Event Date"/>
+                                </LocalizationProvider>
+                            </div>
                         </div>
                         <div>
-                            <OutlinedInput
-                                id="state"
-                                name="state"
-                                type="text"
-                                placeholder="State"
-                                required
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            <FormLabel htmlFor="postalCode" required>
-                                Postal Code
-                            </FormLabel>
-                        </div>
-                        <div>
-                            <OutlinedInput
-                                id="postalCode"
-                                name="postalCode"
-                                type="text"
-                                placeholder="Postal Code"
-                                required
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <div>
-                            <FormLabel htmlFor="contactInfo" required>
-                                Contact
-                            </FormLabel>
+                            <div>
+                                <FormLabel htmlFor="address" required>
+                                    Address
+                                </FormLabel>
+                            </div>
+                            <div>
+                                <OutlinedInput
+                                    id="address"
+                                    name="address"
+                                    type="text"
+                                    placeholder="Address"
+                                    required
+                                />
+                            </div>
                         </div>
                         <div>
-                            <OutlinedInput
-                                id="contactInfo"
-                                name="contactInfo"
-                                type="text"
-                                placeholder="Contact"
-                                required
-                            />
+                            <div>
+                                <FormLabel htmlFor="city" required>
+                                    City
+                                </FormLabel>
+                            </div>
+                            <div>
+                                <OutlinedInput
+                                    id="city"
+                                    name="city"
+                                    type="text"
+                                    placeholder="City"
+                                    required
+                                />
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <Button type="submit" variant="contained" color="primary">Submit</Button>
-                    </div>
-                </Stack>
-            </form>
-        </div>
+                        <div>
+                            <div>
+                                <FormLabel htmlFor="state" required>
+                                    State
+                                </FormLabel>
+                            </div>
+                            <div>
+                                <OutlinedInput
+                                    id="state"
+                                    name="state"
+                                    type="text"
+                                    placeholder="State"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <FormLabel htmlFor="postalCode" required>
+                                    Postal Code
+                                </FormLabel>
+                            </div>
+                            <div>
+                                <OutlinedInput
+                                    id="postalCode"
+                                    name="postalCode"
+                                    type="text"
+                                    placeholder="Postal Code"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <FormLabel htmlFor="contactInfo" required>
+                                    Contact
+                                </FormLabel>
+                            </div>
+                            <div>
+                                <OutlinedInput
+                                    id="contactInfo"
+                                    name="contactInfo"
+                                    type="text"
+                                    placeholder="Contact"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <Button type="submit" variant="contained" color="primary">Submit</Button>
+                        </div>
+                    </Stack>
+                </form>
+            </div>
+        </AuthGuard>
     );
 };
 

@@ -31,7 +31,7 @@ const mainFeaturedPost = {
 
 const featuredPosts = [
   {
-    title: 'Add Feature post',
+    title: 'Add Feature post1',
     date: 'Nov 12',
     description:
       'This is a wider card with supporting text below as a natural lead-in to additional content.',
@@ -40,7 +40,7 @@ const featuredPosts = [
     delay:500
   },
   {
-    title: 'Add Feature post',
+    title: 'Add Feature post2',
     date: 'Nov 11',
     description:
       'This is a wider card with supporting text below as a natural lead-in to additional content.',
@@ -49,7 +49,7 @@ const featuredPosts = [
     delay:500
   },
   {
-    title: 'Add Feature post',
+    title: 'Add Feature post3',
     date: 'Nov 11',
     description:
       'This is a wider card with supporting text below as a natural lead-in to additional content.',
@@ -58,7 +58,7 @@ const featuredPosts = [
     delay:500
   },
   {
-    title: 'Add Feature post',
+    title: 'Add Feature post4',
     date: 'Nov 11',
     description:
       'This is a wider card with supporting text below as a natural lead-in to additional content.',

@@ -48,6 +48,7 @@ export default defineConfig({
           ]
       },
       workbox: {
+        disableDevLogs: true,
         runtimeCaching: [
             {
                 urlPattern: ({ url }) => {

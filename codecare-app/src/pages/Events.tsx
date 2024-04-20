@@ -14,6 +14,9 @@ import CardActions from "@mui/material/CardActions";
 import Button from "@mui/material/Button";
 import {useTranslation} from "react-i18next";
 import * as eventService from "../services/event-service.ts";
+import Roles from "../models/Roles.ts";
+import * as authUtil from '../utils/auth-util.ts'
+import {getUser} from "../store/loginUser-slice.ts";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -74,11 +77,11 @@ function Events() {
     const dispatch = useDispatch<AppDispatch>();
     const events = useSelector(getAll());
     const [searchParams, setSearchParams] = useState({});
-    const { t } = useTranslation('events');
+    const {t} = useTranslation('events');
+    const user = useSelector(getUser());
 
     useEffect(() => {
-            {console.log("Code Care")};
-            searchEvents(searchParams).then((event) => {
+        searchEvents(searchParams).then((event) => {
             dispatch(loadEvents(event));
         });
     }, [searchParams]);
@@ -127,11 +130,17 @@ function Events() {
                             </Select>
                         </FormControl>
                     </div>
-                    <div>
-                        <CardActions>
-                            <Button size="small" variant="contained" onClick={() => navigate(`/events/create`)}>Create</Button>
-                        </CardActions>
-                    </div>
+                    {
+                        authUtil.isUserInRole(user, [Roles.ADMIN]) ?
+                            (<div>
+                                <CardActions>
+                                    <Button size="small" variant="contained"
+                                            onClick={() => navigate(`/events/create`)}>Create</Button>
+                                </CardActions>
+                            </div>)
+                            :
+                            (<></>)
+                    }
                 </div>
                 <Grid container spacing={4}>
                     {events.map((event, index) => (
