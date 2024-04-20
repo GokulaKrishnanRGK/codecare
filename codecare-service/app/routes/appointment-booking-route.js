@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.route('/')
     .get(auth([Roles.ADMIN]),appointmentBookingController.search)
-    .post( appointmentBookingController.createAppointmentBooking);
+    .post( auth([Roles.USER]),appointmentBookingController.createAppointmentBooking);
 
 router.route('/:userId')
     .get(auth([Roles.USER]),appointmentBookingController.searchByUserId);
