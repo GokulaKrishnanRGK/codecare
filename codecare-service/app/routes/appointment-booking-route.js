@@ -17,7 +17,7 @@ router.route('/:doctorId')
 
 router.route('/:id')
     
-    .put(auth([Roles.DOCTOR,Roles.USER])appointmentBookingController.updateById)
+    .put(auth([Roles.DOCTOR,Roles.USER]),appointmentBookingController.updateById)
     .delete( auth([Roles.ADMIN]),appointmentBookingController.deleteById);
 
 export default router;
