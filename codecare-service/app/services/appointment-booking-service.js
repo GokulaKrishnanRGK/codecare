@@ -9,9 +9,6 @@ export const searchAppointmentBookings = async (params = {}) => {
                 $match: params
             },
             {
-                $unwind:'$feedback'
-            },
-            {
                 $lookup:{
                     from:'users',
                     localField:'userId',
