@@ -20,7 +20,6 @@ const sections = [
 
 function App() {
 
-
   return (
     <ThemeProvider theme={defaultTheme}>
         <CssBaseline />

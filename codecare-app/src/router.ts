@@ -1,6 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-import SignIn from './pages/SignIn.tsx';
-import SignUp from './pages/SignUp.tsx';
 import HomePage from './pages/HomePage.tsx';
 import App from './App.tsx';
 import Events from "./pages/Events.tsx";
@@ -10,6 +8,8 @@ import Donate from "./pages/donate/Donate.tsx";
 import Success from "./pages/donate/Success.tsx";
 import Cancel from "./pages/donate/Cancel.tsx";
 import Forbidden from "./components/Auth/Forbidden.tsx";
+import SignInPage from "./pages/auth/SignIn.tsx";
+import SignUpPage from "./pages/auth/SignUp.tsx";
 
 
 const router = createBrowserRouter([
@@ -22,14 +22,13 @@ const router = createBrowserRouter([
                 Component:HomePage
         },
         {
-            path:'/Signup',
-            Component:SignUp
+            path:'/signup',
+            Component:SignUpPage
 
         },
         {
-            path:'/Signin',
-            Component:SignIn
-
+            path:'/signin',
+            Component:SignInPage
         }
         ]
     },
