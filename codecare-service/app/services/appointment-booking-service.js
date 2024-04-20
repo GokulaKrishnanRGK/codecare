@@ -23,7 +23,7 @@ export const searchAppointmentBookings = async (params = {}) => {
                 $lookup:{
                     from:'doctors',
                     localField:'doctorId',
-                    foreignField:'_id',
+                    foreignField:'user',
                     as:'doctor'
                 }
             },
@@ -31,12 +31,36 @@ export const searchAppointmentBookings = async (params = {}) => {
                 $unwind:'$doctor'
             },
             {
+                $lookup:{
+                    from:'users',
+                    localField:'doctor.user',
+                    foreignField:'_id',
+                    as:'doctor.user'
+                }
+            },
+            {
+                $unwind:'$doctor.user'
+            },
+            {
                 $project: {
                     appointmentId: '$_id',
-                    userId: '$user._id',
-                    username: '$user.username',
-                    doctorId: '$doctor._id',
-                    specialization: '$doctor.specialization',
+
+                    user:{
+                        userId: '$user._id',
+                        username: '$user.username',
+                        firstname: '$user.firstname',
+                        lastname: '$user.lastname'
+                        },
+                        doctor:{
+                            doctorId: '$doctor.user._id',
+                            doctorFirstname: '$doctor.user.firstname',
+                            doctorLastname: '$doctor.user.lastname',
+                            specialization: '$doctor.specialization',
+                            roomNo: '$doctor.roomNo',
+                            hospitalName: '$doctor.address.hospitalName',
+                            city:'$doctor.address.city'
+
+                        },
                     appointmentDate: '$appointmentDate',
                     issue: '$issue',
                     medicalDiagnosis: '$feedback.medicalDiagnosis',

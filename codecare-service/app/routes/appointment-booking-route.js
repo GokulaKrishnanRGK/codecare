@@ -9,10 +9,10 @@ router.route('/')
     .get(auth([Roles.ADMIN]),appointmentBookingController.search)
     .post( auth([Roles.USER]),appointmentBookingController.createAppointmentBooking);
 
-router.route('/:userId')
+router.route('/user/:userId')
     .get(auth([Roles.USER]),appointmentBookingController.searchByUserId);
 
-router.route('/:doctorId')
+router.route('/doctor/:doctorId')
     .get(auth([Roles.DOCTOR]),appointmentBookingController.searchByDoctorId);
 
 router.route('/:id')
