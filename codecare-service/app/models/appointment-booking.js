@@ -23,11 +23,13 @@ const appointmentBookingSchema = new mongoose.Schema({
     id: String,
     userId: {
         type: Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref:'User'
     },
     doctorId: {
         type: Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref:'Doctor'
     },
     appointmentDate: {
         type: String,
@@ -41,7 +43,7 @@ const appointmentBookingSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    feedback: [feedbackSchema],
+    feedback: feedbackSchema,
     status: {
         type: String,
         enum: [Status.BOOKED, Status.CANCELLED,Status.COMPLETE],

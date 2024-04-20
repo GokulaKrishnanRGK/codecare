@@ -1,5 +1,15 @@
 import Doctor from './../models/doctor.js';
 
+
+export const searchDoctors = async (params = {}) => {
+    try {
+        const result = await Doctor.find(params).exec();
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const getById = async (id) => {
     return await Doctor.findById(id).exec();
 }

@@ -57,7 +57,7 @@ export const search = async (request, response) => {
 export const searchByUserId = async (request, response) => {
     try {
         const { userId } = request.params;
-        const result = await appointmentBookingService.searchAppointmentBookings({ userId:new mongoose.Schema.Types.ObjectId(userId)});
+        const result = await appointmentBookingService.searchAppointmentBookings({ userId: new mongoose.Types.ObjectId(userId) });
         setSuccessResponse(StatusCodes.OK, result, response);
     } catch (error) {
         console.log(error);
@@ -76,7 +76,7 @@ export const searchByUserId = async (request, response) => {
 export const searchByDoctorId = async (request, response) => {
     try {
         const { doctorId } = request.params;
-        const result = await appointmentBookingService.searchAppointmentBookings({ doctorId:new mongoose.Schema.Types.ObjectId(doctorId) });
+        const result = await appointmentBookingService.searchAppointmentBookings({ doctorId: new mongoose.Types.ObjectId(doctorId) });
         setSuccessResponse(StatusCodes.OK, result, response);
     } catch (error) {
         console.log(error);

@@ -2,6 +2,28 @@ import * as doctorService from '../services/doctor-service.js';
 import { setSuccessResponse, setErrorCode } from '../utils/response-handler.js';
 import { StatusCodes } from "http-status-codes";
 
+
+
+/**
+ * Create a new doctor
+ * @param request
+ * @param response
+ * @returns {Promise<void>}
+ */
+export const createDoctor = async (request, response) => {
+    try {
+        const doctorData = request.body;
+        const result = await doctorService.createDoctor(doctorData);
+        setSuccessResponse(StatusCodes.CREATED, result, response);
+    } catch (error) {
+        console.log(error);
+        setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
+    }
+};
+
+
+
+
 /**
  * Search for doctors based on the provided query parameters
  * Fetches all the doctors if no parameter given
@@ -9,6 +31,7 @@ import { StatusCodes } from "http-status-codes";
  * @param response
  * @returns {Promise<void>}
  */
+
 export const searchDoctors = async (request, response) => {
     try {
         const result = await doctorService.searchDoctors(request.query);
@@ -25,6 +48,8 @@ export const searchDoctors = async (request, response) => {
  * @param response
  * @returns {Promise<void>}
  */
+
+
 export const getDoctor = async (request, response) => {
     try {
         const { id } = request.params;

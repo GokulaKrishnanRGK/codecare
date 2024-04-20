@@ -7,7 +7,7 @@ import authRoute from "./auth-route.js";
 import profileRoute from "./profile-route.js";
 import medicalDiagnosisRoute from "./medical-diagnosis-route.js"
 import donationRoute from "./donation-route.js";
-import apponitmentBookingRoute from './appointment-booking-route.js';
+import appointmentBookingRoute from './appointment-booking-route.js';
 import doctorRoute from "./doctor-route.js";
 
 
@@ -19,7 +19,7 @@ const initializeRoutes = (app) => {
     app.use('/api/profiles',profileRoute);
     app.use('/api/profiles/medical-diagnoses',medicalDiagnosisRoute);
     app.use('/api/donations', donationRoute);
-    app.use('/api/appointment-bookings',apponitmentBookingRoute);
+    app.use('/api/appointment-bookings',appointmentBookingRoute);
     app.use('/api/doctor',doctorRoute);
 }
 
