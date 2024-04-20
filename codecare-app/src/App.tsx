@@ -14,7 +14,8 @@ const defaultTheme =  createTheme({
 const sections = [
     { title: 'Home', url: `/` },
     { title: 'Events', url: `/events` },
-    { title: 'Contact us', url: `/signin` }
+    { title: 'Contact us', url: `/signin` },
+    { title: 'Appointments', url: `/appointments`}
 ];
 
 function App() {
