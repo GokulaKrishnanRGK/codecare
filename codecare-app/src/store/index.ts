@@ -4,6 +4,7 @@ import {eventSlice} from "./event-slice.ts";
 import {noteSlice} from "./noteSlice.ts";
 import {profileSlice} from "./ProfileSlice.ts"
 import {usersSlice} from "./users-slice.ts";
+import { appointmentSlice } from "./appointment-slice.ts";
 
 export const store = configureStore({
     reducer: {
@@ -12,6 +13,8 @@ export const store = configureStore({
         [noteSlice.name] : noteSlice.reducer,
         [profileSlice.name] : profileSlice.reducer,
         [usersSlice.name] : usersSlice.reducer,
+        [eventSlice.name] : eventSlice.reducer,
+        [appointmentSlice.name]: appointmentSlice.reducer
     }
 });
 

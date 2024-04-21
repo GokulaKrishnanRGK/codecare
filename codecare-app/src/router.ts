@@ -15,6 +15,7 @@ import SignedInPage from "./pages/auth/SignedIn.tsx";
 import SignedOutPage from "./pages/auth/SignedOut.tsx";
 import NotesPage from "./pages/NotePage.tsx";
 import ListUsers from "./pages/admin/ListUsers.tsx";
+import Appointment from "./pages/appointment/Appointments.tsx";
 
 
 const router = createBrowserRouter([
@@ -74,6 +75,16 @@ const router = createBrowserRouter([
             }
         ]
     },
+    {
+    path: '/appointments',
+    Component: App,
+    children: [
+        {
+            Component: Appointment,
+            index: true
+        }
+    ]
+},
     {
         path: '/donate',
         Component: App,

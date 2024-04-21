@@ -1,10 +1,11 @@
-import mongoose,{Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import schemaConfig from "./schema-config.js";
 import { Status } from "../entities/status-enum.js";
+import { Issues } from "../entities/issues-enum.js";
 
 // Define the Feedback schema
 const feedbackSchema = new mongoose.Schema({
-    id:String,
+    id: String,
     medicalDiagnosis: {
         type: String
     },
@@ -18,18 +19,31 @@ function isValidDate(date) {
     return /^\d{2}\/\d{2}\/\d{4}$/.test(date);
 }
 
+// Custom validation function for time format hh-mm with digits
+function isValidTime(time) {
+    return /^\d{2}:\d{2}$/.test(time);
+}
+
+// Function to add minutes to a time string
+function addMinutes(time, minutes) {
+    const [hours, mins] = time.split(':').map(Number);
+    const date = new Date(0, 0, 0, hours, mins);
+    date.setMinutes(date.getMinutes() + minutes);
+    return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+}
+
 // Define the appointmentBooking schema
 const appointmentBookingSchema = new mongoose.Schema({
     id: String,
     userId: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref:'User'
+        ref: 'User'
     },
     doctorId: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref:'Doctor'
+        ref: 'Doctor'
     },
     appointmentDate: {
         type: String,
@@ -39,20 +53,37 @@ const appointmentBookingSchema = new mongoose.Schema({
             message: "Invalid date format. Use MM/DD/YYYY format."
         }
     },
-    issue: {
+    appointmentStartTime: {
         type: String,
+        required: true,
+        validate: {
+            validator: isValidTime,
+            message: "Invalid time format. Use hh-mm format with digits only."
+        }
+    },
+    appointmentEndTime: {
+        type: String,
+        required: true,
+        validate: {
+            validator: isValidTime,
+            message: "Invalid time format. Use hh-mm format with digits only."
+        },
+        default: function () {
+            return addMinutes(this.appointmentStartTime, 30);
+        }
+    },
+    issue: {
+        type: Object.values(Issues),
         required: true
     },
     feedback: feedbackSchema,
     status: {
         type: String,
-        enum: [Status.BOOKED, Status.CANCELLED,Status.COMPLETE],
+        enum: [Status.BOOKED, Status.CANCELLED, Status.COMPLETE],
         default: Status.BOOKED
     }
 
 }, schemaConfig);
 
-
-
-const AppointmentBooking= mongoose.model('appointmentBooking', appointmentBookingSchema);
+const AppointmentBooking = mongoose.model('appointmentBooking', appointmentBookingSchema);
 export default AppointmentBooking;

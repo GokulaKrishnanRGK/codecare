@@ -60,6 +60,8 @@ export const searchAppointmentBookings = async (params = {}) => {
 
                         },
                     appointmentDate: '$appointmentDate',
+                    appointmentStartTime:'$appointmentStartTime',
+                    appointmentEndTime:'$appointmentEndTime',
                     issue: '$issue',
                     medicalDiagnosis: '$feedback.medicalDiagnosis',
                     prescription: '$feedback.prescription',

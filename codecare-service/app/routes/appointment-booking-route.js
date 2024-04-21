@@ -5,15 +5,13 @@ import {Roles} from "../entities/roles-enum.js";
 
 const router = express.Router();
 
-router.route('/')
+router.route('/admin')
     .get(auth([Roles.ADMIN]),appointmentBookingController.search)
+    
+
+router.route('/')
+    .get(auth([Roles.USER, Roles.DOCTOR]),appointmentBookingController.searchByUserId)
     .post( auth([Roles.USER]),appointmentBookingController.createAppointmentBooking);
-
-router.route('/user/:userId')
-    .get(auth([Roles.USER]),appointmentBookingController.searchByUserId);
-
-router.route('/doctor/:doctorId')
-    .get(auth([Roles.DOCTOR]),appointmentBookingController.searchByDoctorId);
 
 router.route('/:id')
     

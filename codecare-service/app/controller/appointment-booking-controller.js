@@ -1,3 +1,4 @@
+import { Roles } from '../entities/roles-enum.js';
 import * as appointmentBookingService from '../services/appointment-booking-service.js';
 import { setSuccessResponse, setErrorCode } from '../utils/response-handler.js';
 import { StatusCodes } from "http-status-codes";
@@ -56,8 +57,15 @@ export const search = async (request, response) => {
 
 export const searchByUserId = async (request, response) => {
     try {
-        const { userId } = request.params;
-        const result = await appointmentBookingService.searchAppointmentBookings({ userId: new mongoose.Types.ObjectId(userId) });
+        const userId = new mongoose.Types.ObjectId(request.user._id);
+        const role = request.user.role;
+        const query = {};
+        if(role === Roles.USER){
+            query.userId = userId;
+        } else if(role === Roles.DOCTOR){
+            query.doctorId = userId;
+        }
+        const result = await appointmentBookingService.searchAppointmentBookings(query);
         setSuccessResponse(StatusCodes.OK, result, response);
     } catch (error) {
         console.log(error);
@@ -73,16 +81,16 @@ export const searchByUserId = async (request, response) => {
  */
 
 
-export const searchByDoctorId = async (request, response) => {
-    try {
-        const { doctorId } = request.params;
-        const result = await appointmentBookingService.searchAppointmentBookings({ doctorId: new mongoose.Types.ObjectId(doctorId) });
-        setSuccessResponse(StatusCodes.OK, result, response);
-    } catch (error) {
-        console.log(error);
-        setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
-    }
-};
+// export const searchByDoctorId = async (request, response) => {
+//     try {
+//         const { doctorId } = request.params;
+//         const result = await appointmentBookingService.searchAppointmentBookings({ doctorId: new mongoose.Types.ObjectId(doctorId) });
+//         setSuccessResponse(StatusCodes.OK, result, response);
+//     } catch (error) {
+//         console.log(error);
+//         setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
+//     }
+// };
 
 /**
  * Delete an appointment booking by its ID
