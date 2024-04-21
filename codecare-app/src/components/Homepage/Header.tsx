@@ -42,7 +42,7 @@ export default function Header(props: HeaderProps) {
                     </Fade>
                 </Typography>
                 <SignedIn>
-                    <UserButton afterSignOutUrl='/signin'/>
+                    <UserButton afterSignOutUrl='/signedOut'/>
                 </SignedIn>
                 <SignedOut>
                     <Link href="/signin">Sign In</Link>

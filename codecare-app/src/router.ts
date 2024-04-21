@@ -10,6 +10,9 @@ import Cancel from "./pages/donate/Cancel.tsx";
 import Forbidden from "./components/Auth/Forbidden.tsx";
 import SignInPage from "./pages/auth/SignIn.tsx";
 import SignUpPage from "./pages/auth/SignUp.tsx";
+import SignedUpPage from "./pages/auth/SignedUp.tsx";
+import SignedInPage from "./pages/auth/SignedIn.tsx";
+import SignedOutPage from "./pages/auth/SignedOut.tsx";
 
 
 const router = createBrowserRouter([
@@ -22,13 +25,24 @@ const router = createBrowserRouter([
                 Component:HomePage
         },
         {
-            path:'/signup',
+            path:'/signup/*',
             Component:SignUpPage
 
         },
         {
-            path:'/signin',
+            path:'/signin/*',
             Component:SignInPage
+        },
+        {
+            path: '/signedUp',
+            Component: SignedUpPage
+        },
+        {
+            path: '/signedIn',
+            Component: SignedInPage
+        },{
+            path: '/signedOut',
+            Component: SignedOutPage
         }
         ]
     },
