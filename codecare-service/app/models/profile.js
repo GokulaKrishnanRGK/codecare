@@ -18,6 +18,10 @@ const vaccinationSchema = new mongoose.Schema({
 
 const profileSchema = new mongoose.Schema({
     id: String,
+    name:{
+        type: String,
+        required: true
+        }
     user:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

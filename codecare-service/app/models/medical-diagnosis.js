@@ -17,7 +17,7 @@ const medicalDiagnosisSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    dateOfDiagnosis: {
+    dateOfTreatment: {
         type: Date,
         required: false
     },

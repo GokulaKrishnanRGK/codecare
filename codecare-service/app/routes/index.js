@@ -17,7 +17,7 @@ const initializeRoutes = (app) => {
     app.use('/api/user', auth([Roles.ADMIN]), userRoute);
     app.use('/api/events', eventRoute);
     app.use('/api/profiles',profileRoute);
-    app.use('/api/profiles/medical-diagnoses',medicalDiagnosisRoute);
+    app.use('/api/medical-diagnoses',medicalDiagnosisRoute);
     app.use('/api/donations', donationRoute);
     app.use('/api/appointment-bookings',appointmentBookingRoute);
     app.use('/api/doctor',doctorRoute);

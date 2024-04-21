@@ -15,7 +15,8 @@ const sections = [
     { title: 'Home', url: `/` },
     { title: 'Events', url: `/events` },
     { title: 'Contact us', url: `/signin` },
-    { title: 'Appointments', url: `/appointments`}
+    { title: 'Appointments', url: `/appointments`},
+    { title: 'Medical Diagnosis', url: `/medical-diagnoses`}
 ];
 
 function App() {

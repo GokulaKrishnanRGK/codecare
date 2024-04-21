@@ -13,6 +13,7 @@ import SignUpPage from "./pages/auth/SignUp.tsx";
 import SignedUpPage from "./pages/auth/SignedUp.tsx";
 import SignedInPage from "./pages/auth/SignedIn.tsx";
 import SignedOutPage from "./pages/auth/SignedOut.tsx";
+import NotesPage from "./pages/NotePage.tsx";
 
 
 const router = createBrowserRouter([
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
         },{
             path: '/signedOut',
             Component: SignedOutPage
+        },
+        {
+            path: '/medical-diagnoses',
+            Component: NotesPage
         }
         ]
     },

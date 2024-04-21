@@ -43,15 +43,17 @@ export const search = async (userId) => {
         },
         {
             $project: {
-                _id: 1,  // Include diagnosis fields
+                id: "$_id",  // Include diagnosis fields
                 diagnosis: 1,
-                dateOfDiagnosis: 1,
+                dateOfTreatment: 1,
                 treatment: 1,
                 user: {  // Project the user details
-                    _id: "$user._id",
+                    id: "$user._id",
                     username: "$user.username",
-                    fullname: { $concat: ["$user.firstname", " ", "$user.lastname"] }
-                }
+                    fullname: { $concat: ["$user.firstname", " ", "$user.lastname"] },
+                    _id: 1
+                },
+                _id: 1
             }
         }
     ]).exec();  
