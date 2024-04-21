@@ -8,7 +8,4 @@ const router = express.Router();
 router.route('/logout')
     .get(auth([Roles.ADMIN, Roles.DOCTOR, Roles.USER]), authController.logout);
 
-router.route('/test')
-    .get(authController.test);
-
 export default router;

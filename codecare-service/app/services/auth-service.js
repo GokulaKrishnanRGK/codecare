@@ -1,6 +1,4 @@
 import Login from '../models/login.js';
-import bcrypt from "bcrypt";
-import * as userService from "./user-service.js";
 
 export const save = async (login) => {
     const loginModel = new Login(login);
@@ -52,7 +50,7 @@ export const search = async (params) => {
                     description: "$role.description",
                     _id: 1
                 },
-                tokens: "$token",
+                tokens: "$tokens",
                 _id: 1
             }
         }
@@ -68,17 +66,13 @@ export const findByUsername = async (username) => {
     return await Login.find(query).exec();
 }
 
-export const findByCredentials = async (username, password) => {
+export const findByCredentials = async (username) => {
     try {
         const login = await Login.findOne({username: username});
-        if (!login) {
-            throw new Error("UserNotFound!");
+        if (login) {
+            return login;
         }
-        const isMatch = await bcrypt.compare(password, login.password);
-        if (!isMatch) {
-            throw new Error("PasswordIsWrong!");
-        }
-        return login;
+        return null;
     } catch (error) {
         throw new Error(error.message);
     }

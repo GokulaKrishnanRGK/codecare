@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import * as authService from "../services/auth-service.js";
 import mongoose from "mongoose";
-import {setErrorCode, setResponseCode} from "../utils/response-handler.js";
+import {setErrorCode} from "../utils/response-handler.js";
 import {
     StatusCodes,
 } from 'http-status-codes';
@@ -18,7 +18,7 @@ const auth = (roles) => async (request, response, next) => {
         const decoded = jwt.verify(token, secretKey);
         const login = await authService.search({
             _id: new mongoose.Types.ObjectId(decoded._id),
-            "tokens.token": token,
+            "tokens": token,
         });
         if (!login) {
             setErrorCode(StatusCodes.UNAUTHORIZED, response);
@@ -29,6 +29,7 @@ const auth = (roles) => async (request, response, next) => {
             return;
         }
         request.user = login.user;
+        request.user.role = login.role.name;
         request.token = token;
         next();
     } catch (error) {
