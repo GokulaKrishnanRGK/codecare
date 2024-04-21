@@ -123,7 +123,7 @@ function Events() {
                                 label="eventStatus"
                                 onChange={handleChange}
                              >
-                                <MenuItem>{t('filter.status.all')}</MenuItem>
+                                <MenuItem value={Status.ALL}>{t('filter.status.all')}</MenuItem>
                                 <MenuItem value={Status.UPCOMING}>{t('filter.status.upcoming')}</MenuItem>
                                 <MenuItem value={Status.COMPLETE}>{t('filter.status.past')}</MenuItem>
                                 <MenuItem value={Status.CANCELLED}>{t('filter.status.cancelled')}</MenuItem>
