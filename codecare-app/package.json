@@ -23,6 +23,7 @@
     "@reduxjs/toolkit": "^2.2.3",
     "axios": "^1.6.8",
     "dayjs": "^1.11.10",
+    "html2pdf.js": "^0.10.1",
     "dotenv": "^16.4.5",
     "i18next": "^23.11.2",
     "i18next-http-backend": "^2.5.0",

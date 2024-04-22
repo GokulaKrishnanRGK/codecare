@@ -84,6 +84,19 @@ export default function ListUsers() {
         setOpen(false);
     };
 
+    const style = {
+        position: 'absolute' as 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 400,
+        bgcolor: 'background.paper',
+        border: '2px solid #000',
+        boxShadow: 24,
+        p: 4,
+      };
+
+      
     const handleRoleChange = (event) => {
         setRole(event.target.value);
         if (event.target.value !== Roles.DOCTOR) {
@@ -142,7 +155,7 @@ export default function ListUsers() {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>Username</TableCell>
+                                <TableCell align='center'>Username</TableCell>
                                 <TableCell align="right">Firstname</TableCell>
                                 <TableCell align="right">Lastname</TableCell>
                                 <TableCell align="right">Role</TableCell>
@@ -152,7 +165,7 @@ export default function ListUsers() {
                         <TableBody>
                             {users.map(user => (
                                 <TableRow key={user.id}>
-                                    <TableCell align="right">{user.username}</TableCell>
+                                    <TableCell align="center">{user.username}</TableCell>
                                     <TableCell align="right">{user.firstname}</TableCell>
                                     <TableCell align="right">{user.lastname}</TableCell>
                                     <TableCell align="right">{user.role}</TableCell>
@@ -168,8 +181,11 @@ export default function ListUsers() {
                         </TableBody>
                     </Table>
                 </TableContainer>
+
+
+
                 <Modal open={open} onClose={closeEditModal}>
-                    <Box className="modal" sx={{p: 4}}>
+                    <Box className="modal" sx={style}>
                         <Typography variant="h6" sx={{mb: 2}}>Edit User</Typography>
                         <FormControl fullWidth sx={{mb: 2}}>
                             <InputLabel>Role</InputLabel>
@@ -190,6 +206,7 @@ export default function ListUsers() {
                                     }}
                                     renderInput={(params) => <TextField {...params} label="Specialization"/>}
                                 />
+                                <br/>
                                 <TextField fullWidth label="Room No" value={doctorDetails.roomNo} name="roomNo"
                                            onChange={handleChange} sx={{mb: 2}}/>
                                 <TextField fullWidth label="Hospital Name" value={doctorDetails.hospitalName}

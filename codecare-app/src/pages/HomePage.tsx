@@ -1,94 +1,103 @@
-import CssBaseline from '@mui/material/CssBaseline';
-import Grid from '@mui/material/Grid';
-import Container from '@mui/material/Container';
 
-import {createTheme, ThemeProvider } from '@mui/material/styles';
-import Header from '../components/Homepage/Header.tsx';
+import { Box } from '@mui/material';
+import { useEffect,useState } from 'react';
 import MainFeaturedPost from '../components/Homepage/MainFeaturedPost.tsx';
-import FeaturedPost from '../components/Homepage/FeaturedPost.tsx';
 import Footer from '../components/Homepage/Footer.tsx';
+import Slider from "react-slick";
 
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import { searchEvents } from '../services/event-service.ts';
+import { useNavigate } from 'react-router-dom';
+import { getAll, loadEvents } from '../store/event-slice.ts';
+import { AppDispatch } from '../store';
+import { useDispatch, useSelector } from 'react-redux';
+import MyButton from '../utils/MyButton.tsx';
 
 
 
 
 const mainFeaturedPost = {
-  title: 'Title of a longer featured blog post',
+  title: 'Empowering Health: Your Communitys Compassionate Care Portal',
   description:
-"    Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus reprehenderit ut harum. Omnis, quae odit. Eveniet sed facere nesciunt a sit eligendi ducimus repudiandae aliquid, officia corporis, optio ratione deserunt.",
-  image: 'https://source.unsplash.com/random?wallpapers',
-  imageText: 'main image description',
-  linkText: 'Continue reading…',
+"   Welcome to CodeCare, your trusted healthcare companion. We are committed to providing accessible and compassionate healthcare solutions for everyone. Our platform connects patients with dedicated professionals, offering a range of services tailored to your needs. Together, we strive to create a healthier community, one person at a time.",
 };
 
-const featuredPosts = [
-  {
-    title: 'Add Feature post1',
-    date: 'Nov 12',
-    description:
-      'This is a wider card with supporting text below as a natural lead-in to additional content.',
-    image: 'https://source.unsplash.com/random?wallpapers',
-    imageLabel: 'Image Text',
-    delay:500
-  },
-  {
-    title: 'Add Feature post2',
-    date: 'Nov 11',
-    description:
-      'This is a wider card with supporting text below as a natural lead-in to additional content.',
-    image: 'https://source.unsplash.com/random?wallpapers',
-    imageLabel: 'Image Text',
-    delay:500
-  },
-  {
-    title: 'Add Feature post3',
-    date: 'Nov 11',
-    description:
-      'This is a wider card with supporting text below as a natural lead-in to additional content.',
-    image: 'https://source.unsplash.com/random?wallpapers',
-    imageLabel: 'Image Text',
-    delay:500
-  },
-  {
-    title: 'Add Feature post4',
-    date: 'Nov 11',
-    description:
-      'This is a wider card with supporting text below as a natural lead-in to additional content.',
-    image: 'https://source.unsplash.com/random?wallpapers',
-    imageLabel: 'Image Text',
-    delay:500
-  }
-];
 
-
-
-const defaultTheme =  createTheme({
-  palette: {
-    mode: 'dark',
-  },
-});
+const settings = {
+  dots: true,
+  fade: true,
+  infinite: true,
+  speed: 2000,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  waitForAnimate: false,
+  autoplay: true,
+};
 
 export default function HomePage() {
+
+const navigate = useNavigate();
+const events = useSelector(getAll());
+const dispatch = useDispatch<AppDispatch>();
+const [searchParams, setSearchParams] = useState({});
+
+
+
+
+
+useEffect(() => {
+  searchEvents(searchParams).then((event) => {
+      dispatch(loadEvents(event));
+  });
+}, [searchParams]);
   return (
     <>
       <main>
         <MainFeaturedPost post={mainFeaturedPost} />
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', margin: '0%', padding:'0%'}}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', padding: '0%'}}>
+            <h1>Featured Posts</h1>
+        </Box>
 
-          <h1>Featured Posts</h1>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', position:'relative',left:'100px'}}>
-            <div style={{ textAlign: 'center', width: '100%' }}>
-              <Grid container spacing={4} justifyContent="center">
-                {featuredPosts.map((post) => (
-                  <Grid item xs={12} sm={6} md={6} key={post.title}>
-                    <FeaturedPost post={post} />
-                  </Grid>
-                ))}
-              </Grid>
-            </div>
-          </div>
-        </div>
+        <Box sx={{ maxWidth: '1000px', margin: '0 auto' }}>
+          <Slider {...settings}>
+            {events.map((event) => (
+             <div key={event.id} >
+             <Box
+               sx={{
+                 height: '500px',
+                 display: 'flex',
+                 flexDirection: 'column',
+                 justifyContent: 'center',
+                 alignItems: 'center',
+                 position: 'relative',
+               }}
+             >
+               {/* <Box
+                 sx={{
+                  backgroundImage: `url(https://source.unsplash.com/random?wallpapers)`,
+                  backgroundSize: 'cover',
+                   position: 'absolute',
+                   top: 0,
+                   left: 0,
+                   right: 0,
+                   bottom: '40px', // Adjust this to leave space for the image and description
+                 }}
+               /> */}
+               <h1>{event.title}</h1>
+               <h2>Hosted By: {event.organizer}</h2>
+               <h3>{new Date(event.date).toLocaleString()}</h3>
+               <h3>Location:{event.location.address}, {event.location.city} , {event.location.country}</h3>
+
+               <p>{event.description}</p>
+               <MyButton label='Visit For More Details!!' onClick={()=>navigate(`/events/${event.id}`)}/>
+             </Box>
+           </div>
+           
+            ))}
+          </Slider>
+        </Box>
 
         <div style={{ marginTop: '50px' }}>
           <Footer

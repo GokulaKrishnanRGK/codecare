@@ -118,17 +118,9 @@ export default function Header(props: HeaderProps) {
                     Events
                 </Link>
 
-                <Link
-                    color="inherit"
-                    noWrap
-                    variant="body1"
-                    onClick={() => {
-                        return navigate(`/`)
-                    }}
-                    sx={{ p: 1, flexShrink: 0, cursor: 'pointer' }}
-                >
-                    Contact Us
-                </Link>
+
+
+
 
                 {
                 authUtil.isUserInRole(user, [Roles.USER,Roles.DOCTOR]) ?
@@ -140,12 +132,33 @@ export default function Header(props: HeaderProps) {
                     onClick={() => {
                         return navigate(`/appointments`)
                     }}
-                    sx={{ p: 1, flexShrink: 0, cursor: 'pointer'}} // Push to the right end
+                    sx={{ p: 1, flexShrink: 0, cursor: 'pointer'}}
                 >
-                    Book Appointment
+                     {
+                authUtil.isUserInRole(user, [Roles.USER]) ? (
+
+                    "Book" ):<></>} Appointment
                 </Link>):<></>
 
-}
+            }
+
+
+                {
+                authUtil.isUserInRole(user, [Roles.ADMIN]) ?
+                    (
+                <Link
+                    color="inherit"
+                    noWrap
+                    variant="body1"
+                    onClick={() => {
+                        return navigate(`/admin/users`)
+                    }}
+                    sx={{ p: 1, flexShrink: 0, cursor: 'pointer'}}
+                >
+                    Users
+                </Link>):<></>
+
+                    }
 
                 <MyButton
                     label= {t('header.button.label.donate')}
