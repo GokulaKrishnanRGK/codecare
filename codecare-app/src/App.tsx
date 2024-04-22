@@ -7,36 +7,35 @@ import Footer from "./components/Homepage/Footer.tsx";
 import './App.css';
 import { useTranslation } from 'react-i18next';
 
-const defaultTheme =  createTheme({
+const defaultTheme = createTheme({
     palette: {
         mode: 'light',
     },
 });
-const {t} = useTranslation('navbar');
-
-const sections = [
-    { title: `{t('navbar.section.label.home')}`, url: `/` },
-    { title: `{t('navbar.section.label.events')}`, url: `/events` },
-    { title: `{t('navbar.section.label.contact')}`, url: `/signin` },
-    { title: `{t('navbar.section.label.appointment')}`, url: `/appointments`},
-    { title: `{t('navbar.section.label.medical')}`, url: `/medical-diagnoses`}
-];
 
 function App() {
 
-  return (
-    <ThemeProvider theme={defaultTheme}>
-        <CssBaseline />
-        <Container maxWidth="lg">
-            <Header title="CodeCare" sections={sections} />
-            <Outlet></Outlet>
-            <Footer
-                title="Footer"
-                description="Something here to give the footer a purpose!"
-            />
-        </Container>
-    </ThemeProvider>
-  )
+    const sections = [
+        {title: 'navbar.section.label.home', url: `/`},
+        {title: 'navbar.section.label.events', url: `/events`},
+        {title: 'navbar.section.label.contact', url: `/signin`},
+        {title: 'navbar.section.label.appointment', url: `/appointments`},
+        {title: 'navbar.section.label.medical', url: `/medical-diagnoses`}
+    ];
+
+    return (
+        <ThemeProvider theme={defaultTheme}>
+            <CssBaseline/>
+            <Container maxWidth="lg">
+                <Header title="CodeCare" sections={sections}/>
+                <Outlet></Outlet>
+                <Footer
+                    title="Footer"
+                    description="Something here to give the footer a purpose!"
+                />
+            </Container>
+        </ThemeProvider>
+    )
 }
 
 export default App
