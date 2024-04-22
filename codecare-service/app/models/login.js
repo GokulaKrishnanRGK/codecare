@@ -19,7 +19,7 @@ const loginSchema = new mongoose.Schema({
         required: true,
         ref: "Role"
     },
-    tokens: []
+    tokens: Array
 }, schemaConfig);
 
 loginSchema.methods.generateAuthToken = async function (secretKey) {
@@ -30,7 +30,7 @@ loginSchema.methods.generateAuthToken = async function (secretKey) {
         user.tokens.push(token);
         await user.save();
     } else {
-        token = user.tokens[0].token;
+        token = user.tokens[0];
     }
     return token;
 };

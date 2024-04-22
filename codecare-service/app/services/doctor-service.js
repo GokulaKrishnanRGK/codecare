@@ -1,9 +1,18 @@
 import Doctor from './../models/doctor.js';
 
 
-export const searchDoctors = async (params = {}) => {
+export const search = async (params = {}) => {
     try {
         const result = await Doctor.find(params).exec();
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const searchOne = async (params = {}) => {
+    try {
+        const result = await Doctor.findOne(params).exec();
         return result;
     } catch (error) {
         throw error;
