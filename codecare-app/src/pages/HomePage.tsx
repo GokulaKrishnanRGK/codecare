@@ -5,6 +5,10 @@ import MainFeaturedPost from '../components/Homepage/MainFeaturedPost.tsx';
 import Footer from '../components/Homepage/Footer.tsx';
 import Slider from "react-slick";
 
+
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
+import { Typewriter } from 'react-simple-typewriter';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { searchEvents } from '../services/event-service.ts';
@@ -13,7 +17,8 @@ import { getAll, loadEvents } from '../store/event-slice.ts';
 import { AppDispatch } from '../store';
 import { useDispatch, useSelector } from 'react-redux';
 import MyButton from '../utils/MyButton.tsx';
-
+import booking_appointment from './../assets/booking_appointment.jpg';
+import donations from './../assets/donations.jpg'
 
 
 
@@ -43,7 +48,8 @@ const dispatch = useDispatch<AppDispatch>();
 const [searchParams, setSearchParams] = useState({});
 
 
-
+const appointmentTitle=["Book An Appointment!!"]
+const donationTitle=["Make Donations"]
 
 
 useEffect(() => {
@@ -51,58 +57,197 @@ useEffect(() => {
       dispatch(loadEvents(event));
   });
 }, [searchParams]);
+
   return (
     <>
       <main>
         <MainFeaturedPost post={mainFeaturedPost} />
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', padding: '0%'}}>
-            <h1>Featured Posts</h1>
-        </Box>
+        <hr/>
 
-        <Box sx={{ maxWidth: '1000px', margin: '0 auto' }}>
-          <Slider {...settings}>
-            {events.map((event) => (
-             <div key={event.id} >
-             <Box
-               sx={{
-                 height: '500px',
-                 display: 'flex',
-                 flexDirection: 'column',
-                 justifyContent: 'center',
-                 alignItems: 'center',
-                 position: 'relative',
-               }}
-             >
-               {/* <Box
-                 sx={{
-                  backgroundImage: `url(https://source.unsplash.com/random?wallpapers)`,
-                  backgroundSize: 'cover',
-                   position: 'absolute',
-                   top: 0,
-                   left: 0,
-                   right: 0,
-                   bottom: '40px', // Adjust this to leave space for the image and description
-                 }}
-               /> */}
-               <h1>{event.title}</h1>
-               <h2>Hosted By: {event.organizer}</h2>
-               <h3>{new Date(event.date).toLocaleString()}</h3>
-               <h3>Location:{event.location.address}, {event.location.city} , {event.location.country}</h3>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          width: '100%', 
+          padding: '0%', 
+          position:'relative', 
+          top:'50px'}}>
 
-               <p>{event.description}</p>
-               <MyButton label='Visit For More Details!!' onClick={()=>navigate(`/events/${event.id}`)}/>
-             </Box>
-           </div>
-           
-            ))}
-          </Slider>
-        </Box>
+    <h1> Upcoming Events</h1>
+</Box>
+
+      <Box  
+        sx={{ 
+          maxWidth: '100%', 
+          margin: '0 auto', 
+          marginTop: '20px', 
+          position:'relative', 
+          top:'-100px',
+          border: '1px solid #ccc',  
+          borderRadius: '8px',      
+        }}
+      >
+        <Slider {...settings}>
+          {events.map((event) => (
+            <div key={event.id} >
+              <Box
+                sx={{
+                  height: '1000px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  position: 'relative',
+                }}
+              >
+                <h1>{event.title}</h1>
+                <h2>Hosted By: {event.organizer}</h2>
+                <h3>{new Date(event.date).toLocaleString()}</h3>
+                <h3>Location:{event.location.address}, {event.location.city} , {event.location.country}</h3>
+
+                <p>{event.description}</p>
+                <MyButton label='Visit For More Details!!' onClick={()=>navigate(`/events/${event.id}`)}/>
+
+                <br/>
+                <div>
+                  <img src={event.eventImage} height={'400px'} width={'750px'} alt={event.title}/>
+                </div>
+              </Box>
+            </div>
+          ))}
+        </Slider>
+      </Box>
+
+      <Grid container spacing={3}>
+  <Grid item xs={12}>
+    <Box
+      sx={{
+        maxWidth: '1200px',  
+        height: '500px',
+        margin: '20px auto',
+        padding: '20px',
+        borderRadius: '8px',
+        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}
+    >
+      {/* Content */}
+      <Box sx={{ flex: 1, paddingLeft: '20px' }}>
+        <Typography
+          component="h2"
+          variant="h4"
+          color="inherit"
+          align="left"
+          noWrap
+        >
+          <Typewriter
+            words={appointmentTitle}
+            loop={30}
+            cursor
+            cursorStyle='|'
+            typeSpeed={100}
+            deleteSpeed={100}
+            delaySpeed={1000}
+          />
+        </Typography>
+
+        <Typography
+          component="p"
+          variant="body1"
+          color="inherit"
+          align="left"
+        >
+          Book your consultation appointment today at no cost. We're committed to providing accessible healthcare for everyone, especially those in need.
+          
+        </Typography>
+        
+      </Box>
+
+  
+      <Box
+        sx={{
+          flex: 1,
+          backgroundImage: `url(${booking_appointment})`, 
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'left center', 
+          height: '100%',
+          borderRadius: '8px'
+        }}
+      />
+    </Box>
+    
+  </Grid>
+
+  <Grid item xs={12}>
+    <Box
+      sx={{
+        maxWidth: '1200px', 
+        height: '500px',
+        margin: '20px auto',
+        padding: '20px',
+        borderRadius: '8px',
+        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}
+    >
+          <Box
+        sx={{
+          flex: 1,
+          backgroundImage: `url(${donations})`, 
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'right center', // Moved the image to the left
+          height: '100%',
+          borderRadius: '8px'
+        }}
+      />
+      <Box sx={{ flex: 1, paddingLeft: '20px' }}>
+        <Typography
+          component="h2"
+          variant="h4"
+          color="inherit"
+          align="left"
+          noWrap
+        >
+          <Typewriter
+            words={donationTitle}
+            loop={30}
+            cursor
+            cursorStyle='|'
+            typeSpeed={100}
+            deleteSpeed={100}
+            delaySpeed={1000}
+          />
+        </Typography>
+
+        <Typography
+          component="p"
+          variant="body1"
+          color="inherit"
+          align="left"
+        >
+          Your generosity can change lives. Donate today to support the needy and make a difference in our CodeCare community.
+        </Typography>
+        <br/>
+        <MyButton label='DONATE' variant='contained' onClick={()=>{navigate(`/donate`)}}/>
+      </Box>
+
+    </Box>
+  </Grid>
+</Grid>
+
+
 
         <div style={{ marginTop: '50px' }}>
           <Footer
-            title="Footer"
-            description="Something here to give the footer a purpose!"
+            title="CodeCare"
+            description="Empowering communities through accessible healthcare solutions."
           />
         </div>
       </main>
