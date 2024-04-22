@@ -4,6 +4,7 @@ import {createTheme, ThemeProvider} from "@mui/material/styles";
 import Container from "@mui/material/Container";
 import Header from "./components/Homepage/Header.tsx";
 import Footer from "./components/Homepage/Footer.tsx";
+import './App.css';
 
 const defaultTheme =  createTheme({
     palette: {

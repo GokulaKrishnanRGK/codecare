@@ -1,9 +1,9 @@
 import { createBrowserRouter } from "react-router-dom";
 import HomePage from './pages/HomePage.tsx';
 import App from './App.tsx';
-import Events from "./pages/Events.tsx";
-import Event from "./pages/Event.tsx";
-import CreateEvent from "./pages/CreateEvent.tsx";
+import Events from "./pages/events/Events.tsx";
+import Event from "./pages/events/Event.tsx";
+import CreateEvent from "./pages/events/CreateEvent.tsx";
 import Donate from "./pages/donate/Donate.tsx";
 import Success from "./pages/donate/Success.tsx";
 import Cancel from "./pages/donate/Cancel.tsx";

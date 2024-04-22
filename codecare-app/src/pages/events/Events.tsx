@@ -1,22 +1,22 @@
 import { useEffect, useState } from 'react';
 import Paper from '@mui/material/Paper';
-import {FormControl, Grid, InputBase, InputLabel, MenuItem, Select, SelectChangeEvent} from '@mui/material';
-import { searchEvents } from '../services/event-service.ts';
+import {Box, FormControl, Grid, InputBase, InputLabel, MenuItem, Select, SelectChangeEvent} from '@mui/material';
+import { searchEvents } from '../../services/event-service.ts';
 import { useNavigate } from 'react-router-dom';
-import { getAll, loadEvents } from '../store/event-slice.ts';
-import { AppDispatch } from '../store';
+import { getAll, loadEvents } from '../../store/event-slice.ts';
+import { AppDispatch } from '../../store';
 import { useDispatch, useSelector } from 'react-redux';
-import EventTile from "../components/EventTile.tsx";
+import EventTile from "../../components/Event/EventTile.tsx";
 import {alpha, experimentalStyled as styled } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
-import {Status} from "../utils/status-enum.ts";
+import {Status} from "../../utils/status-enum.ts";
 import CardActions from "@mui/material/CardActions";
 import Button from "@mui/material/Button";
 import {useTranslation} from "react-i18next";
-import * as eventService from "../services/event-service.ts";
-import Roles from "../models/Roles.ts";
-import * as authUtil from '../utils/auth-util.ts'
-import {getUser} from "../store/loginUser-slice.ts";
+import Roles from "../../models/Roles.ts";
+import * as authUtil from '../../utils/auth-util.ts'
+import {getUser} from "../../store/loginUser-slice.ts";
+import Container from "@mui/material/Container";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -103,7 +103,7 @@ function Events() {
     return (
         <>
             <main>
-                <div style={divStyles}>
+                <Box sx={{display: 'flex', alignItems: 'center'}}>
                     <div>
                         <Search onChange={handleTextChange}>
                             <SearchIconWrapper>
@@ -126,7 +126,6 @@ function Events() {
                                 <MenuItem value={Status.ALL}>{t('filter.status.all')}</MenuItem>
                                 <MenuItem value={Status.UPCOMING}>{t('filter.status.upcoming')}</MenuItem>
                                 <MenuItem value={Status.COMPLETE}>{t('filter.status.past')}</MenuItem>
-                                <MenuItem value={Status.CANCELLED}>{t('filter.status.cancelled')}</MenuItem>
                             </Select>
                         </FormControl>
                     </div>
@@ -141,7 +140,7 @@ function Events() {
                             :
                             (<></>)
                     }
-                </div>
+                </Box>
                 <Grid container spacing={4}>
                     {events.map((event, index) => (
                         <Grid item xs={12} md={6} sx={{cursor:'pointer'}} key={index} onClick={() => navigate(`/events/${event.id}`)}>

@@ -1,14 +1,12 @@
 import React, {useState} from 'react';
-import Event from '../models/Event.ts';
-import {FormLabel, OutlinedInput} from "@mui/material";
+import Event from '../../models/Event.ts';
+import {FormLabel, MenuItem, OutlinedInput, Select, Snackbar} from "@mui/material";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import * as eventService from '../services/event-service.ts'
-import AuthGuard from "../components/Auth/AuthGuard.tsx";
-import Roles from "../models/Roles.ts";
+import * as eventService from '../../services/event-service.ts';
 
 const initialEventState: Event = {
     type: '',
@@ -17,6 +15,7 @@ const initialEventState: Event = {
     description: '',
     date: new Date(),
     contactInfo: '',
+    eventImage: '',
     location: {
         latitude: 0,
         longitude: 0,
@@ -29,14 +28,18 @@ const initialEventState: Event = {
     }
 };
 
-const CreateEvent = () => {
+interface EventProps {
+    editEvent: Event,
+    id: string
+}
+
+const EditEvent = (props: EventProps) => {
+    const [image, setImage] = useState();
+    const [state, setState] = useState({open: false, message: ''});
+
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        // Handle form submission logic here
         const formData = new FormData(event.target);
-        // const object = {};
-        // formData.forEach((value, key) => object[key] = value);
-        // const json = JSON.stringify(object);
         initialEventState.type = formData.get('type') !==null ? formData.get('type') : '';
         initialEventState.title = formData.get('title') !==null ? formData.get('title') : '';
         initialEventState.description = formData.get('description') !==null ? formData.get('description') : '';
@@ -47,20 +50,47 @@ const CreateEvent = () => {
         initialEventState.location.city = formData.get('city') !==null ? formData.get('city') : '';
         initialEventState.location.state = formData.get('state') !==null ? formData.get('state') : '';
         initialEventState.location.postalCode = formData.get('postalCode') !==null ? formData.get('postalCode') : '';
-        // console.log(json);
-        console.log(initialEventState);
-        eventService.createEvent(initialEventState);
+        initialEventState.eventImage = image != null ? image : '';
+        eventService.updateEvent('events',{...initialEventState, id: props.id})
+            .then((response) => {
+                if (response.status == 200) {
+                    setState({open: true, message: "Event updated"});
+                } else {
+                    setState({open: true, message: "Event update failed"});
+                }
+            });
+    };
+
+    const handleClose = () => {
+        setState({open: false, message: ''});
+    };
+
+    const handleFileUpload = (e) => {
+        var reader = new FileReader();
+        reader.readAsDataURL(e.target.files[0]);
+        reader.onload = () => {
+            setImage(reader.result);
+        };
+        reader.onerror = error => {
+            console.log("Error: ", error);
+        };
     };
 
     return (
-        <AuthGuard allowedRoles={[Roles.ADMIN]}>
             <div>
-                <form onSubmit={handleSubmit}>
+                <Snackbar
+                    anchorOrigin={{ vertical:'bottom', horizontal:'left' }}
+                    open={state.open}
+                    onClose={handleClose}
+                    message={state.message}
+                    key={'bottomleft'}
+                />
+                <form id="eventForm" onSubmit={handleSubmit}>
                     <Stack spacing={2}>
                         <div>
                             <div>
                                 <FormLabel htmlFor="title" required>
-                                Title
+                                    Title
                                 </FormLabel>
                             </div>
                             <div>
@@ -69,6 +99,8 @@ const CreateEvent = () => {
                                     name="title"
                                     type="text"
                                     placeholder="Title"
+                                    defaultValue={props.editEvent.title}
+                                    sx={{width: 350}}
                                     required
                                 />
                             </div>
@@ -87,6 +119,8 @@ const CreateEvent = () => {
                                     placeholder="Description"
                                     multiline={true}
                                     rows={6}
+                                    defaultValue={props.editEvent.description}
+                                    sx={{width: 350}}
                                     required
                                 />
                             </div>
@@ -103,6 +137,8 @@ const CreateEvent = () => {
                                     name="organizer"
                                     type="text"
                                     placeholder="Organizer"
+                                    defaultValue={props.editEvent.organizer}
+                                    sx={{width: 350}}
                                     required
                                 />
                             </div>
@@ -114,13 +150,24 @@ const CreateEvent = () => {
                                 </FormLabel>
                             </div>
                             <div>
-                                <OutlinedInput
+                                <Select
                                     id="type"
-                                    name="type"
-                                    type="text"
-                                    placeholder="Type"
+                                    label="Event Type"
+                                    defaultValue={props.editEvent.type}
+                                    sx={{width: 350}}
                                     required
-                                />
+                                >
+                                    <MenuItem value="General Health Checkup Camp">General Health Checkup Camp</MenuItem>
+                                    <MenuItem value="Vaccination Camp">Vaccination Camp</MenuItem>
+                                    <MenuItem value="Blood Donation Camp">Blood Donation Camp</MenuItem>
+                                    <MenuItem value="Dental Camp">Dental Camp</MenuItem>
+                                    <MenuItem value="Eye Care Camp">Eye Care Camp</MenuItem>
+                                    <MenuItem value="Diabetes Screening Camp">Diabetes Screening Camp</MenuItem>
+                                    <MenuItem value="Cancer Screening Camp">Cancer Screening Camp</MenuItem>
+                                    <MenuItem value="Orthopedic Camp">Orthopedic Camp</MenuItem>
+                                    <MenuItem value="Pediatric Camp">Pediatric Camp</MenuItem>
+                                    <MenuItem value="Women's Health Camp">Women's Health Camp</MenuItem>
+                                </Select>
                             </div>
                         </div>
                         <div>
@@ -131,7 +178,7 @@ const CreateEvent = () => {
                             </div>
                             <div>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DateTimePicker name="date" label="Event Date"/>
+                                    <DateTimePicker name="date" label="Event Date" disablePast sx={{width: 350}} />
                                 </LocalizationProvider>
                             </div>
                         </div>
@@ -147,6 +194,8 @@ const CreateEvent = () => {
                                     name="address"
                                     type="text"
                                     placeholder="Address"
+                                    defaultValue={props.editEvent.location.address}
+                                    sx={{width: 350}}
                                     required
                                 />
                             </div>
@@ -163,6 +212,8 @@ const CreateEvent = () => {
                                     name="city"
                                     type="text"
                                     placeholder="City"
+                                    defaultValue={props.editEvent.location.city}
+                                    sx={{width: 350}}
                                     required
                                 />
                             </div>
@@ -179,6 +230,8 @@ const CreateEvent = () => {
                                     name="state"
                                     type="text"
                                     placeholder="State"
+                                    defaultValue={props.editEvent.location.state}
+                                    sx={{width: 350}}
                                     required
                                 />
                             </div>
@@ -195,6 +248,8 @@ const CreateEvent = () => {
                                     name="postalCode"
                                     type="text"
                                     placeholder="Postal Code"
+                                    defaultValue={props.editEvent.location.postalCode}
+                                    sx={{width: 350}}
                                     required
                                 />
                             </div>
@@ -211,18 +266,27 @@ const CreateEvent = () => {
                                     name="contactInfo"
                                     type="text"
                                     placeholder="Contact"
+                                    defaultValue={props.editEvent.contactInfo}
+                                    sx={{width: 350}}
                                     required
                                 />
                             </div>
                         </div>
                         <div>
-                            <Button type="submit" variant="contained" color="primary">Submit</Button>
+                            <div>
+                                <FormLabel htmlFor="eventImage" required>
+                                    Add Flyer
+                                </FormLabel>
+                            </div>
+                            <input type="file" accept="image/*" id="eventImage" name="eventImage" onChange={handleFileUpload}/>
+                        </div>
+                        <div>
+                            <Button  type="submit" variant="contained" color="primary">Update Event</Button>
                         </div>
                     </Stack>
                 </form>
             </div>
-        </AuthGuard>
     );
 };
 
-export default CreateEvent;
+export default EditEvent;

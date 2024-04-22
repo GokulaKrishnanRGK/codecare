@@ -37,6 +37,7 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true },
     eventStatus: String,
+    eventImage: String,
     location: locationSchema
 }, schemaConfig);
 

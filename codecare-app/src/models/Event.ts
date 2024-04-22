@@ -6,6 +6,7 @@ export default interface Event {
     date: Date,
     contactInfo: string,
     eventStatus: string,
+    eventImage: string,
     location: Location
 }
 

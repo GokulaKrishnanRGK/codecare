@@ -113,6 +113,7 @@ export const put = async (request, response) => {
         if (event.contactInfo) currentEvent.contactInfo = event.contactInfo;
         if (event.eventStatus) currentEvent.eventStatus = event.eventStatus;
         if (event.location) currentEvent.location = event.location;
+        if (event.eventImage) currentEvent.eventImage = event.eventImage;
         const updatedEvent = await eventService.updateEvent(currentEvent);
         setSuccessResponse(StatusCodes.OK, updatedEvent, response);
     } catch (error) {

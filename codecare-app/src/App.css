@@ -1,0 +1,25 @@
+.eventTileImgContainer {
+  height: 150px;
+  width: 100%;
+  text-align: center;
+  background: aliceblue;
+}
+
+.eventTileImgContainer img {
+  height: 100%;
+  object-fit: contain;
+}
+
+.eventImageContainer {
+  height: 300px;
+  width: 100%;
+  text-align: center;
+  background: aliceblue;
+}
+
+.eventImageContainer img {
+  height: 100%;
+  object-fit: contain;
+}
+
+/*# sourceMappingURL=App.css.map */
