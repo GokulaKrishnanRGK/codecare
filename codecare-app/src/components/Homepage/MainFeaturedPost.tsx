@@ -7,11 +7,19 @@ import HealtCareImage from './../../assets/healtcare_image.jpg';
 
 //Models
 import { MainFeaturedPostProps } from '../../models/MainFeaturedPostProps';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 
 export default function MainFeaturedPost(props: MainFeaturedPostProps) {
   const { post } = props;
+  const {t} =useTranslation('common');
 
+  
+  // const title= 
+  // const description="Welcome to CodeCare, your trusted healthcare companion. We are committed to providing accessible and compassionate healthcare solutions for everyone. Our platform connects patients with dedicated professionals, offering a range of services tailored to your needs. Together, we strive to create a healthier community, one person at a time.";
+ 
+  
   return (
     <Paper
       sx={{
@@ -45,10 +53,10 @@ export default function MainFeaturedPost(props: MainFeaturedPostProps) {
             }}
           >
             <Typography component="h1" variant="h3" color="inherit" gutterBottom>
-              {post.title}
+            {t('homepage.link.label.homepageTitle')}
             </Typography>
             <Typography variant="h5" color="inherit" paragraph>
-              {post.description}
+            {t('homepage.link.label.homepageDescription')}
             </Typography>
           </Box>
         </Grid>

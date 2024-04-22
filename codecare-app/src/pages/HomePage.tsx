@@ -21,6 +21,8 @@ import booking_appointment from './../assets/booking_appointment.jpg';
 import donations from './../assets/donations.jpg'
 
 
+import { useTranslation } from 'react-i18next';
+
 
 const mainFeaturedPost = {
   title: 'Empowering Health: Your Communitys Compassionate Care Portal',
@@ -41,6 +43,8 @@ const settings = {
 };
 
 export default function HomePage() {
+
+const {t}=useTranslation('common');
 
 const navigate = useNavigate();
 const events = useSelector(getAll());
@@ -72,52 +76,61 @@ useEffect(() => {
           width: '100%', 
           padding: '0%', 
           position:'relative', 
-          top:'50px'}}>
+          top:'0px'}}>
 
-    <h1> Upcoming Events</h1>
+    <h1> {t('homepage.link.label.homepageFeaturedPost')}</h1>
+</Box>
+<Box  
+  sx={{ 
+    maxWidth: '100%',
+    height: '10%',  // Updated height to 10%
+    margin: '0 auto', 
+    marginTop: '20px', 
+    position:'relative', 
+    top:'-100px',
+    border: '1px solid #ccc',  
+    borderRadius: '8px',      
+  }}
+>
+  <Slider {...settings}>
+    {events.map((event) => (
+      <div key={event.id}>
+        <Box
+          sx={{
+            height: '1000px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'relative',
+          }}
+        >
+          <Grid container spacing={3}>  {/* Reduced spacing from 3 to 1 */}
+            {/* Left Column */}
+            <Grid item xs={12} md={6}>
+              <div>
+                <h1>{event.title}</h1>
+                <h2>{t('homepage.link.label.homepageFeaturedHost')}: {event.organizer}</h2>
+                <h3>{new Date(event.date).toLocaleString()}</h3>
+                <h3>{t('homepage.link.label.homepageFeaturedLocation')}:{event.location.address}, {event.location.city} , {event.location.country}</h3>
+                <p>{event.description}</p>
+                <MyButton label={t("homepage.link.label.homepageFeaturedMoreDetails")} onClick={()=>navigate(`/events/${event.id}`)}/>
+              </div>
+            </Grid>
+            
+            {/* Right Column */}
+            <Grid item xs={12} md={6}>
+              <div>
+                <img src={event.eventImage} height={'400px'} width={'750px'} alt={event.title}/>
+              </div>
+            </Grid>
+          </Grid>
+        </Box>
+      </div>
+    ))}
+  </Slider>
 </Box>
 
-      <Box  
-        sx={{ 
-          maxWidth: '100%', 
-          margin: '0 auto', 
-          marginTop: '20px', 
-          position:'relative', 
-          top:'-100px',
-          border: '1px solid #ccc',  
-          borderRadius: '8px',      
-        }}
-      >
-        <Slider {...settings}>
-          {events.map((event) => (
-            <div key={event.id} >
-              <Box
-                sx={{
-                  height: '1000px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  position: 'relative',
-                }}
-              >
-                <h1>{event.title}</h1>
-                <h2>Hosted By: {event.organizer}</h2>
-                <h3>{new Date(event.date).toLocaleString()}</h3>
-                <h3>Location:{event.location.address}, {event.location.city} , {event.location.country}</h3>
-
-                <p>{event.description}</p>
-                <MyButton label='Visit For More Details!!' onClick={()=>navigate(`/events/${event.id}`)}/>
-
-                <br/>
-                <div>
-                  <img src={event.eventImage} height={'400px'} width={'750px'} alt={event.title}/>
-                </div>
-              </Box>
-            </div>
-          ))}
-        </Slider>
-      </Box>
 
       <Grid container spacing={3}>
   <Grid item xs={12}>
@@ -143,15 +156,7 @@ useEffect(() => {
           align="left"
           noWrap
         >
-          <Typewriter
-            words={appointmentTitle}
-            loop={30}
-            cursor
-            cursorStyle='|'
-            typeSpeed={100}
-            deleteSpeed={100}
-            delaySpeed={1000}
-          />
+          {t("homepage.link.label.homepageAppointmentTitle")} !!!
         </Typography>
 
         <Typography
@@ -160,8 +165,7 @@ useEffect(() => {
           color="inherit"
           align="left"
         >
-          Book your consultation appointment today at no cost. We're committed to providing accessible healthcare for everyone, especially those in need.
-          
+          {t('homepage.link.label.homepageAppointmentDetails')}          
         </Typography>
         
       </Box>
@@ -215,15 +219,7 @@ useEffect(() => {
           align="left"
           noWrap
         >
-          <Typewriter
-            words={donationTitle}
-            loop={30}
-            cursor
-            cursorStyle='|'
-            typeSpeed={100}
-            deleteSpeed={100}
-            delaySpeed={1000}
-          />
+          {t("homepage.link.label.homepageDonationsTitle")}
         </Typography>
 
         <Typography
@@ -232,10 +228,10 @@ useEffect(() => {
           color="inherit"
           align="left"
         >
-          Your generosity can change lives. Donate today to support the needy and make a difference in our CodeCare community.
-        </Typography>
+          {t('homepage.link.label.homepageDonationDetails')}
+                  </Typography>
         <br/>
-        <MyButton label='DONATE' variant='contained' onClick={()=>{navigate(`/donate`)}}/>
+        <MyButton label={t('header.button.label.donate')} variant='contained' onClick={()=>{navigate(`/donate`)}}/>
       </Box>
 
     </Box>

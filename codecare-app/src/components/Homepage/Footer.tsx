@@ -9,7 +9,10 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import EmailIcon from '@mui/icons-material/Email';
 import MyButton from '../../utils/MyButton';
 
+import { useTranslation } from 'react-i18next';
+
 function Copyright() {
+  
     return (
         <Typography variant="body2" color="text.secondary" align="center">
             {'© '}
@@ -29,6 +32,7 @@ interface FooterProps {
 
 export default function Footer(props: FooterProps) {
     const { description, title } = props;
+    const {t}=useTranslation('common');
 
     return (
         <Box component="footer" sx={{ bgcolor: 'grey.200', py: 6,  maxHeight:'10%'}}>
@@ -55,7 +59,7 @@ export default function Footer(props: FooterProps) {
                             component="p"
                             gutterBottom
                         >
-                            {description}
+                            {t('homepage.link.label.homepageFooterDescription')}
                         </Typography>
 
                     </Grid>
@@ -66,10 +70,10 @@ export default function Footer(props: FooterProps) {
                     <Grid item xs={12} sm={4} md={4} lg={4} sx={{position:'relative' ,top:'30px'}}>
                         <TextField
                             variant="outlined"
-                            label="Subscribe to Newsletter"
+                            label={t('homepage.link.label.homepageFooterNewsletter')}
                             fullWidth
                         />
-                        <MyButton variant="contained" label="Subscribe" color="primary" fullWidth sx={{ mt: 2 }}/>
+                        <MyButton variant="contained" label={t('homepage.link.label.homepageFooterSubscribe')} color="primary" fullWidth sx={{ mt: 2 }}/>
 
                     </Grid>
                     <Grid item xs={12} sm={4} md={4} lg={4} sx={{position:'relative', top:'40px',right:'50px'}}>

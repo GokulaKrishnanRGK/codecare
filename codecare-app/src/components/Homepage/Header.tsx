@@ -81,11 +81,10 @@ export default function Header(props: HeaderProps) {
 
                 <SignedOut>
                     <Link href="/signin">{t('header.link.label.signin')}</Link>
-                    <Link href="/signup">{t('header.link.label.signup')}</Link>
                 </SignedOut>
                 &nbsp; &nbsp;
                 <SignedOut>
-                    <Link href="/signup">SIGN UP</Link>
+                    <Link href="/signup">{t('header.link.label.signup')}</Link>
                 </SignedOut>
 
             </Toolbar>
@@ -103,7 +102,7 @@ export default function Header(props: HeaderProps) {
                     }}
                     sx={{ p: 1, flexShrink: 0, cursor: 'pointer' }}
                 >
-                    Home
+                    {t('header.link.label.home')}
                 </Link>
 
                 <Link
@@ -115,7 +114,7 @@ export default function Header(props: HeaderProps) {
                     }}
                     sx={{ p: 1, flexShrink: 0, cursor: 'pointer' }}
                 >
-                    Events
+                    {t('header.link.label.events')}
                 </Link>
 
 
@@ -137,7 +136,7 @@ export default function Header(props: HeaderProps) {
                      {
                 authUtil.isUserInRole(user, [Roles.USER]) ? (
 
-                    "Book" ):<></>} Appointment
+                    "Book" ):<></>} {t('header.link.label.appointment')}
                 </Link>):<></>
 
             }
@@ -155,7 +154,7 @@ export default function Header(props: HeaderProps) {
                     }}
                     sx={{ p: 1, flexShrink: 0, cursor: 'pointer'}}
                 >
-                    Users
+                    {t('header.link.label.user')}
                 </Link>):<></>
 
                     }
