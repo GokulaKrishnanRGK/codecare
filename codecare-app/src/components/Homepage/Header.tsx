@@ -8,7 +8,10 @@ import {Fade} from "react-awesome-reveal";
 import {useNavigate} from 'react-router-dom';
 import MyButton from '../../utils/MyButton';
 import {SignedIn, SignedOut, UserButton} from "@clerk/clerk-react";
-
+import { FormControlLabel, Switch } from '@mui/material';
+import i18n from '../../i18n';
+import i18next from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 interface HeaderProps {
     sections: ReadonlyArray<{
@@ -20,9 +23,12 @@ interface HeaderProps {
 
 export default function Header(props: HeaderProps) {
     const {sections, title} = props;
+    const {t} = useTranslation('common');
 
     const navigate = useNavigate();
-
+   const handleLanguageChange = (event) => {
+        i18n.changeLanguage(event.target.checked ? 'ta' : 'en');
+    };
 
     return (
 
@@ -41,15 +47,25 @@ export default function Header(props: HeaderProps) {
                         {title}
                     </Fade>
                 </Typography>
+                <FormControlLabel
+                control={
+                    <Switch
+                        checked={i18n.language === 'ta'}
+                        onChange={handleLanguageChange}
+                    />
+                }
+                label={i18n.language === 'en' ? 'English' : 'தமிழ்'}
+                sx={{ marginRight: 4 }}
+            />
                 <SignedIn>
                     <UserButton afterSignOutUrl='/signedOut'/>
                 </SignedIn>
                 <SignedOut>
-                    <Link href="/signin">Sign In</Link>
-                    <Link href="/signup">Sign up</Link>
+                    <Link href="/signin">{t('header.link.label.signin')}</Link>
+                    <Link href="/signup">{t('header.link.label.signup')}</Link>
                 </SignedOut>
                 <MyButton
-                    label="Donate"
+                    label= {t('header.button.label.donate')}
                     onClick={() => navigate(`/donate`)}
                     variant="outlined"
                     sx={{marginLeft: 1}} // Add margin to the left of the button

@@ -1,8 +1,5 @@
 {
-    "appbar.title.label": "பாடப் பதிவு",
-    "appbar.login.label": "உள்நுழைய",
-    "courses.table.link.button.label": "இணைப்பு",
-    "courses.table.view.button.label": "காண்க",
-    "courses.table.register.button.label": "பதிவு",
-    "button.back": "பின்னால்"
+    "header.button.label.donate": "தானம் செய்",
+    "header.link.label.signin": "உள்நுழைக",
+    "header.link.label.signup": "பதிவு செய்யவும்"
 }

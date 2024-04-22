@@ -13,6 +13,7 @@ import * as donationService from '../../services/donation-service.ts';
 import donateImage from './../../assets/donate_img1.jpg';
 import { useSelector } from "react-redux";
 import { getUser } from "../../store/loginUser-slice.ts";
+import { useTranslation } from "react-i18next";
 
 
 export default function Donate() {
@@ -26,6 +27,7 @@ export default function Donate() {
     }
 
     const user = useSelector(getUser());
+    const {t} = useTranslation('donation');
 
     const userExists = Object.keys(user).length !== 0;
 
@@ -60,15 +62,15 @@ export default function Donate() {
                     {userExists ? (
                         <>
                             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-                                <Typography component='h1' variant="h5" align='center'>Donation</Typography>
-                                <Typography> Name : {user.firstname} {user.lastname}</Typography>
-                                <Typography> Email : {user.username}</Typography>
+                                <Typography component='h1' variant="h5" align='center'>{t('donation.head')}</Typography>
+                                <Typography> {t('donation.typo.name')} : {user.firstname} {user.lastname}</Typography>
+                                <Typography> {t('donation.typo.email')} : {user.username}</Typography>
                                 <TextField
                                     margin="normal"
                                     required
                                     fullWidth
                                     id="amount"
-                                    label="Amount"
+                                    label= {t('donation.textfield.amount')}
                                     name="amount"
                                     autoComplete="amount"
                                     autoFocus
@@ -79,7 +81,7 @@ export default function Donate() {
                                         <MyButton
                                             type="submit"
                                             variant="contained"
-                                            label="Donate"
+                                            label={t('donation.button.donate')}
                                         />
                                     </Grid>
                                 </Grid>
@@ -89,33 +91,33 @@ export default function Donate() {
                                 fontFamily: 'Graze, Arial, sans-serif', // Assuming Graze is the correct name; replace it if necessary
                                 color: 'text.secondary'
                             }}>
-                                * The amount is used for medical campaigns and research.
+                                * {t('donation.typo.caption')}
                             </Typography>
                             </Box>
                         </>
                     ) : (
                         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
                             <Typography component="h3" variant="h5" align='center'>
-                                Welcome, Caring Contributor
+                                {t('donation.typo.caption')}
                             </Typography>
-                            <Typography component='h1' variant="h5" align='center'>Donation</Typography>
+                            <Typography component='h1' variant="h5" align='center'>{t('donation.head')}</Typography>
                             <TextField
                                 margin="normal"
                                 required
                                 fullWidth
                                 id="amount"
-                                label="Amount"
+                                label={t('donation.textfield.amount')}
                                 name="amount"
                                 autoComplete="amount"
                                 autoFocus
                             />
                             <Grid container justifyContent="flex-end" alignItems="center" spacing={1} position="relative"
-                                right="127px">
+                                right="157px">
                                 <Grid item>
                                     <MyButton
                                         type="submit"
                                         variant="contained"
-                                        label="Donate"
+                                        label={t('donation.button.donate')}
                                     />
                                 </Grid>
                             </Grid>
@@ -125,7 +127,7 @@ export default function Donate() {
                                 fontFamily: 'Graze, Arial, sans-serif', // Assuming Graze is the correct name; replace it if necessary
                                 color: 'text.secondary'
                             }}>
-                                * The amount is used for medical campaigns and research.
+                                * {t('donation.typo.caption')}
                             </Typography>
 
                         </Box>

@@ -10,6 +10,7 @@ import { Note } from '../models/Note';
 import * as medicalDiagnosisService from '../services/medical-diagnosis-service';
 import { ResponseObject } from '../models/ResponseObject';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 
 const NotesPage: React.FC = () => {
 
@@ -25,6 +26,7 @@ const NotesPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const notes = useSelector(getNotes());
   const dispatch = useDispatch<AppDispatch>();
+  const {t} = useTranslation('notepage');
 
   const handleSave = (note: Note) => {
     console.log('Note to save:', note);
@@ -61,7 +63,7 @@ const NotesPage: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
-        Enter your previous Medical Diagnosis
+        {t('medical-diagnoses.typography.caption')}
       </Typography>
       <IconButton
         onClick={() => openForm()} color="primary" size="large" >
@@ -73,10 +75,10 @@ const NotesPage: React.FC = () => {
         <Table aria-label="notes table">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 'bold' }}>Diagnosis</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Treatment</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Date of Treatment</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Edit</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>{t('medical-diagnoses.table.diagnosis')}</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>{t('medical-diagnoses.table.treatment')}</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>{t('medical-diagnoses.table.treatmentDate')}</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>{t('medical-diagnoses.table.edit')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

@@ -5,6 +5,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { Note } from '../models/Note';
+import { useTranslation } from 'react-i18next';
 
 interface NoteFormProps {
   note: Note | null;
@@ -18,6 +19,7 @@ const NoteForm: React.FC<NoteFormProps> = ({ note, onSave, open, onClose }) => {
   const [diagnosis, setDiagnosis] = useState<string>('');
   const [treatment, setTreatment] = useState<string>('');
   const [dateOfTreatment, setDateOfTreatment] = React.useState<Dayjs | null>(dayjs(new Date()));
+  const {t} = useTranslation('noteform');
 
   useEffect(() => {
     if (note) {
@@ -51,14 +53,15 @@ const NoteForm: React.FC<NoteFormProps> = ({ note, onSave, open, onClose }) => {
         <Box component="form" noValidate autoComplete="off" sx={{ mt: 1 }}>
           <TextField
             fullWidth
-            label="Diagnosis"
+            required
+            label={t('noteform.textfield.diagnosis')}
             value={diagnosis}
             onChange={(e) => setDiagnosis(e.target.value)}
             margin="normal"
           />
           <TextField
             fullWidth
-            label="Treatment"
+            label={t('noteform.textfield.treatment')}
             multiline
             rows={4}
             value={treatment}
@@ -67,7 +70,7 @@ const NoteForm: React.FC<NoteFormProps> = ({ note, onSave, open, onClose }) => {
           />
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              label="Date of Treatment"
+              label={t('noteform.textfield.dateoftreatment')}
               value={dateOfTreatment}
               onChange={setDateOfTreatment}
               renderInput={(params) => <TextField {...params} fullWidth />}
@@ -76,8 +79,8 @@ const NoteForm: React.FC<NoteFormProps> = ({ note, onSave, open, onClose }) => {
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleSaveClick} color="primary">Save</Button>
-        <Button onClick={onClose} color="secondary">Cancel</Button>
+        <Button onClick={handleSaveClick} color="primary">{t('noteform.button.save')}</Button>
+        <Button onClick={onClose} color="secondary">{t('noteform.button.cancel')}</Button>
       </DialogActions>
     </Dialog>
   );
