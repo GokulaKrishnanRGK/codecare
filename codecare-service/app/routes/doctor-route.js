@@ -6,11 +6,15 @@ import {Roles} from "../entities/roles-enum.js";
 const router = express.Router();
 
 router.route('/')
-    .get(doctorController.searchDoctors)
-    .post(doctorController.createDoctor); 
+    .get(auth([Roles.USER, Roles.ADMIN, Roles.DOCTOR]), doctorController.searchDoctors)
+    .post(auth([Roles.ADMIN]), doctorController.createDoctor);
+
+router.route('/getSpecializations')
+    .get(auth([Roles.USER, Roles.ADMIN, Roles.DOCTOR]), doctorController.getSpecializations);
+
 router.route('/:id')
-    .get(doctorController.getDoctor)
-    .put( doctorController.updateDoctor)
-    .delete( doctorController.deleteDoctor);
+    .get(auth([Roles.USER, Roles.ADMIN, Roles.DOCTOR]), doctorController.getDoctor)
+    .put(auth([Roles.ADMIN]), doctorController.updateDoctor)
+    .delete(auth([Roles.ADMIN]), doctorController.deleteDoctor);
 
 export default router;

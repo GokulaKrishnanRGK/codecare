@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import schemaConfig from "./schema-config.js";
-import { Specialization } from "../entities/specialization-enum.js";
+import {getCodes} from "../entities/specialization-enum.js";
 
 const doctorSchema = new mongoose.Schema({
     id: String,
@@ -11,7 +11,7 @@ const doctorSchema = new mongoose.Schema({
     },
     specialization: {
         type: String,
-        enum: Object.values(Specialization),
+        enum: Object.values(getCodes()),
         required: true,
     },
     roomNo: {
@@ -33,4 +33,3 @@ const doctorSchema = new mongoose.Schema({
 
 const Doctor = mongoose.model('doctor', doctorSchema);
 export default Doctor;
-

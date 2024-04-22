@@ -1,6 +1,4 @@
-import { Specialization } from "../entities/specialization-enum.js";
 import AppointmentBooking from "../models/appointment-booking.js";
-import mongoose from 'mongoose';
 
 export const searchAppointmentBookings = async (params = {}) => {
     try {
