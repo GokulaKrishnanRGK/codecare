@@ -13,7 +13,6 @@ export const store = configureStore({
         [noteSlice.name] : noteSlice.reducer,
         [profileSlice.name] : profileSlice.reducer,
         [usersSlice.name] : usersSlice.reducer,
-        [eventSlice.name] : eventSlice.reducer,
         [appointmentSlice.name]: appointmentSlice.reducer
     }
 });

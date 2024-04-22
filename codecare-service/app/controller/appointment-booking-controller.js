@@ -18,6 +18,7 @@ import  mongoose  from 'mongoose';
 export const createAppointmentBooking = async (request, response) => {
     try {
         const appointmentBookingData = request.body;
+        appointmentBookingData.user = request.user._id;
         const result = await appointmentBookingService.createAppointmentBooking(appointmentBookingData);
         setSuccessResponse(StatusCodes.CREATED, result, response);
     } catch (error) {
@@ -39,6 +40,7 @@ export const createAppointmentBooking = async (request, response) => {
 
 export const search = async (request, response) => {
     try {
+
         const result = await appointmentBookingService.searchAppointmentBookings(request.query);
         setSuccessResponse(StatusCodes.OK, result, response);
     } catch (error) {
@@ -61,9 +63,9 @@ export const searchByUserId = async (request, response) => {
         const role = request.user.role;
         const query = {};
         if(role === Roles.USER){
-            query.userId = userId;
+            query.user = userId;
         } else if(role === Roles.DOCTOR){
-            query.doctorId = userId;
+            query.doctor = userId;
         }
         const result = await appointmentBookingService.searchAppointmentBookings(query);
         setSuccessResponse(StatusCodes.OK, result, response);

@@ -35,12 +35,12 @@ function addMinutes(time, minutes) {
 // Define the appointmentBooking schema
 const appointmentBookingSchema = new mongoose.Schema({
     id: String,
-    userId: {
+    user: {
         type: Schema.Types.ObjectId,
         required: true,
         ref: 'User'
     },
-    doctorId: {
+    doctor: {
         type: Schema.Types.ObjectId,
         required: true,
         ref: 'Doctor'

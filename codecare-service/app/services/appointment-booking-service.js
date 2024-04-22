@@ -7,65 +7,68 @@ export const searchAppointmentBookings = async (params = {}) => {
                 $match: params
             },
             {
-                $lookup:{
-                    from:'users',
-                    localField:'userId',
-                    foreignField:'_id',
-                    as:'user'
-                }
+                $lookup: {
+                    from: "users",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "user",
+                },
             },
             {
-                $unwind:'$user'
+                $unwind: "$user",
             },
             {
-                $lookup:{
-                    from:'doctors',
-                    localField:'doctorId',
-                    foreignField:'user',
-                    as:'doctor'
-                }
+                $lookup: {
+                    from: "doctors",
+                    localField: "doctor",
+                    foreignField: "user",
+                    as: "doctor",
+                },
             },
             {
-                $unwind:'$doctor'
+                $unwind: "$doctor",
             },
             {
-                $lookup:{
-                    from:'users',
-                    localField:'doctor.user',
-                    foreignField:'_id',
-                    as:'doctor.user'
-                }
+                $lookup: {
+                    from: "users",
+                    localField: "doctor.user",
+                    foreignField: "_id",
+                    as: "doctor.user",
+                },
             },
             {
-                $unwind:'$doctor.user'
+                $unwind: "$doctor.user",
             },
             {
                 $project: {
-                    appointmentId: '$_id',
-
-                    user:{
-                        userId: '$user._id',
-                        username: '$user.username',
-                        firstname: '$user.firstname',
-                        lastname: '$user.lastname'
+                    id: "$_id",
+                    user: {
+                        id: "$user._id",
+                        username: "$user.username",
+                        firstname: "$user.firstname",
+                        lastname: "$user.lastname",
+                    },
+                    doctor: {
+                        id: "$doctor.user._id",
+                        firstname: "$doctor.user.firstname",
+                        lastname: "$doctor.user.lastname",
+                        specialization: "$doctor.specialization",
+                        roomNo: "$doctor.roomNo",
+                        address: {
+                            hospitalName:
+                                "$doctor.address.hospitalName",
+                            city: "$doctor.address.city",
                         },
-                        doctor:{
-                            doctorId: '$doctor.user._id',
-                            doctorFirstname: '$doctor.user.firstname',
-                            doctorLastname: '$doctor.user.lastname',
-                            specialization: '$doctor.specialization',
-                            roomNo: '$doctor.roomNo',
-                            hospitalName: '$doctor.address.hospitalName',
-                            city:'$doctor.address.city'
-
-                        },
-                    appointmentDate: '$appointmentDate',
-                    appointmentStartTime:'$appointmentStartTime',
-                    appointmentEndTime:'$appointmentEndTime',
-                    issue: '$issue',
-                    medicalDiagnosis: '$feedback.medicalDiagnosis',
-                    prescription: '$feedback.prescription',
-                    status: '$status'
+                    },
+                    appointmentDate: "$appointmentDate",
+                    appointmentStartTime:
+                        "$appointmentStartTime",
+                    appointmentEndTime: "$appointmentEndTime",
+                    issue: "$issue",
+                    medicalDiagnosis:
+                        "$feedback.medicalDiagnosis",
+                    prescription: "$feedback.prescription",
+                    status: "$status",
                 }
             }
         ]).exec();
@@ -76,7 +79,6 @@ export const searchAppointmentBookings = async (params = {}) => {
 };
 
 
-
 export const getAppointmentBookingDetails = async (id) => {
     try {
         const appointmentBooking = await AppointmentBooking.findById(id).exec();
@@ -85,7 +87,6 @@ export const getAppointmentBookingDetails = async (id) => {
         throw error;
     }
 };
-
 
 
 export const createAppointmentBooking = async (appointmentBookingData) => {
@@ -99,7 +100,6 @@ export const createAppointmentBooking = async (appointmentBookingData) => {
 };
 
 
-
 export const updateAppointmentBooking = async (appointmentBookingDetails) => {
     try {
         const appointmentBooking = new AppointmentBooking(appointmentBookingDetails);
@@ -108,8 +108,6 @@ export const updateAppointmentBooking = async (appointmentBookingDetails) => {
         throw error;
     }
 };
-
-
 
 
 export const deleteAppointmentBooking = async (appointmentBookingId) => {

@@ -6,20 +6,18 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import Appointment from  './../../models/Appointment.ts';
-
-import Doctor from './../../models/Doctor';
-
-
+import Appointment from './../../models/Appointment.ts';
 import CreateAppointmentModal from './../../components/Appointments/CreateAppointmentModal';
-
 import MyButton from '../../utils/MyButton.tsx';
+import {getAll, loadAppointments} from "../../store/appointment-slice.ts";
+import {useDispatch, useSelector} from "react-redux";
+import {useEffect} from "react";
+import * as appointmentService from '../../services/appointment-service.ts'
+import {ResponseObject} from "../../models/ResponseObject.ts";
+import {AppDispatch} from "../../store";
+import {searchAppointments} from "../../services/appointment-service.ts";
 
-
-
-
-
-const rows: Array<Appointment> = [
+/*const rows: Array<Appointment> = [
     {
         appointmentId: "ABC12345",
         user: {
@@ -70,103 +68,75 @@ const rows: Array<Appointment> = [
         prescription: 'Beta-blockers',
         status: 'BOOKED'
     }
-];
+];*/
+
+const BasicTable = () => {
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+    const appointments = useSelector(getAll());
+    const dispatch = useDispatch<AppDispatch>();
+
+    useEffect(() => {
+        appointmentService.searchAppointments({}).then((response: ResponseObject<Appointment[]>) => {
+            if (response.data) {
+                dispatch(loadAppointments(response.data));
+            }
+        })
+    }, [])
 
 
-
-const BasicTable=( )=> {
-
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  const extractUniqueDoctors = (appointments: Array<Appointment>) => {
-    const uniqueDoctors: Array<Doctor> = [];
-
-    appointments.forEach((appointment) => {
-        const doctor = appointment.doctor;
-        const existingDoctor = uniqueDoctors.find(
-            (d) => d.doctorId === doctor.doctorId
-        );
-
-        if (!existingDoctor) {
-            uniqueDoctors.push(doctor);
-        }
-    });
-
-    return uniqueDoctors;
-};
-
-const extractUniqueIssues = (appointments: Array<Appointment>): Array<string> => {
-  const uniqueIssues: Array<string> = [];
-
-  appointments.forEach((appointment) => {
-      appointment.issue.forEach((issue) => {
-          if (!uniqueIssues.includes(issue)) {
-              uniqueIssues.push(issue);
-          }
-      });
-  });
-
-  return uniqueIssues;
-};
-
-
-
-const uniqueDoctors = extractUniqueDoctors(rows);
-const uniqueIssues = extractUniqueIssues(rows);
-
-const rowData = rows.map((row)=>(
+    const rowData = appointments.map((row) => (
         <TableRow
-        key={row.appointmentId}
-        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-      >
-        <TableCell component="th" scope="row">{row.appointmentId} </TableCell>
-        <TableCell align="right">{row.user.firstname}  {row.user.lastname}</TableCell>
-        <TableCell align="right">Dr. {row.doctor.doctorFirstname} {row.doctor.doctorLastname}</TableCell>
-        <TableCell align="right">{row.doctor.specialization}</TableCell>
-        <TableCell align="right">{row.doctor.roomNo}  {row.doctor.hospitalName}  {row.doctor.city}</TableCell>
-        <TableCell align="right">{row.appointmentDate} at {row.appointmentStartTime} to {row.appointmentEndTime}</TableCell>
-        <TableCell align="right">{row.issue[0]}</TableCell>
-        <TableCell align="right">{row.medicalDiagnosis}</TableCell>
-        <TableCell align="right">{row.status}</TableCell>
+            key={row.appointmentId}
+            sx={{'&:last-child td, &:last-child th': {border: 0}}}
+        >
+            <TableCell component="th" scope="row">{row.appointmentId} </TableCell>
+            <TableCell align="right">{row.user.firstname} {row.user.lastname}</TableCell>
+            <TableCell align="right">Dr. {row.doctor.firstname} {row.doctor.lastname}</TableCell>
+            <TableCell align="right">{row.doctor.specialization}</TableCell>
+            <TableCell
+                align="right">{row.doctor.roomNo} {row.doctor.address.hospitalName} {row.doctor.address.city}</TableCell>
+            <TableCell
+                align="right">{row.appointmentDate} at {row.appointmentStartTime} to {row.appointmentEndTime}</TableCell>
+            <TableCell align="right">{row.issue[0]}</TableCell>
+            <TableCell align="right">{row.medicalDiagnosis}</TableCell>
+            <TableCell align="right">{row.status}</TableCell>
 
-      </TableRow>
+        </TableRow>
 
-    ))
+    ));
 
 
-  return (
+    return (
+        <div>
+            <div>
+                <MyButton label="Create Appointment +" onClick={handleOpen}/>
+                <CreateAppointmentModal open={open} handleClose={handleClose}/>
+            </div>
+            <TableContainer component={Paper}>
+                <Table sx={{minWidth: 800}} aria-label="simple table">
+                    <TableHead>
 
-    <div>
-      <div>
-        <MyButton  label="Create Appointment +" onClick={handleOpen}/>
-        <CreateAppointmentModal open={open} handleClose={handleClose} doctors={uniqueDoctors} issues={uniqueIssues} />
-      </div>
-    
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 800 }} aria-label="simple table">
-        <TableHead>
-
-          <TableRow>
-            <TableCell>Appointment ID</TableCell>
-            <TableCell align="right">Patient Name</TableCell>
-            <TableCell align="right">Doctor's Name</TableCell>
-            <TableCell align="right">Specialization</TableCell>
-            <TableCell align="right">Location</TableCell>
-            <TableCell align="right">Appointment Date & time</TableCell>
-            <TableCell align="right">Issue</TableCell>
-            <TableCell align="right">Medical Diagnosis</TableCell>
-            <TableCell align="right">Status</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rowData}
-        </TableBody>
-      </Table>
-    </TableContainer>
-    </div>
-  );
+                        <TableRow>
+                            <TableCell>Appointment ID</TableCell>
+                            <TableCell align="right">Patient Name</TableCell>
+                            <TableCell align="right">Doctor's Name</TableCell>
+                            <TableCell align="right">Specialization</TableCell>
+                            <TableCell align="right">Location</TableCell>
+                            <TableCell align="right">Appointment Date & time</TableCell>
+                            <TableCell align="right">Issue</TableCell>
+                            <TableCell align="right">Medical Diagnosis</TableCell>
+                            <TableCell align="right">Status</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {rowData}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </div>
+    );
 }
 
 export default BasicTable;

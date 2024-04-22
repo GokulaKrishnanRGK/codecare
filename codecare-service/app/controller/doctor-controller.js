@@ -27,6 +27,16 @@ export const createDoctor = async (request, response) => {
     }
 };
 
+export const getAllDoctors = async (request, response) => {
+    try {
+        const result = await doctorService.search(request.query);
+        setSuccessResponse(StatusCodes.OK, result, response);
+    } catch (error) {
+        console.log(error);
+        setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
+    }
+}
+
 
 /**
  * Search for doctors based on the provided query parameters

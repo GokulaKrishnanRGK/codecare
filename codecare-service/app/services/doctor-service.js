@@ -1,9 +1,42 @@
 import Doctor from './../models/doctor.js';
 
+const doctorSearchPipeline = (params = {}) => {
+    return [
+        {
+            $match: params
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "user",
+                foreignField: "_id",
+                as: "user"
+            }
+        },
+        {
+            $unwind: '$user'
+        },
+        {
+            $project: {
+                id: "$_id",
+                user: "$user._id",
+                specialization: "$specialization",
+                roomNo: "$roomNo",
+                firstname: "$user.firstname",
+                lastname: "$user.lastname",
+                address: {
+                    hospitalName: "$address.hospitalName",
+                    city: "$address.city"
+                }
+            }
+        }
+    ]
+}
+
 
 export const search = async (params = {}) => {
     try {
-        const result = await Doctor.find(params).exec();
+        const result = await Doctor.aggregate(doctorSearchPipeline(params)).exec();
         return result;
     } catch (error) {
         throw error;
@@ -35,7 +68,7 @@ export const createDoctor = async (doctorData) => {
 
 export const updateDoctorById = async (id, doctorData) => {
     try {
-        const updatedDoctor = await Doctor.findByIdAndUpdate(id, doctorData, { new: true }).exec();
+        const updatedDoctor = await Doctor.findByIdAndUpdate(id, doctorData, {new: true}).exec();
         return updatedDoctor;
     } catch (error) {
         throw error;

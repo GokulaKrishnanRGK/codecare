@@ -9,6 +9,9 @@ router.route('/')
     .get(auth([Roles.USER, Roles.ADMIN, Roles.DOCTOR]), doctorController.searchDoctors)
     .post(auth([Roles.ADMIN]), doctorController.createDoctor);
 
+router.route('/getAllDoctors')
+    .get(auth([Roles.USER, Roles.ADMIN, Roles.DOCTOR]), doctorController.getAllDoctors)
+
 router.route('/getSpecializations')
     .get(auth([Roles.USER, Roles.ADMIN, Roles.DOCTOR]), doctorController.getSpecializations);
 
