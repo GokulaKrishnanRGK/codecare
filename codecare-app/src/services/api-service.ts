@@ -3,7 +3,7 @@ import {ResponseObject} from "../models/ResponseObject.ts";
 import {AxiosError, AxiosResponse, isAxiosError} from "axios";
 
 const parseResponse = <T>(response: AxiosResponse<T>) => {
-    const data: any = response.data;
+    const data: T = response.data;
     const responseObject: ResponseObject<T> = {status: response.status, ...data};
     return responseObject;
 }
