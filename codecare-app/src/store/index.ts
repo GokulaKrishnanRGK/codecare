@@ -3,6 +3,7 @@ import {loginUserSlice} from "./loginUser-slice.ts";
 import {eventSlice} from "./event-slice.ts";
 import {noteSlice} from "./noteSlice.ts";
 import {profileSlice} from "./ProfileSlice.ts"
+import {usersSlice} from "./users-slice.ts";
 
 export const store = configureStore({
     reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
         [eventSlice.name] : eventSlice.reducer,
         [noteSlice.name] : noteSlice.reducer,
         [profileSlice.name] : profileSlice.reducer,
+        [usersSlice.name] : usersSlice.reducer,
     }
 });
 

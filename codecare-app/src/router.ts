@@ -14,6 +14,7 @@ import SignedUpPage from "./pages/auth/SignedUp.tsx";
 import SignedInPage from "./pages/auth/SignedIn.tsx";
 import SignedOutPage from "./pages/auth/SignedOut.tsx";
 import NotesPage from "./pages/NotePage.tsx";
+import ListUsers from "./pages/admin/ListUsers.tsx";
 
 
 const router = createBrowserRouter([
@@ -90,6 +91,20 @@ const router = createBrowserRouter([
                 Component: Cancel
             }
         ]
+    },
+    {
+      path: '/admin',
+      Component: App,
+      children: [
+          {
+              Component: ListUsers,
+              index: true
+          },
+          {
+              path: '/admin/users',
+              Component: ListUsers
+          }
+      ]
     },
     {
         path: '/forbidden',
