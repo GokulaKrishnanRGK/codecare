@@ -2,7 +2,15 @@ import * as React from 'react';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
-import {Fade} from "react-awesome-reveal";
+import { Box } from '@mui/material';
+
+import { Typewriter } from 'react-simple-typewriter';
+
+import {useSelector} from "react-redux";
+import {getUser} from "./../../store/loginUser-slice.ts";
+import * as authUtil from "./../../utils/auth-util.ts";
+import Roles from "./../../models/Roles.ts";
+
 
 //utilities
 import {useNavigate} from 'react-router-dom';
@@ -13,19 +21,20 @@ import i18n from '../../i18n';
 import i18next from 'i18next';
 import { useTranslation } from 'react-i18next';
 
+
+
 interface HeaderProps {
-    sections: ReadonlyArray<{
-        title: string;
-        url: string;
-    }>;
     title: string;
 }
 
 export default function Header(props: HeaderProps) {
-    const {sections, title} = props;
+    const { title} = props;
     const {t} = useTranslation('common');
 
     const navigate = useNavigate();
+
+    const titleBlock=[title]
+    const user = useSelector(getUser());
    const handleLanguageChange = (event) => {
         i18n.changeLanguage(event.target.checked ? 'ta' : 'en');
     };
@@ -37,15 +46,22 @@ export default function Header(props: HeaderProps) {
             <Toolbar sx={{borderBottom: 1, borderColor: 'divider'}}>
                 <Typography
                     component="h2"
-                    variant="h5"
+                    variant="h4"
                     color="inherit"
-                    align="center"
+                    align="left"
                     noWrap
                     sx={{flex: 1}}
                 >
-                    <Fade delay={1000} triggerOnce>
-                        {title}
-                    </Fade>
+
+                    <Typewriter
+                        words={titleBlock}
+                        loop={3}
+                        cursor
+                        cursorStyle='|'
+                        typeSpeed={70}
+                        deleteSpeed={50}
+                        delaySpeed={1000}
+                    />
                 </Typography>
                 <FormControlLabel
                 control={
@@ -58,39 +74,87 @@ export default function Header(props: HeaderProps) {
                 sx={{ marginRight: 4 }}
             />
                 <SignedIn>
-                    <UserButton afterSignOutUrl='/signedOut'/>
+                <Box sx={{ transform: 'scale(1.2)' }}>
+                    <UserButton afterSignOutUrl='/signedOut' />
+                </Box>
                 </SignedIn>
+
                 <SignedOut>
                     <Link href="/signin">{t('header.link.label.signin')}</Link>
                     <Link href="/signup">{t('header.link.label.signup')}</Link>
                 </SignedOut>
-                <MyButton
-                    label= {t('header.button.label.donate')}
-                    onClick={() => navigate(`/donate`)}
-                    variant="outlined"
-                    sx={{marginLeft: 1}} // Add margin to the left of the button
-                />
+                &nbsp; &nbsp;
+                <SignedOut>
+                    <Link href="/signup">SIGN UP</Link>
+                </SignedOut>
+
             </Toolbar>
             <Toolbar
                 component="nav"
                 variant="dense"
-                sx={{overflowX: 'auto', gap: 2}}
+                sx={{ overflowX: 'auto', gap: 2 }}
             >
-                {sections.map((section) => (
-                    <Link
-                        color="inherit"
-                        noWrap
-                        key={section.title}
-                        variant="body2"
-                        onClick={() => {
-                            return navigate(section.url)
-                        }}
-                        sx={{p: 1, flexShrink: 0, cursor: 'pointer'}}
-                    >
-                        {section.title}
-                    </Link>
-                ))}
+                <Link
+                    color="inherit"
+                    noWrap
+                    variant="body1"
+                    onClick={() => {
+                        return navigate(`/`)
+                    }}
+                    sx={{ p: 1, flexShrink: 0, cursor: 'pointer' }}
+                >
+                    Home
+                </Link>
+
+                <Link
+                    color="inherit"
+                    noWrap
+                    variant="body1"
+                    onClick={() => {
+                        return navigate(`/events`)
+                    }}
+                    sx={{ p: 1, flexShrink: 0, cursor: 'pointer' }}
+                >
+                    Events
+                </Link>
+
+                <Link
+                    color="inherit"
+                    noWrap
+                    variant="body1"
+                    onClick={() => {
+                        return navigate(`/`)
+                    }}
+                    sx={{ p: 1, flexShrink: 0, cursor: 'pointer' }}
+                >
+                    Contact Us
+                </Link>
+
+                {
+                authUtil.isUserInRole(user, [Roles.USER,Roles.DOCTOR]) ?
+                    (
+                <Link
+                    color="inherit"
+                    noWrap
+                    variant="body1"
+                    onClick={() => {
+                        return navigate(`/appointments`)
+                    }}
+                    sx={{ p: 1, flexShrink: 0, cursor: 'pointer'}} // Push to the right end
+                >
+                    Book Appointment
+                </Link>):<></>
+
+}
+
+                <MyButton
+                    label= {t('header.button.label.donate')}
+                    onClick={() => navigate(`/donate`)}
+                    variant="outlined"
+                    sx={{marginLeft: 'auto'}} // Add margin to the left of the button
+                />
             </Toolbar>
+
         </React.Fragment>
     );
 }

@@ -6,19 +6,11 @@ import {createTheme, ThemeProvider } from '@mui/material/styles';
 import Header from '../components/Homepage/Header.tsx';
 import MainFeaturedPost from '../components/Homepage/MainFeaturedPost.tsx';
 import FeaturedPost from '../components/Homepage/FeaturedPost.tsx';
-// import Main from '../components/Homepage/Main.tsx';
-// import Sidebar from '../components/Homepage/Sidebar.tsx';
 import Footer from '../components/Homepage/Footer.tsx';
 
-import { Zoom } from 'react-awesome-reveal';
 
 
 
-const sections = [
-  { title: 'About CodeCare', url: `/signin` },
-  { title: 'Events', url: `/events` },
-  { title: 'Contact us', url: `/signin` }
-];
 
 const mainFeaturedPost = {
   title: 'Title of a longer featured blog post',
@@ -70,7 +62,6 @@ const featuredPosts = [
 
 
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme =  createTheme({
   palette: {
     mode: 'dark',
@@ -79,24 +70,33 @@ const defaultTheme =  createTheme({
 
 export default function HomePage() {
   return (
-      <>
-        <main>
-          <MainFeaturedPost post={mainFeaturedPost} />
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', margin: '0%', padding:'0%'}}>
-              <h1>Featured Posts</h1>
-              <div style={{ position:'relative', left:'380px', textAlign: 'center', width: '100%' }}>
-                  <Grid container spacing={2}>
-                    {featuredPosts.map((post) => (
-                      <Grid item xs={12} sm={6} md={8} key={post.title}>
-                        <Zoom delay={post.delay} triggerOnce>
-                          <FeaturedPost post={post} />
-                        </Zoom>
-                      </Grid>
-                    ))}
+    <>
+      <main>
+        <MainFeaturedPost post={mainFeaturedPost} />
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', margin: '0%', padding:'0%'}}>
+
+          <h1>Featured Posts</h1>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', position:'relative',left:'100px'}}>
+            <div style={{ textAlign: 'center', width: '100%' }}>
+              <Grid container spacing={4} justifyContent="center">
+                {featuredPosts.map((post) => (
+                  <Grid item xs={12} sm={6} md={6} key={post.title}>
+                    <FeaturedPost post={post} />
                   </Grid>
-                </div>
+                ))}
+              </Grid>
             </div>
-        </main>
+          </div>
+        </div>
+
+        <div style={{ marginTop: '50px' }}>
+          <Footer
+            title="Footer"
+            description="Something here to give the footer a purpose!"
+          />
+        </div>
+      </main>
     </>
   );
 }
