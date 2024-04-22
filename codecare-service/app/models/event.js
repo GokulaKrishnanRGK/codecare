@@ -36,7 +36,6 @@ const eventSchema = new mongoose.Schema({
     contactInfo: {
         type: String,
         required: true },
-    eventStatus: String,
     eventImage: String,
     location: locationSchema
 }, schemaConfig);

@@ -42,16 +42,10 @@ export const search = async (request, response) => {
             const status = request.query.eventStatus;
             const currentDate = new Date();
             const currentDateTime = currentDate.toLocaleString('en-US', { timeZone: 'America/New_York' });
-            if (status === Status.CANCELLED ) {
-                params.eventStatus = Status.CANCELLED;
-            } else if (status === Status.UPCOMING) {
-                params.$and = [
-                    { date: {$gte: currentDateTime} },
-                    { eventStatus: {$exists: false} }];
+            if (status === Status.UPCOMING) {
+                params.date = {$gte: currentDateTime};
             } else if (status === Status.COMPLETE) {
-                params.$and = [
-                    { date: {$lt: currentDateTime} },
-                    { eventStatus: {$exists: false} }];
+                params.date = {$lt: currentDateTime};
             }
         }
 
@@ -111,7 +105,6 @@ export const put = async (request, response) => {
         if (event.description) currentEvent.description = event.description;
         if (event.organizer) currentEvent.organizer = event.organizer;
         if (event.contactInfo) currentEvent.contactInfo = event.contactInfo;
-        if (event.eventStatus) currentEvent.eventStatus = event.eventStatus;
         if (event.location) currentEvent.location = event.location;
         if (event.eventImage) currentEvent.eventImage = event.eventImage;
         const updatedEvent = await eventService.updateEvent(currentEvent);

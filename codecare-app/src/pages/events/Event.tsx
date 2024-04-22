@@ -15,6 +15,7 @@ import * as authUtil from "../../utils/auth-util.ts";
 import Roles from "../../models/Roles.ts";
 import { ArrowBackRounded } from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
+import Grid from "@mui/material/Grid";
 
 function Event() {
     const { id } = useParams();
@@ -40,41 +41,58 @@ function Event() {
                         (<></>)
                 }
                 </CardActions>
-                <CardContent>
+
                     {event ? (
                         editable ? (
-                            <EditEvent editEvent={event} id={id}/>
+                            <CardContent sx={{textAlign: 'center'}}>
+                                <EditEvent editEvent={event} id={id}/>
+                            </CardContent>
                         ) : (
-                            <div>
-                                <Typography variant="h2" gutterBottom>
-                                    {event.title}
-                                </Typography>
-                                <div className="eventImageContainer">
-                                    <img src={event.eventImage}/>
-                                </div>
-                                <br/> <br/>
-                                <div>
-                                    <Typography variant="h6" gutterBottom>
-                                        <strong>Organized by:</strong> {event.organizer} <br/>
-                                        <strong>Date:</strong> {new Date(event.date).toLocaleString()}
-                                    </Typography> <br/> <br/>
-                                    <Typography variant="h5" gutterBottom>
-                                        {event.description}
-                                    </Typography> <br/> <br/>
-                                    <Typography variant="body1">
-                                        <strong>Location:</strong> &nbsp;{event.location.address}, {event.location.city} {event.location.postalCode}
-                                        <br/>
-                                        <strong>Contact:</strong> &nbsp;{event.contactInfo}
-                                    </Typography>
-                                </div>
-                            </div>
+                            <CardContent>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12}>
+                                        <Typography variant="h3" gutterBottom>
+                                            {event.title}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <div className="eventImageContainer">
+                                            <img src={event.eventImage}/>
+                                        </div>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <div>
+                                            <Typography variant="h6" gutterBottom>
+                                                <strong>About the Event:</strong>
+                                            </Typography>
+                                            <Typography variant="h5" gutterBottom>
+                                                {event.description}
+                                            </Typography>
+                                        </div>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <Typography variant="h6">
+                                            <strong>Location:</strong> &nbsp;{event.location.address}, {event.location.city} {event.location.postalCode}
+                                            <br/>
+                                            <strong>Date:</strong> {new Date(event.date).toLocaleString()}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <Typography variant="h6" gutterBottom>
+                                            <strong>Organized by:</strong> {event.organizer}
+                                            <br/>
+                                            <strong>Contact:</strong> &nbsp;{event.contactInfo}
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                            </CardContent>
+
                         )
                     ) : (
                         <Typography sx={{fontSize: 14}} color="text.secondary" gutterBottom>
                             Event not found
                         </Typography>
                     )}
-                </CardContent>
             </Card>
         </Box>
     );

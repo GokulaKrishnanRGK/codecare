@@ -16,7 +16,7 @@ import {useTranslation} from "react-i18next";
 import Roles from "../../models/Roles.ts";
 import * as authUtil from '../../utils/auth-util.ts'
 import {getUser} from "../../store/loginUser-slice.ts";
-import Container from "@mui/material/Container";
+import {InfinitySpin} from 'react-loader-spinner';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -79,9 +79,12 @@ function Events() {
     const [searchParams, setSearchParams] = useState({});
     const {t} = useTranslation('events');
     const user = useSelector(getUser());
+    const [isDataLoading, setIsDataLoading] = useState(true);
 
     useEffect(() => {
+        setIsDataLoading(true);
         searchEvents(searchParams).then((event) => {
+            setIsDataLoading(false)
             dispatch(loadEvents(event));
         });
     }, [searchParams]);
@@ -141,15 +144,22 @@ function Events() {
                             (<></>)
                     }
                 </Box>
-                <Grid container spacing={4}>
-                    {events.map((event, index) => (
-                        <Grid item xs={12} md={6} sx={{cursor:'pointer'}} key={index} onClick={() => navigate(`/events/${event.id}`)}>
-                            <Item>
-                                <EventTile event={event} eventID={event.id}></EventTile>
-                            </Item>
-                        </Grid>
-                    ))}
-                </Grid>
+                {(isDataLoading)
+                    ?
+                    <div className="eventImageContainer">
+                        <InfinitySpin/>
+                    </div>
+                    :
+                    <Grid container spacing={4}>
+                        {events.map((event, index) => (
+                            <Grid item xs={12} md={6} sx={{cursor:'pointer'}} key={index} onClick={() => navigate(`/events/${event.id}`)}>
+                                <Item>
+                                    <EventTile event={event} eventID={event.id}></EventTile>
+                                </Item>
+                            </Grid>
+                        ))}
+                    </Grid>
+                }
             </main>
         </>
     )
