@@ -5,7 +5,7 @@ import Login from "../models/login.js";
 export const logout = async (request, response) => {
     try {
         const user = request.user;
-        await Login.updateOne({user: user._id}, {$set: {tokens: []}});
+        await Login.findOneAndUpdate({user: user._id}, {$set: {tokens: []}}, {new: true});
         setSuccessCode(StatusCodes.OK, response);
     } catch (err) {
         console.log(err);

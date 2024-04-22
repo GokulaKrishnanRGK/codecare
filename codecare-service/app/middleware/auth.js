@@ -16,7 +16,7 @@ const auth = (roles) => async (request, response, next) => {
         const token = authorizationHeader.replace("Bearer ", "");
         const secretKey = process.env.JWT_KEY
         const decoded = jwt.verify(token, secretKey);
-        const login = await authService.search({
+        const login = await authService.searchOne({
             _id: new mongoose.Types.ObjectId(decoded._id),
             "tokens": token,
         });

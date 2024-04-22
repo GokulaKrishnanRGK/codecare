@@ -1,12 +1,8 @@
 import Login from '../models/login.js';
+import mongoose from "mongoose";
 
-export const save = async (login) => {
-    const loginModel = new Login(login);
-    return await loginModel.save();
-}
-
-export const search = async (params) => {
-    return await Login.aggregate([
+const loginSearchPipeling = (params) => {
+    return [
         {
             $match: params
         },
@@ -36,7 +32,6 @@ export const search = async (params) => {
             $project: {
                 id: "$_id",
                 username: "$username",
-                password: "$password",
                 user: {
                     id: "$user._id",
                     username: "$user.username",
@@ -54,7 +49,22 @@ export const search = async (params) => {
                 _id: 1
             }
         }
-    ]).exec().then( data=>{
+    ]
+};
+
+export const save = async (login) => {
+    const loginModel = new Login(login);
+    return await loginModel.save();
+}
+
+export const search = async (params) => {
+    return await Login.aggregate(loginSearchPipeling(params)).exec().then(data => {
+        return data;
+    });
+}
+
+export const searchOne = async (params) => {
+    return await Login.aggregate(loginSearchPipeling(params)).exec().then(data => {
         return data[0];
     });
 }
@@ -75,5 +85,18 @@ export const findByCredentials = async (username) => {
         return null;
     } catch (error) {
         throw new Error(error.message);
+    }
+}
+
+export const updateRole = async (userId, roleId) => {
+    try {
+        const login = await Login.findOneAndUpdate({user: new mongoose.Types.ObjectId(userId)}, {$set: {role: new mongoose.Types.ObjectId(roleId)}}, {new: true});
+        if (login) {
+            return login
+        }
+        return null;
+    } catch (error) {
+        console.log(error);
+        throw error;
     }
 }
