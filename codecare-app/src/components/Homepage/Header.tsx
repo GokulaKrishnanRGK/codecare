@@ -46,6 +46,7 @@ export default function Header(props: HeaderProps) {
                 </SignedIn>
                 <SignedOut>
                     <Link href="/signin">Sign In</Link>
+                    <Link href="/signup">Sign up</Link>
                 </SignedOut>
                 <MyButton
                     label="Donate"

@@ -82,7 +82,7 @@ export default function HomePage() {
       <>
         <main>
           <MainFeaturedPost post={mainFeaturedPost} />
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', margin: '0%', padding:'0%'}}>
               <h1>Featured Posts</h1>
               <div style={{ position:'relative', left:'380px', textAlign: 'center', width: '100%' }}>
                   <Grid container spacing={2}>
