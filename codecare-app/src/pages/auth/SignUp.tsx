@@ -1,7 +1,6 @@
 import { SignUp } from '@clerk/clerk-react';
 import signUpImage from './../../assets/doctor_img1.jpg'
 
-
 export default function SignUpPage() {
     return (
         <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>

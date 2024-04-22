@@ -1,9 +1,3 @@
-// import { SignIn } from "@clerk/clerk-react"
-
-// export default function SignInPage() {
-//     return <SignIn path="/signin" signUpUrl="/signup" fallbackRedirectUrl='/signedIn' signUpFallbackRedirectUrl='/signedUp' afterSignOutUrl='/signedOut' />;
-// }
-
 import { SignIn } from '@clerk/clerk-react';
 import signInImage from './../../assets/doctor_img2.jpg'
 

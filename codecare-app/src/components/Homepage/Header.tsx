@@ -18,7 +18,6 @@ import MyButton from '../../utils/MyButton';
 import {SignedIn, SignedOut, UserButton} from "@clerk/clerk-react";
 import { FormControlLabel, Switch } from '@mui/material';
 import i18n from '../../i18n';
-import i18next from 'i18next';
 import { useTranslation } from 'react-i18next';
 
 
