@@ -14,7 +14,7 @@ export const login = async (request, response) => {
         const {username} = {...request.body};
         const loginMin = await authService.findByCredentials(username);
         const token = await loginMin.generateAuthToken(process.env.JWT_KEY);
-        const login = await authService.search({_id: new mongoose.Types.ObjectId(loginMin._id)});
+        const login = await authService.searchOne({_id: new mongoose.Types.ObjectId(loginMin._id)});
         const user = {
             username: login.username,
             firstname: login.user.firstname,
@@ -57,13 +57,13 @@ export const register = async (request, response) => {
 export const get = async (request, response) => {
     const {username} = {...request.body};
     try {
-        const login = await authService.search({username: username});
+        const login = await authService.searchOne({username: username});
         if (login === undefined || login === null || login.length === 0) {
             throw new Error("Invalid login");
         }
         setSuccessCode(StatusCodes.OK, response);
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
     }
 }
