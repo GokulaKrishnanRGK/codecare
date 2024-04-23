@@ -12,15 +12,15 @@ export const searchAppointments = async (params = {}): Promise<ResponseObject<Ap
 
 
 export const searchAllAppointments = async (params = {}): Promise<ResponseObject<Appointment[]>> => {
-    return await search<{ data: Appointment[] }>(allAppointmentsAPI, params);
+    return await search<Appointment>(allAppointmentsAPI, params);
 }
 
 export const createAppointment = async (appointment = {}): Promise<ResponseObject<Appointment>> => {
     return await postForm<Appointment>(appointmentAPI, appointment);
 }
 
-export const updateAppointment = async (appointment: Appointment) => {
-    return await update(appointmentAPI, appointment);
+export const updateAppointment = async (appointment: {}): Promise<ResponseObject<Appointment>> => {
+    return await update<any>(appointmentAPI, appointment);
 }
 
 export const deleteAppointment = async (id: string) => {

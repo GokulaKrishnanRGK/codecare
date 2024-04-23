@@ -18,6 +18,9 @@ import {ResponseObject} from "../../models/ResponseObject.ts";
 import * as appointmentService from "../../services/appointment-service.ts";
 import Appointment from "../../models/Appointment.ts";
 import {useNavigate} from "react-router-dom";
+import {loadAppointments} from "../../store/appointment-slice.ts";
+import {useDispatch} from "react-redux";
+import {AppDispatch} from "../../store";
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -43,7 +46,7 @@ export function CreateAppointmentModal(props: CreateAppointmentModalProps): Reac
     const [issue, setIssue] = useState<string>('');
     const [description, setDescription] = useState<string>('');
     const [specializations, setSpecializations] = useState<Specialization[]>([]);
-    const navigate = useNavigate();
+    const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
         doctorService.search({}).then((response: ResponseObject<Doctor[]>) => {
@@ -87,8 +90,12 @@ export function CreateAppointmentModal(props: CreateAppointmentModalProps): Reac
         }
         appointmentService.createAppointment(newAppointment).then((response: ResponseObject<Appointment>) => {
             if (response.data) {
-                alert('appointment booked');
-                navigate('/appointments');
+                appointmentService.searchAppointments({}).then((response: ResponseObject<Appointment[]>) => {
+                    if (response.data) {
+                        dispatch(loadAppointments(response.data));
+                    }
+                })
+                handleClose();
             }
         });
 

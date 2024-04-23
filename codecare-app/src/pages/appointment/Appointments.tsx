@@ -9,6 +9,9 @@ import Paper from '@mui/material/Paper';
 import Appointment from './../../models/Appointment.ts';
 import CreateAppointmentModal from './../../components/Appointments/CreateAppointmentModal';
 import MyButton from '../../utils/MyButton.tsx';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import {getAll, loadAppointments} from "../../store/appointment-slice.ts";
 import {useDispatch, useSelector} from "react-redux";
 import {useEffect} from "react";
@@ -17,58 +20,11 @@ import {ResponseObject} from "../../models/ResponseObject.ts";
 import {AppDispatch} from "../../store";
 import {searchAppointments} from "../../services/appointment-service.ts";
 
-/*const rows: Array<Appointment> = [
-    {
-        appointmentId: "ABC12345",
-        user: {
-            userId: 'U1234567',
-            username: 'johnDoe',
-            firstname: 'John',
-            lastname: 'Doe'
-        },
-        doctor: {
-            doctorId: 'D9876543',
-            doctorFirstname: 'Jane',
-            doctorLastname: 'Smith',
-            specialization: 'Orthopedics',
-            roomNo: '101',
-            hospitalName: 'City Hospital',
-            city: 'New York'
-        },
-        appointmentDate: '04/28/2024',
-        appointmentStartTime: '09:30',
-        appointmentEndTime: '10:00',
-        issue: ['Knee Pain'],
-        medicalDiagnosis: 'Osteoarthritis',
-        prescription: 'Painkillers',
-        status: 'BOOKED'
-    },
-    {
-        appointmentId: "DEF67890",
-        user: {
-            userId: 'U2345678',
-            username: 'janeDoe',
-            firstname: 'Jane',
-            lastname: 'Doe'
-        },
-        doctor: {
-            doctorId: 'D8765432',
-            doctorFirstname: 'Bob',
-            doctorLastname: 'Williams',
-            specialization: 'Cardiology',
-            roomNo: '102',
-            hospitalName: 'Heart Center',
-            city: 'Chicago'
-        },
-        appointmentDate: '05/01/2024',
-        appointmentStartTime: '14:00',
-        appointmentEndTime: '14:30',
-        issue: ['Heart Palpitations'],
-        medicalDiagnosis: 'Arrhythmia',
-        prescription: 'Beta-blockers',
-        status: 'BOOKED'
-    }
-];*/
+import * as authUtil from "../../utils/auth-util.ts";
+import Roles from "../../models/Roles.ts";
+import { getUser } from '../../store/loginUser-slice.ts';
+import EditAppointmentModal from "../../components/Appointments/EditAppointmentModal.tsx"
+
 
 const BasicTable = () => {
     const [open, setOpen] = React.useState(false);
@@ -76,6 +32,7 @@ const BasicTable = () => {
     const handleClose = () => setOpen(false);
     const appointments = useSelector(getAll());
     const dispatch = useDispatch<AppDispatch>();
+    const user = useSelector(getUser());
 
     useEffect(() => {
         appointmentService.searchAppointments({}).then((response: ResponseObject<Appointment[]>) => {
@@ -86,22 +43,58 @@ const BasicTable = () => {
     }, [])
 
 
+    const [openEditModal, setOpenEditModal] = React.useState(false);
+    const [selectedAppointment, setSelectedAppointment] = React.useState<Appointment | null>(null);
+
+
+    const handleEditOpen = (appointment: Appointment) => {
+        setSelectedAppointment(appointment);
+        setOpenEditModal(true);
+    };
+
+    const handleEditClose = () => {
+        setOpenEditModal(false);
+        setSelectedAppointment(null);
+    };
+
+
+
     const rowData = appointments.map((row) => (
         <TableRow
-            key={row.appointmentId}
+            key={row.id}
             sx={{'&:last-child td, &:last-child th': {border: 0}}}
         >
-            <TableCell component="th" scope="row">{row.appointmentId} </TableCell>
-            <TableCell align="right">{row.user.firstname} {row.user.lastname}</TableCell>
-            <TableCell align="right">Dr. {row.doctor.firstname} {row.doctor.lastname}</TableCell>
-            <TableCell align="right">{row.doctor.specialization}</TableCell>
+            {authUtil.isUserInRole(user, [Roles.DOCTOR]) ?
+                (
+                    <TableCell align="right">{row.user.firstname} {row.user.lastname}</TableCell>
+                )
+                : (<></>) }
+
+            {authUtil.isUserInRole(user, [Roles.USER]) ?(
+                    <TableCell align="right">Dr. {row.doctor.firstname} {row.doctor.lastname}</TableCell>):
+                (<></>)}
+
+            {authUtil.isUserInRole(user, [Roles.USER]) ?
+                (
+                    <TableCell align="right">{row.doctor.specialization}</TableCell>):(<></>)}
             <TableCell
                 align="right">{row.doctor.roomNo} {row.doctor.address.hospitalName} {row.doctor.address.city}</TableCell>
             <TableCell
                 align="right">{row.appointmentDate} at {row.appointmentStartTime} to {row.appointmentEndTime}</TableCell>
             <TableCell align="right">{row.issue[0]}</TableCell>
-            <TableCell align="right">{row.medicalDiagnosis}</TableCell>
-            <TableCell align="right">{row.status}</TableCell>
+            <TableCell align="right">
+                {authUtil.isUserInRole(user, [Roles.DOCTOR]) ? (
+                    <IconButton color="primary" onClick={() => handleEditOpen(row)}>
+                        <EditIcon />
+                    </IconButton>
+                ) : (
+                    <IconButton color="primary">
+                        <VisibilityIcon />
+                    </IconButton>
+                )}
+            </TableCell>
+
+
 
         </TableRow>
 
@@ -110,24 +103,46 @@ const BasicTable = () => {
 
     return (
         <div>
-            <div>
-                <MyButton label="Create Appointment +" onClick={handleOpen}/>
-                <CreateAppointmentModal open={open} handleClose={handleClose}/>
-            </div>
+            {authUtil.isUserInRole(user, [Roles.USER]) ? (
+                <div>
+                    <MyButton label="Create Appointment +" onClick={handleOpen}/>
+                    <CreateAppointmentModal open={open} handleClose={handleClose}/>
+                </div>
+            ):(<></>)}
+            <br/>
             <TableContainer component={Paper}>
                 <Table sx={{minWidth: 800}} aria-label="simple table">
                     <TableHead>
 
                         <TableRow>
-                            <TableCell>Appointment ID</TableCell>
-                            <TableCell align="right">Patient Name</TableCell>
-                            <TableCell align="right">Doctor's Name</TableCell>
-                            <TableCell align="right">Specialization</TableCell>
+                            {authUtil.isUserInRole(user, [Roles.DOCTOR]) ?
+                                (
+                                    <TableCell align="right">Patient Name</TableCell>):(<></>)}
+
+                            {authUtil.isUserInRole(user, [Roles.USER]) ?
+                                (
+                                    <TableCell align="right">Doctor's Name</TableCell>)
+                                :
+                                (<></>)
+                            }
+
+                            {authUtil.isUserInRole(user, [Roles.USER]) ?
+                                (
+                                    <TableCell align="right">Specialization</TableCell>):
+                                (<></>)
+                            }
                             <TableCell align="right">Location</TableCell>
                             <TableCell align="right">Appointment Date & time</TableCell>
                             <TableCell align="right">Issue</TableCell>
-                            <TableCell align="right">Medical Diagnosis</TableCell>
-                            <TableCell align="right">Status</TableCell>
+
+                            <TableCell align="right">
+                                {authUtil.isUserInRole(user, [Roles.DOCTOR]) ?
+                                    (<>EDIT</>):(
+
+                                        (<>VIEW</>)
+                                    )}
+
+                            </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -135,6 +150,9 @@ const BasicTable = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <div>
+                <EditAppointmentModal open={openEditModal} handleClose={handleEditClose} appointment={selectedAppointment || {} as Appointment} />
+            </div>
         </div>
     );
 }

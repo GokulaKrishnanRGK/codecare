@@ -3,6 +3,7 @@ import * as appointmentBookingService from '../services/appointment-booking-serv
 import { setSuccessResponse, setErrorCode } from '../utils/response-handler.js';
 import { StatusCodes } from "http-status-codes";
 import  mongoose  from 'mongoose';
+import * as MedicalDiagnosisService from '../services/medical-diagnosis-service.js';
 
 
 
@@ -121,12 +122,14 @@ export const deleteById = async (request, response) => {
  */
 export const updateById = async (request, response) => {
     try {
-        const { id } = request.params;
-        const result = await appointmentBookingService.updateAppointmentBooking({ ...request.body, id });
+        const { appointmentId } = request.params;
+        const diagnosisData = { ...request.body };
+        const diagnosis = await MedicalDiagnosisService.add(diagnosisData);
+        const status =  request.body.status;
+        const result = await appointmentBookingService.updateDiagnosisId(diagnosis._id, appointmentId, status);
         setSuccessResponse(StatusCodes.OK, result, response);
     } catch (error) {
         console.log(error);
         setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
     }
 };
-
