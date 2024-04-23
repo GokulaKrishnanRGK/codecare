@@ -5,6 +5,7 @@ import NotesPage from './NotePage';
 import EditIcon from '@mui/icons-material/Edit';
 import {useSelector} from "react-redux";
 import {getUser} from "../store/loginUser-slice";
+import {AppState} from "../store";
 
 const ProfilePage: React.FC = () => {
     const [open, setOpen] = useState(false);
@@ -12,13 +13,14 @@ const ProfilePage: React.FC = () => {
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-    const [profile, setProfile] = useState({
+    /*const [profile, setProfile] = useState({
         age: 0,
         gender: '',
         vaccinations: [
             { id: '', name: '', date: '' }
         ]
-    });
+    });*/
+    const profile = useSelector((state: AppState) => state.profile);
 
     return (
         <Container component="main" maxWidth="lg" sx={{ mt: 4, display: 'flex', flexDirection: 'row' }}>
