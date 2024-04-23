@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper ,Typography,} from '@mui/material';
+import { Box, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper ,Typography,Button} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import { useSelector, useDispatch } from 'react-redux';
@@ -11,6 +11,7 @@ import * as medicalDiagnosisService from '../services/medical-diagnosis-service'
 import { ResponseObject } from '../models/ResponseObject';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
+
 
 const NotesPage: React.FC = () => {
 
@@ -62,13 +63,9 @@ const NotesPage: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+      <Typography variant="h3" gutterBottom sx={{ fontWeight: 'bold' , }}>
         {t('medical-diagnoses.typography.caption')}
       </Typography>
-      <IconButton
-        onClick={() => openForm()} color="primary" size="large" >
-        <AddIcon />
-      </IconButton>
       {/* {currentNote && <NoteForm note={currentNote} onSave={handleSave} />} */}
       <NoteForm note={currentNote} onSave={handleSave} open={isModalOpen} onClose={() => setIsModalOpen(false)} />
       <TableContainer component={Paper}>
@@ -97,6 +94,15 @@ const NotesPage: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={() => openForm()}
+          sx={{ mb: 2, color: 'white', mt: 2 }}
+      >
+        Add Diagnosis
+      </Button>
       </Box>
   );
 };

@@ -13,9 +13,10 @@ import SignUpPage from "./pages/auth/SignUp.tsx";
 import SignedUpPage from "./pages/auth/SignedUp.tsx";
 import SignedInPage from "./pages/auth/SignedIn.tsx";
 import SignedOutPage from "./pages/auth/SignedOut.tsx";
-import NotesPage from "./pages/NotePage.tsx";
 import ListUsers from "./pages/admin/ListUsers.tsx";
 import Appointment from "./pages/appointment/Appointments.tsx";
+import ProfilePage from "./pages/ProfilePage";
+import NotesPage from "./pages/NotePage";
 
 
 const router = createBrowserRouter([
@@ -48,9 +49,9 @@ const router = createBrowserRouter([
             Component: SignedOutPage
         },
         {
-            path: '/medical-diagnoses',
-            Component: NotesPage
-        }
+            path: '/profiles',
+            Component: ProfilePage
+        },
         ]
     },
     {

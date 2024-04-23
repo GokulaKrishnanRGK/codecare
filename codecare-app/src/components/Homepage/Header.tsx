@@ -158,6 +158,23 @@ export default function Header(props: HeaderProps) {
 
                     }
 
+                {
+                    authUtil.isUserInRole(user, [Roles.USER]) ?
+                        (
+                            <Link
+                                color="inherit"
+                                noWrap
+                                variant="body1"
+                                onClick={() => {
+                                    return navigate(`/profiles`)
+                                }}
+                                sx={{ p: 1, flexShrink: 0, cursor: 'pointer'}}
+                            >
+                                {t('header.link.label.profiles')}
+                            </Link>):<></>
+
+                }
+
                 <MyButton
                     label= {t('header.button.label.donate')}
                     onClick={() => navigate(`/donate`)}

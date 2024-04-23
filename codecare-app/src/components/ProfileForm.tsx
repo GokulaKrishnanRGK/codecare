@@ -17,13 +17,6 @@ const ProfileForm: React.FC = () => {
   return (
       <Box sx={{ padding: 2 }}>
           <TextField
-              label="Name"
-              value={profile.name}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('name', e.target.value)}
-              margin="normal"
-              fullWidth
-          />
-          <TextField
               label="Age"
               type="number"
               value={profile.age || ''}
