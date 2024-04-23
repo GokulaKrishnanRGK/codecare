@@ -5,32 +5,26 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from '@mui/icons-material/Delete';
-import * as eventService from "../../services/event-service.ts";
 import * as authUtil from "../../utils/auth-util.ts";
 import Roles from "../../models/Roles.ts";
 import {useDispatch, useSelector} from "react-redux";
 import {getUser} from "../../store/loginUser-slice.ts";
 import {AppDispatch} from "../../store";
-import {loadEvents} from "../../store/event-slice.ts";
 import React from "react";
 
 interface Eventprops {
     event: Event,
-    eventID: string
+    eventID: string,
+    deletePop: (open: boolean, id) => void
 }
 
 export default function EventTile(props: Eventprops) {
     const event = props.event
     const user = useSelector(getUser());
-    const dispatch = useDispatch<AppDispatch>();
 
     const handleDelete = (e: MouseEvent, id) => {
         e.stopPropagation();
-        eventService.deleteEvent(id).then(() => {
-            eventService.searchEvents().then((event) => {
-                dispatch(loadEvents(event));
-            })
-        });
+        props.deletePop(true, id);
     }
 
     // Function to truncate content to maximum 10 words followed by "..."

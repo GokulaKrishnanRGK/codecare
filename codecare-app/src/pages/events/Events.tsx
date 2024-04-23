@@ -1,6 +1,16 @@
 import { useEffect, useState } from 'react';
 import Paper from '@mui/material/Paper';
-import {Box, FormControl, Grid, InputBase, InputLabel, MenuItem, Select, SelectChangeEvent} from '@mui/material';
+import {
+    Box,
+    Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+    FormControl,
+    Grid,
+    InputBase,
+    InputLabel,
+    MenuItem,
+    Select,
+    SelectChangeEvent
+} from '@mui/material';
 import { searchEvents } from '../../services/event-service.ts';
 import { useNavigate } from 'react-router-dom';
 import { getAll, loadEvents } from '../../store/event-slice.ts';
@@ -17,6 +27,7 @@ import Roles from "../../models/Roles.ts";
 import * as authUtil from '../../utils/auth-util.ts'
 import {getUser} from "../../store/loginUser-slice.ts";
 import {InfinitySpin} from 'react-loader-spinner';
+import * as eventService from "../../services/event-service.ts";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -80,6 +91,26 @@ function Events() {
     const {t} = useTranslation('events');
     const user = useSelector(getUser());
     const [isDataLoading, setIsDataLoading] = useState(true);
+    const [open, setOpen] = useState(false);
+    const [deleteId, setDeleteId] = useState('');
+
+    const handleClickOpen = (open, id) => {
+        setOpen(open);
+        setDeleteId(id);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleDelete = () => {
+        eventService.deleteEvent(deleteId).then(() => {
+            eventService.searchEvents().then((event) => {
+                dispatch(loadEvents(event));
+            })
+        });
+        setOpen(false);
+    }
 
     useEffect(() => {
         setIsDataLoading(true);
@@ -105,6 +136,26 @@ function Events() {
 
     return (
         <>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="draggable-dialog-title"
+            >
+                <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+                    Delete Event
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to delete this event?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button autoFocus onClick={handleClose}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleDelete}>Delete</Button>
+                </DialogActions>
+            </Dialog>
             <main>
                 <Box sx={{display: 'flex', alignItems: 'center'}}>
                     <div>
@@ -154,7 +205,7 @@ function Events() {
                         {events.map((event, index) => (
                             <Grid item xs={12} md={6} sx={{cursor:'pointer'}} key={index} onClick={() => navigate(`/events/${event.id}`)}>
                                 <Item>
-                                    <EventTile event={event} eventID={event.id}></EventTile>
+                                    <EventTile event={event} eventID={event.id} deletePop={handleClickOpen}></EventTile>
                                 </Item>
                             </Grid>
                         ))}

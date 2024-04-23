@@ -7,6 +7,7 @@ import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
 import * as eventService from '../../services/event-service.ts';
 import Grid from "@mui/material/Grid";
+import dayjs from "dayjs";
 
 const initialEventState: Event = {
     type: '',
@@ -210,7 +211,7 @@ const EditEvent = (props: EventProps) => {
                                 </div>
                                 <div>
                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <DateTimePicker name="date" label="Event Date" disablePast sx={{width: 350}}/>
+                                        <DateTimePicker name="date" label="Event Date" defaultValue={dayjs(props.editEvent.date)} disablePast sx={{width: 350}}/>
                                     </LocalizationProvider>
                                 </div>
                             </div>

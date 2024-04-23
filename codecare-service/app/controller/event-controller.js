@@ -100,7 +100,7 @@ export const put = async (request, response) => {
         const event = {...request.body};
         const currentEvent = await eventService.getEventDetails(request.params.id);
         if (event.type) currentEvent.type = event.type;
-        if (event.date) currentEvent.creationDate = event.creationDate;
+        if (event.date) currentEvent.date = event.date;
         if (event.title) currentEvent.title = event.title;
         if (event.description) currentEvent.description = event.description;
         if (event.organizer) currentEvent.organizer = event.organizer;
