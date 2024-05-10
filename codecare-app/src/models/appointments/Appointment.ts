@@ -1,5 +1,5 @@
 export default interface Appointment {
-    appointmentId: string,
+    id: string,
 
     user: {
         userId: string,
@@ -28,6 +28,4 @@ export default interface Appointment {
     medicalDiagnosis: string,
     prescription: string,
     status: string
-
-
 }

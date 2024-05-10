@@ -1,4 +1,4 @@
-import {User} from "../models/User.ts";
+import {User} from "../models/auth/User.ts";
 import {postForm, search} from "./api-service.ts";
 import {ResponseObject} from "../models/ResponseObject.ts";
 

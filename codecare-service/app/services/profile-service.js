@@ -21,12 +21,12 @@ export const searchByUserId = async (userId) => {
             $unwind: "$user" 
         },
         {
-            $project: {  // Define what to include in the results explicitly
-                id: 1,  // Exclude MongoDB default _id from the top level if not needed
+            $project: {
+                id: 1,
                 age: 1,
                 sex: 1,
                 vaccinations: 1,
-                user: {  // Construct a user object to include specific details
+                user: {
                     id: "$user._id",
                     username: "$user.username",
                     fullname: { $concat: ["$user.firstname", " ", "$user.lastname"] }

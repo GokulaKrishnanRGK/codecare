@@ -1,11 +1,11 @@
 import {useUser} from "@clerk/clerk-react";
 import {useNavigate} from "react-router-dom";
-import {Register} from "../../models/Register.ts";
+import {Register} from "../../models/auth/Register.ts";
 import * as authService from "../../services/auth-service.ts";
 import {getUser, loadLoginUser} from "../../store/loginUser-slice.ts";
 import {useDispatch, useSelector} from "react-redux";
 import {ResponseObject} from "../../models/ResponseObject.ts";
-import {LoginDO} from "../../models/LoginDO.ts";
+import {LoginDO} from "../../models/auth/LoginDO.ts";
 import {AppDispatch} from "../../store";
 import {HttpStatusCode} from "axios";
 

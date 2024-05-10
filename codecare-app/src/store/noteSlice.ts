@@ -1,6 +1,5 @@
-// store/noteSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Note } from './../models/Note';
+import { Note } from './../models/diagnosis/Note';
 import { AppState } from '.';
 
 export type NotesState = Note[];
@@ -11,7 +10,7 @@ export const noteSlice = createSlice({
   name: 'notes',
   initialState,
   reducers: {
-    loadNotes: (state: NotesState, action: PayloadAction<Note[]>) => {
+    loadNotes: (_state: NotesState, action: PayloadAction<Note[]>) => {
       return [...action.payload];
     }
   },

@@ -9,6 +9,14 @@ import {StatusCodes} from "http-status-codes";
 import mongoose from "mongoose";
 import {Roles} from "../entities/roles-enum.js";
 
+const cookieOptions = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "lax",
+  maxAge: 1000 * 60 * 60 * 24,
+  path: "/",
+};
+
 export const login = async (request, response) => {
     try {
         const {username} = {...request.body};
@@ -22,7 +30,8 @@ export const login = async (request, response) => {
             id: login.user._id,
             role: login.role.name
         };
-        setSuccessResponse(StatusCodes.OK, {user: user, token: token}, response);
+        response.cookie("codecare_token", token, cookieOptions);
+        setSuccessResponse(StatusCodes.OK, {user: user}, response);
     } catch (error) {
         console.log(error);
         setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
@@ -47,7 +56,8 @@ export const register = async (request, response) => {
             id: user.user._id,
             role: user.role.name
         };
-        setSuccessResponse(StatusCodes.OK, {user: userResp, token: token}, response);
+        response.cookie("codecare_token", token, cookieOptions);
+        setSuccessResponse(StatusCodes.OK, {user: userResp }, response);
     } catch (error) {
         console.log(error);
         setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);

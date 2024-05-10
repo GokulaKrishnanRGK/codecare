@@ -16,8 +16,6 @@ import SignedOutPage from "./pages/auth/SignedOut.tsx";
 import ListUsers from "./pages/admin/ListUsers.tsx";
 import Appointment from "./pages/appointment/Appointments.tsx";
 import ProfilePage from "./pages/ProfilePage";
-import NotesPage from "./pages/NotePage";
-
 
 const router = createBrowserRouter([
     {

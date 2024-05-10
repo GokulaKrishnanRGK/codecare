@@ -1,9 +1,9 @@
-import React, {useState, useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {getUsers, loadUsers} from '../../store/users-slice';
 import * as adminService from '../../services/admin-service';
 import AuthGuard from '../../components/Auth/AuthGuard';
-import Roles from '../../models/Roles';
+import Roles from '../../models/auth/Roles';
 import {
     Modal,
     Button,
@@ -22,20 +22,20 @@ import {
     MenuItem,
     TextField, Autocomplete
 } from '@mui/material';
-import {User} from "../../models/User.ts";
+import {User} from "../../models/auth/User.ts";
 import {ResponseObject} from "../../models/ResponseObject.ts";
 import * as doctorService from "../../services/doctor-service.ts";
-import Doctor from "../../models/Doctor.ts";
-import {Specialization} from "../../models/Specialization.ts";
+import Doctor from "../../models/auth/Doctor.ts";
+import {Specialization} from "../../models/auth/Specialization.ts";
 import * as authUtil from "../../utils/auth-util.ts"
 
 export default function ListUsers() {
     const dispatch = useDispatch();
-    const users = useSelector(getUsers());
+    const users = useSelector(getUsers);
     const [editedUser, setEditedUser] = useState(null);
     const [open, setOpen] = useState(false);
     const [role, setRole] = useState('');
-    const [searchParams, setSearchParams] = useState({});
+    const [searchParams] = useState({});
     const [doctorDetails, setDoctorDetails] = useState({
         id: '',
         user: '',
@@ -85,7 +85,7 @@ export default function ListUsers() {
     };
 
     const style = {
-        position: 'absolute' as 'absolute',
+        position: 'absolute',
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',

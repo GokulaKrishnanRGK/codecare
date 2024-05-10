@@ -1,5 +1,5 @@
 import {postForm, search} from "./api-service.ts";
-import {LoginDO} from "../models/LoginDO.ts";
+import {LoginDO} from "../models/auth/LoginDO.ts";
 import {ResponseObject} from "../models/ResponseObject.ts";
 
 export const getUser = async(data: {} = {}): Promise<ResponseObject<any>> => {

@@ -1,5 +1,5 @@
 import {deleteById, postForm, search, update} from './api-service';
-import Appointment from '../models/Appointment.ts';
+import Appointment from '../models/appointments/Appointment.ts';
 import {ResponseObject} from "../models/ResponseObject.ts";
 
 const appointmentAPI = 'appointment-bookings';  // for users,doctors

@@ -1,0 +1,80 @@
+import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
+import type Event from "../../models/events/Event";
+import type {EventSearchParams} from "../../models/events/EventDto.ts";
+import type {ApiResponse, Paginated} from "./apiTypes";
+
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
+export const eventsApi = createApi({
+  reducerPath: "eventsApi",
+  baseQuery: fetchBaseQuery({
+    baseUrl,
+    credentials: "include",
+  }),
+  tagTypes: ["Events", "Event"],
+  endpoints: (builder) => ({
+    getEvents: builder.query<Paginated<Event>, EventSearchParams | void>({
+      query: (params) => {
+        const query = new URLSearchParams();
+
+        if (params?.keyword) query.set("keyword", params.keyword);
+        if (params?.eventStatus) query.set("eventStatus", params.eventStatus);
+
+        if (params?.location) query.set("location", params.location);
+        if (params?.fromDate) query.set("fromDate", params.fromDate);
+        if (params?.toDate) query.set("toDate", params.toDate);
+
+        query.set("page", String(params?.page ?? 1));
+
+        const qs = query.toString();
+        return {url: `/events${qs ? `?${qs}` : ""}`, method: "GET"};
+      },
+      transformResponse: (response: ApiResponse<Paginated<Event>>): Paginated<Event> => response.data,
+      providesTags: (result) =>
+          result
+              ? [
+                {type: "Events", id: "LIST"},
+                ...result.items.map((ev) => ({type: "Event" as const, id: ev.id})),
+              ]
+              : [{type: "Events", id: "LIST"}],
+    }),
+
+    getEventById: builder.query<Event, string>({
+      query: (id) => ({url: `/events/${id}`, method: "GET"}),
+      transformResponse: (response: ApiResponse<Event>): Event => response.data,
+      providesTags: (_result, _err, id) => [{type: "Event", id}],
+    }),
+
+    createEvent: builder.mutation<Event, Partial<Event>>({
+      query: (body) => ({url: `/events`, method: "POST", body}),
+      transformResponse: (response: ApiResponse<Event>): Event => response.data,
+      invalidatesTags: [{type: "Events", id: "LIST"}],
+    }),
+
+    updateEvent: builder.mutation<Event, { id: string; body: Partial<Event> }>({
+      query: ({id, body}) => ({url: `/events/${id}`, method: "PUT", body}),
+      transformResponse: (response: ApiResponse<Event>): Event => response.data,
+      invalidatesTags: (_res, _err, arg) => [
+        {type: "Events", id: "LIST"},
+        {type: "Event", id: arg.id},
+      ],
+    }),
+
+    deleteEvent: builder.mutation<{ data: unknown } | unknown, string>({
+      query: (id) => ({url: `/events/${id}`, method: "DELETE"}),
+      transformResponse: (response: ApiResponse<Event>): Event => response.data,
+      invalidatesTags: (_res, _err, id) => [
+        {type: "Events", id: "LIST"},
+        {type: "Event", id},
+      ],
+    }),
+  }),
+});
+
+export const {
+  useGetEventsQuery,
+  useGetEventByIdQuery,
+  useCreateEventMutation,
+  useUpdateEventMutation,
+  useDeleteEventMutation,
+} = eventsApi;

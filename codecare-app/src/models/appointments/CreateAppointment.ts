@@ -1,5 +1,4 @@
 export default interface CreateAppointment{
-
     userId:string,
     doctorId:string,
     appointmentDate:string,

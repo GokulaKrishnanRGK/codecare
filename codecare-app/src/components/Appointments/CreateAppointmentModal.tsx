@@ -8,22 +8,21 @@ import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
 import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
 
-import Doctor from './../../models/Doctor';
+import Doctor from './../../models/auth/Doctor';
 import MyButton from '../../utils/MyButton';
 import dayjs from 'dayjs';
 import {Autocomplete, TextareaAutosize} from "@mui/material";
-import {Specialization} from "../../models/Specialization.ts";
+import {Specialization} from "../../models/auth/Specialization.ts";
 import * as doctorService from '../../services/doctor-service.ts'
 import {ResponseObject} from "../../models/ResponseObject.ts";
 import * as appointmentService from "../../services/appointment-service.ts";
-import Appointment from "../../models/Appointment.ts";
-import {useNavigate} from "react-router-dom";
+import Appointment from "../../models/appointments/Appointment.ts";
 import {loadAppointments} from "../../store/appointment-slice.ts";
 import {useDispatch} from "react-redux";
 import {AppDispatch} from "../../store";
 
 const style = {
-    position: 'absolute' as 'absolute',
+    position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
@@ -112,7 +111,7 @@ export function CreateAppointmentModal(props: CreateAppointmentModalProps): Reac
 
     const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setDescription(event.target.value);
-        let filteredDoctors: Doctor[] = [];
+        const filteredDoctors: Doctor[] = [];
         doctors.forEach((doctor) => {
             let doctorSpecializationDesc: string = '';
             specializations.forEach(specialization => {
@@ -129,7 +128,7 @@ export function CreateAppointmentModal(props: CreateAppointmentModalProps): Reac
         setFilteredDoctors(filteredDoctors);
     };
 
-    const handleDoctorChange = (event: React.SyntheticEvent<Element, Event>, value: Doctor | null) => {
+    const handleDoctorChange = (value: Doctor | null) => {
         if (value) {
             setNewAppointmentData(prevState => ({
                 ...prevState,

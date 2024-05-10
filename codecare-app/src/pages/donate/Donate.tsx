@@ -60,7 +60,6 @@ export default function Donate() {
                         <HealthAndSafetyOutlinedIcon />
                     </Avatar>
                     {userExists ? (
-                        <>
                             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
                                 <Typography component='h1' variant="h5" align='center'>{t('donation.head')}</Typography>
                                 <Typography> {t('donation.typo.name')} : {user.firstname} {user.lastname}</Typography>
@@ -94,7 +93,6 @@ export default function Donate() {
                                 * {t('donation.typo.caption')}
                             </Typography>
                             </Box>
-                        </>
                     ) : (
                         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
                             <Typography component="h3" variant="h5" align='center'>

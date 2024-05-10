@@ -1,4 +1,4 @@
-import {User} from "../models/User.ts";
+import {User} from "../models/auth/User.ts";
 
 export function isUserInRole(user: User, roles: string[]): boolean {
     if(user) {

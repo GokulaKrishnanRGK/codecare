@@ -45,13 +45,6 @@ enhance user experience and facilitate efficient healthcare interactions.
   essential information regarding the events. Through this module, we aim to promote proactive 
   health management and community participation in critical healthcare initiatives.
 
-## Contributors
-
-- Gokulakrishnan R - r.go@northeastern.edu
-- Yakgna Venkatesh Ramasamy - ramasamy.y@northeastern.edu
-- George Chempumthara - chempumthara.g@northeastern.edu
-- Badrinath Rohith Varma Datla - datla.b@northeastern.edu
-
 # Object Model
 
 ```mermaid

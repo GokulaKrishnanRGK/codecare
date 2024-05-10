@@ -1,73 +1,137 @@
-import Event from "../../models/Event.ts";
-import CardActionArea from "@mui/material/CardActionArea";
+import * as React from "react";
+import {useMemo} from "react";
+import {useSelector} from "react-redux";
+
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import CardActions from "@mui/material/CardActions";
+import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
-import DeleteIcon from '@mui/icons-material/Delete';
-import * as authUtil from "../../utils/auth-util.ts";
-import Roles from "../../models/Roles.ts";
-import {useDispatch, useSelector} from "react-redux";
-import {getUser} from "../../store/loginUser-slice.ts";
-import {AppDispatch} from "../../store";
-import React from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
 
-interface Eventprops {
-    event: Event,
-    eventID: string,
-    deletePop: (open: boolean, id) => void
+import type Event from "../../models/events/Event";
+import * as authUtil from "../../utils/auth-util";
+import Roles from "../../models/auth/Roles";
+import {getUser} from "../../store/loginUser-slice";
+
+interface EventTileProps {
+  event: Event;
+  onOpen: (id: string) => void;
+  onRequestDelete: (id: string) => void;
 }
 
-export default function EventTile(props: Eventprops) {
-    const event = props.event
-    const user = useSelector(getUser());
+function formatDateTime(dateIso: string): string {
+  return new Date(dateIso).toLocaleString();
+}
 
-    const handleDelete = (e: MouseEvent, id) => {
-        e.stopPropagation();
-        props.deletePop(true, id);
+export default function EventTile(props: Readonly<EventTileProps>): JSX.Element {
+  const {event, onOpen, onRequestDelete} = props;
+  const user = useSelector(getUser());
+
+  const canDelete = useMemo(
+      () => authUtil.isUserInRole(user, [Roles.ADMIN]),
+      [user]
+  );
+
+  const handleOpen = (): void => onOpen(event.id);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>): void => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleOpen();
     }
+  };
 
-    // Function to truncate content to maximum 10 words followed by "..."
-    const truncateContent = (content: string) => {
-        const words = content.split(" ");
-        if (words.length > 10) {
-            return words.slice(0, 10).join(" ") + "...";
-        } else {
-            return content;
-        }
-    }
+  const handleDeleteClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
+    e.stopPropagation();
+    onRequestDelete(event.id);
+  };
 
-    return (
-        <CardActionArea>
-            {
-                authUtil.isUserInRole(user, [Roles.ADMIN]) ?
-                    (<IconButton aria-label="delete" size="large" onClick={(e) => handleDelete(e, props.eventID)}>
-                        <DeleteIcon />
-                    </IconButton>)
-                    :
-                    (<></>)
-            }
-            <Card sx={{ display: 'flex', height: 350 }}>
-                <CardContent sx={{ flex: 1 }}>
-                    <div className="eventTileImgContainer">
-                        <img src={event.eventImage}/>
-                    </div>
-                    <div>
-                        <Typography component="h2" variant="h5">
-                            {event.title}
-                        </Typography>
-                        <Typography variant="subtitle1" color="text.secondary">
-                            {new Date(event.date).toLocaleString()}
-                        </Typography>
-                        <Typography variant="subtitle1" paragraph>
-                            {truncateContent(event.description)}
-                        </Typography>
-                        <Typography variant="subtitle1" color="primary">
-                            Continue reading...
-                        </Typography>
-                    </div>
-                </CardContent>
-            </Card>
-        </CardActionArea>
-    );
+  const altText = event.title
+      ? `Flyer for event: ${event.title}`
+      : "Event flyer";
+
+  return (
+      <Card
+          role="button"
+          tabIndex={0}
+          onClick={handleOpen}
+          onKeyDown={handleKeyDown}
+          aria-label={`Open event ${event.title}`}
+          sx={{
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            cursor: "pointer",
+            outline: "none",
+            "&:focus-visible": {
+              boxShadow: (theme) => `0 0 0 3px ${theme.palette.primary.main}`,
+            },
+          }}
+      >
+        <Box sx={{position: "relative"}}>
+          <CardMedia
+              component="img"
+              height="170"
+              image={event.eventImage || "/images/pwa-192x192.png"}
+              alt={altText}
+              loading="lazy"
+              sx={{
+                objectFit: "cover",
+                backgroundColor: "grey.100",
+              }}
+          />
+
+          {canDelete && (
+              <IconButton
+                  aria-label={`Delete event ${event.title}`}
+                  onClick={handleDeleteClick}
+                  sx={{
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                    backgroundColor: "rgba(255,255,255,0.85)",
+                    "&:hover": {backgroundColor: "rgba(255,255,255,1)"},
+                  }}
+              >
+                <DeleteIcon/>
+              </IconButton>
+          )}
+        </Box>
+
+        <CardContent sx={{flexGrow: 1}}>
+          <Typography component="h2" variant="h6" sx={{mb: 0.5}}>
+            {event.title}
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary" sx={{mb: 1}}>
+            {formatDateTime(event.date)}
+          </Typography>
+
+          <Typography
+              variant="body2"
+              sx={{
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+          >
+            {event.description}
+          </Typography>
+        </CardContent>
+
+        <CardActions sx={{pt: 0, px: 2, pb: 2}}>
+          <Button size="small" onClick={(e) => {
+            e.stopPropagation();
+            handleOpen();
+          }}>
+            View details
+          </Button>
+        </CardActions>
+      </Card>
+  );
 }

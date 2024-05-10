@@ -1,7 +1,7 @@
 import {ResponseObject} from "../models/ResponseObject.ts";
-import Doctor from "../models/Doctor.ts";
+import Doctor from "../models/auth/Doctor.ts";
 import * as apiService from "./api-service.ts";
-import {Specialization} from "../models/Specialization.ts";
+import {Specialization} from "../models/auth/Specialization.ts";
 
 export const search = async (params: {} = {}): Promise<ResponseObject<Doctor[]>> => {
     return await apiService.search<Doctor>('doctor/getAllDoctors', params);

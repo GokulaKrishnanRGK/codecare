@@ -1,4 +1,4 @@
-import { Note } from "../models/Note";
+import { Note } from "../models/diagnosis/Note";
 import { ResponseObject } from "../models/ResponseObject";
 import * as apiService from "./api-service";
 

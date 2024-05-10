@@ -1,59 +1,56 @@
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import HealtCareImage from './../../assets/healtcare_image.jpg';
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import HealthCareImage from "./../../assets/home.webp";
+import { useTranslation } from "react-i18next";
 
-//Models
-import { MainFeaturedPostProps } from '../../models/MainFeaturedPostProps';
-import { useTranslation } from 'react-i18next';
-
-
-export default function MainFeaturedPost(props: MainFeaturedPostProps) {
-  const { post } = props;
-  const {t} =useTranslation('common');
+export default function MainFeaturedPost() {
+  const { t } = useTranslation("common");
 
   return (
-    <Paper
-      sx={{
-        position: 'relative',
-        backgroundColor: 'grey.1000',
-        color: '#fff',
-        mb: 4,
-        backgroundSize: 'cover',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-        backgroundImage: `url(${HealtCareImage})`,
-      }}
-    >
-      <Box
-        sx={{
-          position: 'absolute',
-          top: 0,
-          bottom: 0,
-          right: 0,
-          left: 0,
-          backgroundColor: 'rgba(0,0,0,.3)',
-        }}
-      />
-      <Grid container>
-        <Grid item md={6}>
-          <Box
-            sx={{
-              position: 'relative',
-              p: { xs: 3, md: 6 },
-              pr: { md: 0 },
-            }}
-          >
-            <Typography component="h1" variant="h3" color="inherit" gutterBottom>
-            {t('homepage.link.label.homepageTitle')}
-            </Typography>
-            <Typography variant="h5" color="inherit" paragraph>
-            {t('homepage.link.label.homepageDescription')}
-            </Typography>
-          </Box>
+      <Paper
+          sx={{
+            p: { xs: 3, md: 6 },
+            mb: 4,
+            backgroundColor: "#fff",
+          }}
+      >
+        <Grid container spacing={4} alignItems="center">
+          <Grid item xs={12} md={6}>
+            <Box>
+              <Typography
+                  component="h1"
+                  variant="h3"
+                  gutterBottom
+                  sx={{ color: "#000" }}
+              >
+                {t("homepage.link.label.homepageTitle")}
+              </Typography>
+
+              <Typography
+                  variant="h5"
+                  paragraph
+                  sx={{ color: "#000" }}
+              >
+                {t("homepage.link.label.homepageDescription")}
+              </Typography>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Box
+                component="img"
+                src={HealthCareImage}
+                alt="Healthcare"
+                sx={{
+                  width: "100%",
+                  height: "auto",
+                  borderRadius: 2,
+                }}
+            />
+          </Grid>
         </Grid>
-      </Grid>
-    </Paper>
+      </Paper>
   );
 }

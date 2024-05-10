@@ -9,7 +9,7 @@ import { Typewriter } from 'react-simple-typewriter';
 import {useSelector} from "react-redux";
 import {getUser} from "./../../store/loginUser-slice.ts";
 import * as authUtil from "./../../utils/auth-util.ts";
-import Roles from "./../../models/Roles.ts";
+import Roles from "./../../models/auth/Roles.ts";
 
 
 //utilities

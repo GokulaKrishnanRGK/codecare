@@ -6,7 +6,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import Appointment from './../../models/Appointment.ts';
+import Appointment from './../../models/appointments/Appointment.ts';
 import CreateAppointmentModal from './../../components/Appointments/CreateAppointmentModal';
 import MyButton from '../../utils/MyButton.tsx';
 import IconButton from '@mui/material/IconButton';
@@ -18,10 +18,9 @@ import {useEffect} from "react";
 import * as appointmentService from '../../services/appointment-service.ts'
 import {ResponseObject} from "../../models/ResponseObject.ts";
 import {AppDispatch} from "../../store";
-import {searchAppointments} from "../../services/appointment-service.ts";
 
 import * as authUtil from "../../utils/auth-util.ts";
-import Roles from "../../models/Roles.ts";
+import Roles from "../../models/auth/Roles.ts";
 import { getUser } from '../../store/loginUser-slice.ts';
 import EditAppointmentModal from "../../components/Appointments/EditAppointmentModal.tsx"
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import {useNavigate} from 'react-router-dom';
-import MyButton from "../../utils/MyButton.tsx"; // Assuming you're using React Router for navigation
+import MyButton from "../../utils/MyButton.tsx";
 import {Card, CardHeader} from '@mui/material';
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";

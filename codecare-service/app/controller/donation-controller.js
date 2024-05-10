@@ -1,11 +1,13 @@
-import {setErrorCode, setSuccessResponse} from "../utils/response-handler.js";
+import { setSuccessResponse } from "../utils/response-handler.js";
 import {StatusCodes} from "http-status-codes";
 import Stripe from "stripe";
 
 export const donate = async (request, response, next) => {
+    const successUrl = `${process.env.SSL_URL}:${process.env.UI_PORT}/donate/success`;
+    const cancelUrl = `${process.env.SSL_URL}:${process.env.UI_PORT}/donate/cancel`;
     const stripe = new Stripe(process.env.STRIPE_KEY);
     try {
-        let user = {};
+        let user = null;
         if (request.user) {
             user = request.user.user;
         }
@@ -27,8 +29,8 @@ export const donate = async (request, response, next) => {
                 },
                 quantity: 1,
             }],
-            success_url: 'http://localhost:3002/donate/success',
-            cancel_url: 'http://localhost:3002/donate/cancel'
+            success_url: successUrl,
+            cancel_url: cancelUrl,
         });
         setSuccessResponse(StatusCodes.OK, {url: session.url}, response);
     } catch (error) {

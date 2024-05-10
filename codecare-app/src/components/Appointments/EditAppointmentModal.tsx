@@ -4,15 +4,11 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
 import Button from '@mui/material/Button';
-import { Appointment } from '../../models/Appointment.ts';
 import * as appointmentService from './../../services/appointment-service.ts';
 import { useNavigate } from 'react-router-dom';
-import Status from "../../models/Status.ts";
+import Status from "../../models/appointments/Status.ts";
+import Appointment from "../../models/appointments/Appointment.ts";
 
 interface EditAppointmentModalProps {
     open: boolean;
@@ -23,11 +19,6 @@ interface EditAppointmentModalProps {
 const EditAppointmentModal: React.FC<EditAppointmentModalProps> = ({ open, handleClose, appointment }) => {
     const [diagnosis, setDiagnosis] = React.useState(appointment.diagnosis || '');
     const [prescription, setPrescription] = React.useState(appointment.prescription || '');
-    const [status, setStatus] = React.useState(appointment.status || '');
-
-    const handleStatusChange = (event: React.ChangeEvent<{ value: any }>) => {
-        setStatus(event.target.value as string);
-    };
 
     const navigate=useNavigate();
 

@@ -5,7 +5,7 @@ import {AppDispatch} from "../../store";
 import {useUser} from "@clerk/clerk-react";
 import * as authService from "../../services/auth-service.ts";
 import {ResponseObject} from "../../models/ResponseObject.ts";
-import {LoginDO} from "../../models/LoginDO.ts";
+import {LoginDO} from "../../models/auth/LoginDO.ts";
 
 export default function SignedInPage() {
     const navigate = useNavigate();

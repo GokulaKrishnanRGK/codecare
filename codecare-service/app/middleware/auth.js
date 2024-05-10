@@ -8,17 +8,15 @@ import {
 
 const auth = (roles) => async (request, response, next) => {
     try {
-        const authorizationHeader = request.header("Authorization");
-        if (!authorizationHeader) {
-            setErrorCode(StatusCodes.UNAUTHORIZED, response);
-            return;
+        const token = request.cookies?.codecare_token;
+        if (!token) {
+          setErrorCode(StatusCodes.UNAUTHORIZED, response);
+          return;
         }
-        const token = authorizationHeader.replace("Bearer ", "");
-        const secretKey = process.env.JWT_KEY
-        const decoded = jwt.verify(token, secretKey);
+        const decoded = jwt.verify(token, process.env.JWT_KEY);
         const login = await authService.searchOne({
             _id: new mongoose.Types.ObjectId(decoded._id),
-            "tokens": token,
+            tokens: token,
         });
         if (!login) {
             setErrorCode(StatusCodes.UNAUTHORIZED, response);

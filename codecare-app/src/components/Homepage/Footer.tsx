@@ -6,7 +6,6 @@ import { Grid, TextField } from '@mui/material';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
-import EmailIcon from '@mui/icons-material/Email';
 import MyButton from '../../utils/MyButton';
 
 import { useTranslation } from 'react-i18next';
@@ -16,7 +15,7 @@ function Copyright() {
     return (
         <Typography variant="body2" color="text.secondary" align="center">
             {'© '}
-            <Link color="inherit" href="http://localhost:3002/">
+            <Link color="inherit" href="/">
                 Website
             </Link>{' '}
             {new Date().getFullYear()}
@@ -31,7 +30,7 @@ interface FooterProps {
 }
 
 export default function Footer(props: FooterProps) {
-    const { description, title } = props;
+    const { title } = props;
     const {t}=useTranslation('common');
 
     return (
