@@ -1,6 +1,5 @@
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
 
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
@@ -13,18 +12,11 @@ import Alert from "@mui/material/Alert";
 import AuthGuard from "../../components/Auth/AuthGuard";
 import Roles from "../../models/auth/Roles";
 
-import * as adminService from "../../services/admin-service";
-import {getUsers, loadUsers} from "../../store/users-slice";
-import type {ResponseObject} from "../../models/ResponseObject";
-import type {User} from "../../models/auth/User";
-
-import * as emailJsAPI from "../../utils/email-js-api";
-
 import EventForm from "./EventForm";
 import type {EventFormState} from "../../models/events/EventFormTypes.ts";
 import {useCreateEventMutation} from "../../store/api/eventsApi";
-
-const TEMPLATE_ID = import.meta.env.VITE_TEMPLATE_ID_EVENT;
+import type Event from "../../models/events/Event";
+import {getApiErrorMessage} from "../../store/api/apiTypes.ts";
 
 const defaultFormState: EventFormState = {
   type: "",
@@ -35,9 +27,6 @@ const defaultFormState: EventFormState = {
   contactInfo: "",
   eventImage: "",
   location: {
-    latitude: 0,
-    longitude: 0,
-    name: "Location Name",
     address: "",
     city: "",
     state: "",
@@ -48,8 +37,7 @@ const defaultFormState: EventFormState = {
 
 export default function CreateEvent(): JSX.Element {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const users = useSelector(getUsers);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const [createEvent, {isLoading: isCreating}] = useCreateEventMutation();
 
@@ -62,45 +50,32 @@ export default function CreateEvent(): JSX.Element {
   const closeSnack = (): void =>
       setSnack((prev) => ({...prev, open: false}));
 
-  useEffect(() => {
-    adminService.searchUsers({}).then((response: ResponseObject<User[]>) => {
-      if (response.data) dispatch(loadUsers(response.data));
-    });
-  }, [dispatch]);
-
   const handleCreate = async (payload: EventFormState): Promise<void> => {
     try {
-      const created = await createEvent(payload).unwrap();
+      const formData = new FormData();
+      formData.append("type", payload.type);
+      formData.append("title", payload.title);
+      formData.append("organizer", payload.organizer);
+      formData.append("description", payload.description);
+      formData.append("contactInfo", payload.contactInfo);
+      formData.append("date", payload.date);
 
-      const emails: string[] = [];
-      const names: string[] = [];
+      formData.append("location", JSON.stringify(payload.location));
 
-      users.forEach((u) => {
-        if (u.role !== "ADMIN") {
-          emails.push(u.username);
-          names.push(u.firstname);
-        }
-      });
+      if (imageFile) formData.append("eventImage", imageFile);
 
-      const templateParams = {
-        to_name: names,
-        to_email: emails,
-        eventTitle: created.title,
-        eventDesc: created.description,
-        location: `${created.location.address}, ${created.location.city}, ${created.location.state} ${created.location.postalCode}`,
-        eventLink: "/events/",
-      };
-
-      emailJsAPI.sendEmail(templateParams, TEMPLATE_ID);
+      const created: Event = await createEvent(formData).unwrap();
 
       setSnack({open: true, severity: "success", message: "Event created"});
 
-      navigate("/events");
+      navigate(`/events/${created.id}`, {
+        state: {snack: {severity: "success", message: "Event created"}},
+      });
     } catch (err) {
       setSnack({
         open: true,
         severity: "error",
-        message: "Event creation failed",
+        message: getApiErrorMessage(err),
       });
     }
   };
@@ -123,6 +98,7 @@ export default function CreateEvent(): JSX.Element {
                 submitLabel={isCreating ? "Creating..." : "Create Event"}
                 onSubmit={handleCreate}
                 disabled={isCreating}
+                onFileChange={setImageFile}
             />
           </CardContent>
 

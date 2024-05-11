@@ -9,12 +9,15 @@ import {
   DialogContentText,
   DialogTitle,
   FormControl,
-  Grid, InputAdornment,
+  Grid,
+  InputAdornment,
   InputLabel,
-  MenuItem, Paper,
+  MenuItem,
+  Paper,
   Select,
   type SelectChangeEvent,
-  Snackbar, TextField,
+  Snackbar,
+  TextField,
   Typography,
 } from "@mui/material";
 import Pagination from "@mui/material/Pagination";
@@ -23,22 +26,20 @@ import Button from "@mui/material/Button";
 import SearchIcon from "@mui/icons-material/Search";
 import {InfinitySpin} from "react-loader-spinner";
 import {useNavigate} from "react-router-dom";
-import {useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
 
 import EventTile from "../../components/Event/EventTile";
 import Roles from "../../models/auth/Roles";
 import * as authUtil from "../../utils/auth-util";
-import {getUser} from "../../store/loginUser-slice";
 
 import {Status} from "../../constants/eventStatus-enum";
 
-import type {
-  EventSearchParams,
-  EventStatusFilter,
-} from "../../models/events/EventDto";
+import type {EventSearchParams, EventStatusFilter,} from "../../models/events/EventDto";
 
 import {useDeleteEventMutation, useGetEventsQuery} from "../../store/api/eventsApi";
+import {useMeQuery} from "../../store/api/meApi.ts";
+import {useAuth} from "@clerk/clerk-react";
+import {skipToken} from "@reduxjs/toolkit/query";
 
 type SnackState = {
   open: boolean;
@@ -60,7 +61,9 @@ function toErrorMessage(err: unknown): string {
 export default function Events(): JSX.Element {
   const navigate = useNavigate();
   const {t} = useTranslation("events");
-  const user = useSelector(getUser());
+
+  const {isSignedIn} = useAuth();
+  const {data: user} = useMeQuery(isSignedIn ? undefined : skipToken);
 
   const canAdmin = useMemo(() => authUtil.isUserInRole(user, [Roles.ADMIN]), [user]);
 
@@ -177,7 +180,7 @@ export default function Events(): JSX.Element {
         </Dialog>
 
         <main>
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
+          <Box sx={{display: "flex", gap: 2, flexWrap: "wrap", mb: 2}}>
             <TextField
                 size="small"
                 placeholder={t("filter.search")}
@@ -186,7 +189,7 @@ export default function Events(): JSX.Element {
                 InputProps={{
                   startAdornment: (
                       <InputAdornment position="start">
-                        <SearchIcon />
+                        <SearchIcon/>
                       </InputAdornment>
                   ),
                 }}
@@ -251,7 +254,7 @@ export default function Events(): JSX.Element {
                 <Grid container spacing={4} sx={{mt: 1}}>
                   {events.map((event) => (
                       <Grid item xs={12} md={6} key={event.id}>
-                        <Paper sx={{ p: 2 }}>
+                        <Paper sx={{p: 2}}>
                           <EventTile
                               event={event}
                               onOpen={(id) => navigate(`/events/${id}`)}

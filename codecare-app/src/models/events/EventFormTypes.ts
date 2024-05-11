@@ -1,7 +1,4 @@
 export interface EventLocationForm {
-  latitude: number;
-  longitude: number;
-  name: string;
   address: string;
   city: string;
   state: string;
@@ -16,7 +13,7 @@ export interface EventFormState {
   description: string;
   date: string;
   contactInfo: string;
-  eventImage: string; //TODO: base64 (for now)
+  eventImage: string;
   location: EventLocationForm;
 }
 

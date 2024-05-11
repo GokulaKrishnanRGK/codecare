@@ -1,6 +1,5 @@
-import {useMemo, useState} from "react";
-import {useNavigate, useParams} from "react-router-dom";
-import {useSelector} from "react-redux";
+import {useEffect, useMemo, useState} from "react";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 
 import {
   Alert,
@@ -13,26 +12,39 @@ import {
   CircularProgress,
   Grid,
   IconButton,
+  Snackbar,
   Typography,
 } from "@mui/material";
 import {ArrowBackRounded} from "@mui/icons-material";
 
 import EditEvent from "./EditEvent";
-import {getUser} from "../../store/loginUser-slice";
 import * as authUtil from "../../utils/auth-util";
 import Roles from "../../models/auth/Roles";
 
 import {useGetEventByIdQuery} from "../../store/api/eventsApi";
+import {toPublicImageUrl} from "../../utils/image-url.ts";
+import {useMeQuery} from "../../store/api/meApi.ts";
+import {useAuth} from "@clerk/clerk-react";
+import {skipToken} from "@reduxjs/toolkit/query";
 
 function formatDateTime(dateIso: string): string {
   return new Date(dateIso).toLocaleString();
 }
 
+type FlashState = {
+  snack?: {
+    severity: "success" | "error";
+    message: string;
+  };
+};
+
 export default function EventPage(): JSX.Element {
   const {id} = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const user = useSelector(getUser());
+  const { isSignedIn } = useAuth();
+  const { data: user } = useMeQuery(isSignedIn ? undefined : skipToken);
   const canAdmin = useMemo(
       () => authUtil.isUserInRole(user, [Roles.ADMIN]),
       [user]
@@ -55,6 +67,24 @@ export default function EventPage(): JSX.Element {
 
   const handleToggleEdit = (): void => setEditable((prev) => !prev);
 
+  const [snack, setSnack] = useState<{
+    open: boolean;
+    severity: "success" | "error";
+    message: string;
+  }>({open: false, severity: "success", message: ""});
+
+  const closeSnack = (): void => setSnack((prev) => ({...prev, open: false}));
+
+  useEffect(() => {
+    const state = location.state as FlashState | null;
+
+    if (state?.snack?.message) {
+      setSnack({open: true, severity: state.snack.severity, message: state.snack.message});
+
+      navigate(location.pathname, {replace: true, state: null});
+    }
+  }, [location.pathname, location.state, navigate]);
+
   if (!eventId) {
     return (
         <Box sx={{p: 2}}>
@@ -65,6 +95,16 @@ export default function EventPage(): JSX.Element {
 
   return (
       <Box sx={{p: 2}}>
+        <Snackbar
+            open={snack.open}
+            autoHideDuration={3000}
+            onClose={closeSnack}
+            anchorOrigin={{vertical: "bottom", horizontal: "left"}}
+        >
+          <Alert onClose={closeSnack} severity={snack.severity} variant="filled">
+            {snack.message}
+          </Alert>
+        </Snackbar>
         <Card variant="outlined">
           <CardActions sx={{justifyContent: "space-between"}}>
             <Box sx={{display: "flex", alignItems: "center", gap: 1}}>
@@ -111,7 +151,9 @@ export default function EventPage(): JSX.Element {
                 <>
                   {editable ? (
                       <Box sx={{textAlign: "center"}}>
-                        <EditEvent editEvent={event} id={eventId}/>
+                        <EditEvent editEvent={event} id={eventId}
+                                   onDone={() => setEditable(false)}
+                                   onSnack={(s) => setSnack({open: true, ...s})}/>
                       </Box>
                   ) : (
                       <Grid container spacing={3}>
@@ -124,15 +166,14 @@ export default function EventPage(): JSX.Element {
                         <Grid item xs={12} md={6}>
                           <CardMedia
                               component="img"
-                              image={event.eventImage || "/images/pwa-512x512.png"}
+                              image={toPublicImageUrl(event.eventImage) ?? "/images/pwa-512x512.png"}
                               alt={event.title ? `Flyer for ${event.title}` : "Event flyer"}
                               loading="lazy"
                               sx={{
                                 width: "100%",
                                 maxHeight: 420,
                                 objectFit: "cover",
-                                borderRadius: 1,
-                                backgroundColor: "grey.100",
+                                borderRadius: 1
                               }}
                           />
                         </Grid>

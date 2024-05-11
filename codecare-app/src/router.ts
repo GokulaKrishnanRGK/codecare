@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import {createBrowserRouter} from "react-router-dom";
 import HomePage from './pages/HomePage.tsx';
 import App from './App.tsx';
 import Events from "./pages/events/Events.tsx";
@@ -10,12 +10,7 @@ import Cancel from "./pages/donate/Cancel.tsx";
 import Forbidden from "./components/Auth/Forbidden.tsx";
 import SignInPage from "./pages/auth/SignIn.tsx";
 import SignUpPage from "./pages/auth/SignUp.tsx";
-import SignedUpPage from "./pages/auth/SignedUp.tsx";
-import SignedInPage from "./pages/auth/SignedIn.tsx";
-import SignedOutPage from "./pages/auth/SignedOut.tsx";
 import ListUsers from "./pages/admin/ListUsers.tsx";
-import Appointment from "./pages/appointment/Appointments.tsx";
-import ProfilePage from "./pages/ProfilePage";
 
 const router = createBrowserRouter([
     {
@@ -34,21 +29,6 @@ const router = createBrowserRouter([
         {
             path:'/signin/*',
             Component:SignInPage
-        },
-        {
-            path: '/signedUp',
-            Component: SignedUpPage
-        },
-        {
-            path: '/signedIn',
-            Component: SignedInPage
-        },{
-            path: '/signedOut',
-            Component: SignedOutPage
-        },
-        {
-            path: '/profiles',
-            Component: ProfilePage
         },
         ]
     },
@@ -74,16 +54,6 @@ const router = createBrowserRouter([
             }
         ]
     },
-    {
-    path: '/appointments',
-    Component: App,
-    children: [
-        {
-            Component: Appointment,
-            index: true
-        }
-    ]
-},
     {
         path: '/donate',
         Component: App,

@@ -1,39 +1,51 @@
-import jwt from "jsonwebtoken";
-import * as authService from "../services/auth-service.js";
-import mongoose from "mongoose";
+import {StatusCodes} from "http-status-codes";
+import {getAuth, clerkClient} from "@clerk/express";
 import {setErrorCode} from "../utils/response-handler.js";
-import {
-    StatusCodes,
-} from 'http-status-codes';
+import {Roles} from "../entities/roles.js";
+import * as userService from "../services/user-service.js";
 
-const auth = (roles) => async (request, response, next) => {
-    try {
-        const token = request.cookies?.codecare_token;
-        if (!token) {
-          setErrorCode(StatusCodes.UNAUTHORIZED, response);
-          return;
-        }
-        const decoded = jwt.verify(token, process.env.JWT_KEY);
-        const login = await authService.searchOne({
-            _id: new mongoose.Types.ObjectId(decoded._id),
-            tokens: token,
-        });
-        if (!login) {
-            setErrorCode(StatusCodes.UNAUTHORIZED, response);
-            return;
-        }
-        if (roles.length && !roles.includes(login.role.name)) {
-            setErrorCode(StatusCodes.FORBIDDEN, response);
-            return;
-        }
-        request.user = login.user;
-        request.user.role = login.role.name;
-        request.token = token;
-        next();
-    } catch (error) {
-        console.log(error);
-        setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
+export const requireAuth = async (req, res, next) => {
+  try {
+    const auth = getAuth(req);
+    if (!auth?.userId) {
+      setErrorCode(StatusCodes.UNAUTHORIZED, res);
+      return;
     }
+
+    const clerkUserId = auth.userId;
+
+    let user = await userService.findByClerkUserId(clerkUserId);
+
+    if (!user) {
+      const clerkUser = await clerkClient.users.getUser(clerkUserId);
+      const email = clerkUser?.primaryEmailAddress?.emailAddress;
+
+      user = await userService.createUser({
+        clerkUserId,
+        username: email ?? clerkUserId,
+        firstname: clerkUser.firstName ?? "",
+        lastname: clerkUser.lastName ?? "",
+        role: Roles.USER,
+      });
+    }
+
+    req.auth = auth;
+    req.user = user;
+    next();
+  } catch (err) {
+    console.log(err);
+    setErrorCode(StatusCodes.UNAUTHORIZED, res);
+  }
 };
 
-export default auth;
+export const requireRole = (allowedRoles = []) => (req, res, next) => {
+  if (!req.user) {
+    setErrorCode(StatusCodes.UNAUTHORIZED, res);
+    return;
+  }
+  if (allowedRoles.length > 0 && !allowedRoles.includes(req.user.role)) {
+    setErrorCode(StatusCodes.FORBIDDEN, res);
+    return;
+  }
+  next();
+};

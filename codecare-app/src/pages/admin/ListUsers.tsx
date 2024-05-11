@@ -1,224 +1,195 @@
-import {useState, useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {getUsers, loadUsers} from '../../store/users-slice';
-import * as adminService from '../../services/admin-service';
-import AuthGuard from '../../components/Auth/AuthGuard';
-import Roles from '../../models/auth/Roles';
+import {useMemo, useState} from "react";
+import AuthGuard from "../../components/Auth/AuthGuard";
+import Roles from "../../models/auth/Roles";
 import {
-    Modal,
-    Button,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Box,
-    Typography,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    TextField, Autocomplete
-} from '@mui/material';
-import {User} from "../../models/auth/User.ts";
-import {ResponseObject} from "../../models/ResponseObject.ts";
-import * as doctorService from "../../services/doctor-service.ts";
-import Doctor from "../../models/auth/Doctor.ts";
-import {Specialization} from "../../models/auth/Specialization.ts";
-import * as authUtil from "../../utils/auth-util.ts"
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Modal,
+  Pagination,
+  Paper,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import type {User} from "../../models/auth/User";
+import {useGetUsersQuery, useUpdateUserRoleMutation} from "../../store/api/adminApi";
+import {InfinitySpin} from "react-loader-spinner";
 
 export default function ListUsers() {
-    const dispatch = useDispatch();
-    const users = useSelector(getUsers);
-    const [editedUser, setEditedUser] = useState(null);
-    const [open, setOpen] = useState(false);
-    const [role, setRole] = useState('');
-    const [searchParams] = useState({});
-    const [doctorDetails, setDoctorDetails] = useState({
-        id: '',
-        user: '',
-        specialization: '',
-        roomNo: '',
-        hospitalName: '',
-        city: ''
-    });
-    const [specializations, setSpecializations] = useState<Specialization[]>([]);
+  const [page, setPage] = useState(1);
 
-    useEffect(() => {
-        adminService.searchUsers(searchParams).then((response: ResponseObject<User[]>) => {
-            if (response.data) {
-                dispatch(loadUsers(response.data));
-            }
-        });
-        doctorService.getSpecializations({}).then((response: ResponseObject<Specialization[]>) => {
-            if (response.data) {
-                setSpecializations(response.data);
-            }
-        });
-    }, [searchParams]);
+  const {data, isLoading, isFetching, isError, refetch} = useGetUsersQuery({page});
+  const [updateRole, {isLoading: isSaving}] = useUpdateUserRoleMutation();
 
-    const openEditModal = (user: User) => {
-        setEditedUser(user);
-        setRole(user.role);
-        if (user.role === Roles.DOCTOR) {
-            doctorService.fetchDoctorDetails(user.id).then((response: ResponseObject<Doctor>) => {
-                if (response.data) {
-                    const doctor = response.data;
-                    setDoctorDetails({
-                        id: doctor.id,
-                        user: doctor.user,
-                        specialization: doctor.specialization,
-                        roomNo: doctor.roomNo,
-                        hospitalName: doctor.address.hospitalName,
-                        city: doctor.address.city
-                    });
-                }
-            });
-        }
-        setOpen(true);
-    };
+  const users = data?.items ?? [];
+  const totalPages = data?.totalPages ?? 1;
 
-    const closeEditModal = () => {
-        setOpen(false);
-    };
+  const [editedUser, setEditedUser] = useState<User | null>(null);
+  const [open, setOpen] = useState(false);
+  const [role, setRole] = useState<"USER" | "ADMIN">("USER");
 
-    const style = {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: 400,
-        bgcolor: 'background.paper',
-        border: '2px solid #000',
-        boxShadow: 24,
-        p: 4,
-      };
+  const showLoader = isLoading || isFetching;
 
-      
-    const handleRoleChange = (event) => {
-        setRole(event.target.value);
-        if (event.target.value !== Roles.DOCTOR) {
-            setDoctorDetails({
-                id: '',
-                user: '',
-                specialization: '',
-                roomNo: '',
-                hospitalName: '',
-                city: ''
-            });
-        }
-    };
+  const openEditModal = (user: User) => {
+    setEditedUser(user);
+    setRole(user.role);
+    setOpen(true);
+  };
 
-    const handleChange = (event) => {
-        setDoctorDetails(prev => ({...prev, [event.target.name]: event.target.value}));
-    };
+  const closeEditModal = () => {
+    setOpen(false);
+    setEditedUser(null);
+  };
 
-    const handleSave = async () => {
-        const userUpdatePromise = adminService.updateUserRole({
-            userId: editedUser.id,
-            role: role
-        });
+  const isTargetAdmin = useMemo(() => editedUser?.role === Roles.ADMIN, [editedUser]);
 
-        let doctorUpdatePromise: Promise<ResponseObject<Doctor>> = Promise.resolve<ResponseObject<Doctor>>({});
-        if (role === Roles.DOCTOR) {
-            doctorUpdatePromise = doctorService.createOrUpdateDoctor({
-                user: editedUser.id,
-                specialization: doctorDetails.specialization.code,
-                roomNo: doctorDetails.roomNo,
-                address: {
-                    hospitalName: doctorDetails.hospitalName,
-                    city: doctorDetails.city
-                }
-            });
-        }
+  const handleSave = async () => {
+    if (!editedUser) return;
+    await updateRole({userId: editedUser.id, role}).unwrap();
+    closeEditModal();
+  };
 
-        Promise.all([userUpdatePromise, doctorUpdatePromise])
-            .then(() => {
-                adminService.searchUsers(searchParams).then((response: ResponseObject<User[]>) => {
-                    if (response.data) {
-                        dispatch(loadUsers(response.data));
-                    }
-                });
-                closeEditModal();
-            })
-            .catch(error => {
-                console.error('Failed to update user or doctor:', error);
-            });
-    };
+  const style = {
+    position: "absolute" as const,
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 420,
+    bgcolor: "background.paper",
+    border: "1px solid rgba(0,0,0,0.15)",
+    boxShadow: 24,
+    p: 4,
+    borderRadius: 2,
+  };
 
-    return (
-        <AuthGuard allowedRoles={[Roles.ADMIN]}>
-            <>
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align='center'>Username</TableCell>
-                                <TableCell align="right">Firstname</TableCell>
-                                <TableCell align="right">Lastname</TableCell>
-                                <TableCell align="right">Role</TableCell>
-                                <TableCell align="center">Edit</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {users.map(user => (
-                                <TableRow key={user.id}>
-                                    <TableCell align="center">{user.username}</TableCell>
-                                    <TableCell align="right">{user.firstname}</TableCell>
-                                    <TableCell align="right">{user.lastname}</TableCell>
-                                    <TableCell align="right">{user.role}</TableCell>
-                                    <TableCell align="center">
-                                        {authUtil.isUserInRole(user, [Roles.ADMIN]) ?
-                                            <Button variant="outlined" disabled>Edit</Button> :
-                                            <Button variant="outlined"
-                                                    onClick={() => openEditModal(user)}>Edit</Button>
-                                        }
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+  return (
+      <AuthGuard allowedRoles={[Roles.ADMIN]}>
+        <>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center">Username</TableCell>
+                  <TableCell align="right">Firstname</TableCell>
+                  <TableCell align="right">Lastname</TableCell>
+                  <TableCell align="right">Role</TableCell>
+                  <TableCell align="center">Edit</TableCell>
+                </TableRow>
+              </TableHead>
 
-
-
-                <Modal open={open} onClose={closeEditModal}>
-                    <Box className="modal" sx={style}>
-                        <Typography variant="h6" sx={{mb: 2}}>Edit User</Typography>
-                        <FormControl fullWidth sx={{mb: 2}}>
-                            <InputLabel>Role</InputLabel>
-                            <Select value={role} label="Role" onChange={handleRoleChange}>
-                                <MenuItem value={Roles.USER}>User</MenuItem>
-                                <MenuItem value={Roles.DOCTOR}>Doctor</MenuItem>
-                            </Select>
-                        </FormControl>
-                        {role === Roles.DOCTOR && (
-                            <>
-                                <Autocomplete
-                                    fullWidth
-                                    options={specializations}
-                                    getOptionLabel={(option) => option.name}
-                                    value={doctorDetails.specialization || ''}
-                                    onChange={(event, newValue) => {
-                                        setDoctorDetails(prev => ({...prev, specialization: newValue}));
-                                    }}
-                                    renderInput={(params) => <TextField {...params} label="Specialization"/>}
-                                />
-                                <br/>
-                                <TextField fullWidth label="Room No" value={doctorDetails.roomNo} name="roomNo"
-                                           onChange={handleChange} sx={{mb: 2}}/>
-                                <TextField fullWidth label="Hospital Name" value={doctorDetails.hospitalName}
-                                           name="hospitalName" onChange={handleChange} sx={{mb: 2}}/>
-                                <TextField fullWidth label="City" value={doctorDetails.city} name="city"
-                                           onChange={handleChange} sx={{mb: 2}}/>
-                            </>
-                        )}
-                        <Button variant="contained" onClick={handleSave}>Save Changes</Button>
+              <TableBody>
+                {isLoading && (
+                    <Box className="listUsersContainer" sx={{mt: 2}}>
+                      <InfinitySpin/>
                     </Box>
-                </Modal>
-            </>
-        </AuthGuard>
-    );
+                )}
+
+                {isError && !isLoading && (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center">
+                        Failed to load users.{" "}
+                        <Button onClick={() => refetch()} variant="outlined" size="small">
+                          Retry
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                )}
+
+                {!isLoading &&
+                    !isError &&
+                    users.map((user) => (
+                        <TableRow key={user.id}>
+                          <TableCell align="center">{user.username}</TableCell>
+                          <TableCell align="right">{user.firstname}</TableCell>
+                          <TableCell align="right">{user.lastname}</TableCell>
+                          <TableCell align="right">{user.role}</TableCell>
+                          <TableCell align="center">
+                            {user.role === Roles.ADMIN ? (
+                                <Button variant="outlined" disabled>
+                                  Edit
+                                </Button>
+                            ) : (
+                                <Button variant="outlined" onClick={() => openEditModal(user)}>
+                                  Edit
+                                </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                    ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <Box sx={{mt: 3, display: "flex", justifyContent: "center"}}>
+            <Pagination
+                count={totalPages}
+                page={page}
+                onChange={(_e, value) => setPage(value)}
+                color="primary"
+                showFirstButton
+                showLastButton
+                disabled={showLoader}
+            />
+          </Box>
+
+          <Box sx={{mt: 1, textAlign: "center"}}>
+            <Typography variant="caption" color="text.secondary">
+              Showing 10 users per page
+            </Typography>
+          </Box>
+
+          <Modal open={open} onClose={closeEditModal}>
+            <Box sx={style}>
+              <Typography variant="h6" sx={{mb: 2}}>
+                Edit User
+              </Typography>
+
+              <Typography variant="body2" sx={{mb: 2, opacity: 0.8}}>
+                {editedUser?.username}
+              </Typography>
+
+              <FormControl fullWidth sx={{mb: 2}}>
+                <InputLabel>Role</InputLabel>
+                <Select
+                    value={role}
+                    label="Role"
+                    onChange={(e) => setRole(e.target.value as "USER" | "ADMIN")}
+                    disabled={isTargetAdmin}
+                >
+                  <MenuItem value={Roles.USER}>User</MenuItem>
+                  <MenuItem value={Roles.ADMIN}>Admin</MenuItem>
+                </Select>
+              </FormControl>
+
+              <Box sx={{display: "flex", gap: 1, justifyContent: "flex-end"}}>
+                <Button onClick={closeEditModal} variant="outlined" disabled={isSaving}>
+                  Cancel
+                </Button>
+                <Button
+                    variant="contained"
+                    onClick={handleSave}
+                    disabled={!editedUser || isSaving || isTargetAdmin || editedUser.role === role}
+                >
+                  Save Changes
+                </Button>
+              </Box>
+
+              {isTargetAdmin && (
+                  <Typography variant="caption" sx={{display: "block", mt: 2, opacity: 0.75}}>
+                    Admin roles cannot be changed.
+                  </Typography>
+              )}
+            </Box>
+          </Modal>
+        </>
+      </AuthGuard>
+  );
 }

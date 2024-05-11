@@ -3,7 +3,6 @@ import Event from "../models/event.js";
 export const searchEvents = async (params = {}, options = {}) => {
   try {
     const {skip = 0, limit = 5, sort = {date: 1}} = options;
-
     return await Event.find(params)
     .sort(sort).skip(skip).limit(limit)
     .exec();
@@ -37,14 +36,9 @@ export const createEvent = async (eventData) => {
   }
 };
 
-export const updateEvent = async (eventDetails) => {
-  try {
-    const event = new Event(eventDetails);
-    return event.save();
-  } catch (error) {
-    throw error;
-  }
-}
+export const updateEvent = async (eventDoc) => {
+  return await eventDoc.save();
+};
 
 export const deleteEvent = async (eventId) => {
   try {

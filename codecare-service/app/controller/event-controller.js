@@ -1,9 +1,19 @@
 import * as eventService from '../services/event-service.js';
-import {setSuccessResponse, setErrorCode} from '../utils/response-handler.js';
+import {
+  setSuccessResponse,
+  setErrorCode,
+  setErrorResponseMsg
+} from '../utils/response-handler.js';
 import {StatusCodes} from "http-status-codes";
 import {Status} from "../entities/status-enum.js";
+import {storage} from "../storage/index.js";
+import * as userService from "../services/user-service.js";
+import {sendNewEventEmailToUsers} from "../services/email-service.js";
+import {validateEventRequest} from "../validation/validateEventPayload.js";
 
 const PAGE_SIZE = 5;
+const allowedTypes = new Set(
+    ["image/png", "image/jpeg", "image/webp", "image/gif"]);
 
 const parseDate = (value) => {
   if (!value) {
@@ -15,7 +25,9 @@ const parseDate = (value) => {
 
 const parsePage = (value) => {
   const n = Number(value);
-  if (!Number.isFinite(n) || n < 1) return 1;
+  if (!Number.isFinite(n) || n < 1) {
+    return 1;
+  }
   return Math.floor(n);
 };
 
@@ -24,16 +36,18 @@ export const search = async (request, response) => {
     const params = {};
 
     const keyword =
-        typeof request.query.keyword === "string" ? request.query.keyword.trim() : "";
+        typeof request.query.keyword === "string" ? request.query.keyword.trim()
+            : "";
     if (keyword) {
       params.$or = [
-        { title: { $regex: keyword, $options: "i" } },
-        { description: { $regex: keyword, $options: "i" } },
+        {title: {$regex: keyword, $options: "i"}},
+        {description: {$regex: keyword, $options: "i"}},
       ];
     }
 
     const location =
-        typeof request.query.location === "string" ? request.query.location.trim() : "";
+        typeof request.query.location === "string"
+            ? request.query.location.trim() : "";
     if (location) {
       params["location.city"] = location;
     }
@@ -43,18 +57,23 @@ export const search = async (request, response) => {
 
     if (fromDate || toDate) {
       params.date = {};
-      if (fromDate) params.date.$gte = fromDate;
-      if (toDate) params.date.$lte = toDate;
+      if (fromDate) {
+        params.date.$gte = fromDate;
+      }
+      if (toDate) {
+        params.date.$lte = toDate;
+      }
     }
 
     const eventStatus =
-        typeof request.query.eventStatus === "string" ? request.query.eventStatus : "";
+        typeof request.query.eventStatus === "string"
+            ? request.query.eventStatus : "";
     if (eventStatus && eventStatus !== Status.ALL) {
       const now = new Date();
       if (eventStatus === Status.UPCOMING) {
-        params.date = { ...(params.date || {}), $gte: now };
+        params.date = {...(params.date || {}), $gte: now};
       } else if (eventStatus === Status.COMPLETE) {
-        params.date = { ...(params.date || {}), $lt: now };
+        params.date = {...(params.date || {}), $lt: now};
       }
     }
 
@@ -65,7 +84,7 @@ export const search = async (request, response) => {
     const items = await eventService.searchEvents(params, {
       skip,
       limit: PAGE_SIZE,
-      sort: { date: 1 }, // upcoming soonest first
+      sort: {date: 1},
     });
 
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -87,15 +106,38 @@ export const search = async (request, response) => {
   }
 };
 
-export const post = async (request, response) => {
+export const post = async (req, res) => {
   try {
-    const event = await eventService.createEvent({...request.body});
-    setSuccessResponse(StatusCodes.OK, event, response);
-  } catch (error) {
-    console.log(error)
-    setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
+    if (req.file && !allowedTypes.has(req.file.mimetype)) {
+      setErrorResponseMsg("Unsupported image type", res, StatusCodes.UNSUPPORTED_MEDIA_TYPE);
+      return;
+    }
+
+    const v = validateEventRequest({ req, res, mode: "create" });
+    if (!v.ok) return;
+
+    const saved = await storage.save({
+      folder: "events",
+      filename: req.file.originalname,
+      buffer: req.file.buffer,
+    });
+
+    const created = await eventService.createEvent({
+      ...v.data,
+      eventImage: saved.key,
+    });
+
+    userService
+    .listEmailRecipients()
+    .then((recipients) => sendNewEventEmailToUsers({ event: created, recipients }))
+    .catch((err) => console.log("Email send failed:", err));
+
+    setSuccessResponse(StatusCodes.OK, created, res);
+  } catch (err) {
+    console.log(err);
+    setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, res);
   }
-}
+};
 
 export const get = async (request, response) => {
   try {
@@ -107,41 +149,39 @@ export const get = async (request, response) => {
   }
 }
 
-export const put = async (request, response) => {
+export const put = async (req, res) => {
   try {
-    const event = {...request.body};
-    const currentEvent = await eventService.getEventDetails(request.params.id);
-    if (event.type) {
-      currentEvent.type = event.type;
+    const current = await eventService.getEventDetails(req.params.id);
+    if (!current) {
+      setErrorCode(StatusCodes.NOT_FOUND, res);
+      return;
     }
-    if (event.date) {
-      currentEvent.date = event.date;
+
+    if (req.file && !allowedTypes.has(req.file.mimetype)) {
+      setErrorResponseMsg("Unsupported image type", res, StatusCodes.UNSUPPORTED_MEDIA_TYPE);
+      return;
     }
-    if (event.title) {
-      currentEvent.title = event.title;
+
+    const v = validateEventRequest({ req, res, mode: "update" });
+    if (!v.ok) return;
+    Object.assign(current, v.data);
+    if (req.file) {
+      const saved = await storage.save({
+        folder: "events",
+        filename: req.file.originalname,
+        buffer: req.file.buffer,
+      });
+      current.eventImage = saved.key;
     }
-    if (event.description) {
-      currentEvent.description = event.description;
-    }
-    if (event.organizer) {
-      currentEvent.organizer = event.organizer;
-    }
-    if (event.contactInfo) {
-      currentEvent.contactInfo = event.contactInfo;
-    }
-    if (event.location) {
-      currentEvent.location = event.location;
-    }
-    if (event.eventImage) {
-      currentEvent.eventImage = event.eventImage;
-    }
-    const updatedEvent = await eventService.updateEvent(currentEvent);
-    setSuccessResponse(StatusCodes.OK, updatedEvent, response);
+
+    const updated = await eventService.updateEvent(current);
+    setSuccessResponse(StatusCodes.OK, updated, res);
   } catch (error) {
-    console.log(error)
-    setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
+    console.log(error);
+    setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, res);
   }
-}
+};
+
 
 export const deleteEvent = async (request, response) => {
   try {

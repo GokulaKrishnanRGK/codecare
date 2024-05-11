@@ -1,6 +1,5 @@
 import * as React from "react";
 import {useMemo} from "react";
-import {useSelector} from "react-redux";
 
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -15,7 +14,10 @@ import Box from "@mui/material/Box";
 import type Event from "../../models/events/Event";
 import * as authUtil from "../../utils/auth-util";
 import Roles from "../../models/auth/Roles";
-import {getUser} from "../../store/loginUser-slice";
+import {toPublicImageUrl} from "../../utils/image-url.ts";
+import {useMeQuery} from "../../store/api/meApi.ts";
+import {useAuth} from "@clerk/clerk-react";
+import {skipToken} from "@reduxjs/toolkit/query";
 
 interface EventTileProps {
   event: Event;
@@ -29,7 +31,10 @@ function formatDateTime(dateIso: string): string {
 
 export default function EventTile(props: Readonly<EventTileProps>): JSX.Element {
   const {event, onOpen, onRequestDelete} = props;
-  const user = useSelector(getUser());
+  const { isSignedIn } = useAuth();
+  const { data: user } = useMeQuery(isSignedIn ? undefined : skipToken);
+
+  const imgUrl = toPublicImageUrl(event.eventImage) ?? "/images/pwa-192x192.png";
 
   const canDelete = useMemo(
       () => authUtil.isUserInRole(user, [Roles.ADMIN]),
@@ -76,13 +81,10 @@ export default function EventTile(props: Readonly<EventTileProps>): JSX.Element 
           <CardMedia
               component="img"
               height="170"
-              image={event.eventImage || "/images/pwa-192x192.png"}
+              image={imgUrl}
               alt={altText}
               loading="lazy"
-              sx={{
-                objectFit: "cover",
-                backgroundColor: "grey.100",
-              }}
+              sx={{ objectFit: "cover", backgroundColor: "grey.100" }}
           />
 
           {canDelete && (

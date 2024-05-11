@@ -1,26 +1,47 @@
-import {ReactElement} from 'react';
-import {Navigate, useLocation} from 'react-router-dom';
-import {useSelector} from "react-redux";
-import {getUser} from "../../store/loginUser-slice.ts";
+import {ReactElement} from "react";
+import {Navigate, useLocation} from "react-router-dom";
+import {useUser} from "@clerk/clerk-react";
+import {useMeQuery} from "../../store/api/meApi";
+import FullPageSpinner from "../common/FullPageSpinner";
 
 interface AuthGuardProps {
-    allowedRoles: Array<string>;
-    children: JSX.Element;
+  allowedRoles: string[];
+  children: JSX.Element;
 }
 
-function AuthGuard(props: AuthGuardProps): ReactElement {
-    const {allowedRoles, children} = props;
-    const location = useLocation();
-    const user = useSelector(getUser());
-    if (!user) {
-        return <Navigate to="/login" state={{from: location}} replace/>;
-    }
-    const role = user.role;
-    if(!allowedRoles.includes(role)) {
-        return <Navigate to="/forbidden" replace/>;
-    }
-    //TODO: add more checks to redirect to profile for user and specialization setup for doctor
-    return children;
-}
+export default function AuthGuard({
+                                    allowedRoles,
+                                    children,
+                                  }: Readonly<AuthGuardProps>): ReactElement {
+  const location = useLocation();
+  const {isSignedIn, isLoaded} = useUser();
 
-export default AuthGuard;
+  const {
+    data: me,
+    isLoading: isMeLoading,
+    isError,
+  } = useMeQuery(undefined, {
+    skip: !isSignedIn,
+  });
+
+  if (!isLoaded) {
+    return <FullPageSpinner/>;
+  }
+
+  if (!isSignedIn) {
+    return <Navigate to="/signin" state={{from: location}} replace/>;
+  }
+
+  if (isMeLoading) {
+    return <FullPageSpinner/>;
+  }
+
+  if (isError || !me) {
+    return <Navigate to="/signin" replace/>;
+  }
+
+  if (!allowedRoles.includes(me.role)) {
+    return <Navigate to="/forbidden" replace/>;
+  }
+  return children;
+}

@@ -1,28 +1,32 @@
-import * as React from "react";
-import {useMemo, useState} from "react";
-
+import { useMemo } from "react";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
-import {FormLabel, MenuItem, OutlinedInput, Select} from "@mui/material";
-import Input from "@mui/material/Input";
+import {
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  MenuItem,
+  Select,
+  OutlinedInput,
+  Input,
+} from "@mui/material";
 
-import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
-import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
-import {DateTimePicker} from "@mui/x-date-pickers/DateTimePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 
-import dayjs, {Dayjs} from "dayjs";
+import dayjs from "dayjs";
+import { Controller, useForm, type Resolver } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-import type {EventFormState, EventFormMode} from "../../models/events/EventFormTypes.ts";
+import type { EventFormMode, EventFormState } from "../../models/events/EventFormTypes";
+import {
+  createEventClientSchema,
+  updateEventClientSchema,
+  type EventFormValues,
+} from "@codecare/validation";
 
-interface EventFormProps {
-  mode: EventFormMode;
-  initialValue: EventFormState;
-  submitLabel: string;
-  disabled?: boolean;
-  onSubmit: (value: EventFormState) => Promise<void> | void;
-}
-
-const EVENT_TYPES: string[] = [
+const EVENT_TYPES: readonly string[] = [
   "General Health Checkup Camp",
   "Vaccination Camp",
   "Blood Donation Camp",
@@ -35,233 +39,209 @@ const EVENT_TYPES: string[] = [
   "Women's Health Camp",
 ];
 
+interface EventFormProps {
+  mode: EventFormMode;
+  initialValue: EventFormState;
+  submitLabel: string;
+  disabled?: boolean;
+  onSubmit: (value: EventFormState) => Promise<void> | void;
+  onFileChange?: (file: File | null) => void;
+}
+
+type FormValues = EventFormValues & { eventImage?: File };
+
 function safeIso(value: string): string {
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
 }
 
+function toEventFormState(values: FormValues): EventFormState {
+  return {
+    type: values.type,
+    title: values.title,
+    organizer: values.organizer,
+    description: values.description,
+    contactInfo: values.contactInfo,
+    date: values.date,
+    eventImage: "",
+    location: values.location,
+  };
+}
+
 export default function EventForm(props: Readonly<EventFormProps>): JSX.Element {
-  const {initialValue, submitLabel, disabled = false, onSubmit} = props;
+  const { mode, initialValue, submitLabel, disabled = false, onSubmit } = props;
 
-  const [form, setForm] = useState<EventFormState>(() => ({
-    ...initialValue,
-    date: safeIso(initialValue.date),
-  }));
+  const defaultValues: FormValues = useMemo(
+      () => ({
+        type: initialValue.type,
+        title: initialValue.title,
+        organizer: initialValue.organizer,
+        description: initialValue.description,
+        contactInfo: initialValue.contactInfo,
+        date: safeIso(initialValue.date),
+        location: initialValue.location,
+        eventImage: undefined,
+      }),
+      [initialValue]
+  );
 
-  const dateValue: Dayjs = useMemo(() => dayjs(form.date), [form.date]);
+  const resolver: Resolver<FormValues> = useMemo(() => {
+    const schema = mode === "create" ? createEventClientSchema : updateEventClientSchema;
+    return zodResolver(schema) as unknown as Resolver<FormValues>;
+  }, [mode]);
 
-  const setField = (key: keyof EventFormState, value: EventFormState[keyof EventFormState]): void => {
-    setForm((prev) => ({...prev, [key]: value}));
-  };
+  const {
+    register,
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors, isValid },
+  } = useForm<FormValues>({
+    resolver,
+    mode: "onChange",
+    reValidateMode: "onChange",
+    defaultValues,
+  });
 
-  const setLocationField = (
-      key: keyof EventFormState["location"],
-      value: EventFormState["location"][keyof EventFormState["location"]]
-  ): void => {
-    setForm((prev) => ({...prev, location: {...prev.location, [key]: value}}));
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader: FileReader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      const base64 = typeof reader.result === "string" ? reader.result : "";
-      setField("eventImage", base64);
-    };
-    reader.onerror = () => {
-      console.error("Failed to read image");
-    };
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-    e.preventDefault();
-    await onSubmit(form);
-  };
+  const submit = handleSubmit(async (values: FormValues) => {
+    await onSubmit(toEventFormState(values));
+  });
 
   return (
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={2} sx={{maxWidth: 820, mx: "auto", textAlign: "left"}}>
+      <form onSubmit={submit}>
+        <Grid container spacing={2} sx={{ maxWidth: 820, mx: "auto", textAlign: "left" }}>
           <Grid item xs={12} md={6}>
-            <FormLabel htmlFor="title" required>
-              Title
-            </FormLabel>
-            <OutlinedInput
-                id="title"
-                name="title"
-                value={form.title}
-                onChange={(e) => setField("title", e.target.value)}
-                placeholder="Title"
-                fullWidth
-                required
-                disabled={disabled}
-                sx={{mt: 1}}
-            />
+            <FormControl fullWidth error={!!errors.title} sx={{ mt: 1 }}>
+              <FormLabel htmlFor="title" required>Title</FormLabel>
+              <OutlinedInput id="title" disabled={disabled} {...register("title")} />
+              <FormHelperText>{errors.title?.message}</FormHelperText>
+            </FormControl>
 
-            <FormLabel htmlFor="description" required sx={{mt: 2, display: "block"}}>
-              Description
-            </FormLabel>
-            <OutlinedInput
-                id="description"
-                name="description"
-                value={form.description}
-                onChange={(e) => setField("description", e.target.value)}
-                placeholder="Description"
-                multiline
-                minRows={6}
-                fullWidth
-                required
-                disabled={disabled}
-                sx={{mt: 1}}
-            />
-
-            <FormLabel htmlFor="organizer" required sx={{mt: 2, display: "block"}}>
-              Name of the Organizer
-            </FormLabel>
-            <OutlinedInput
-                id="organizer"
-                name="organizer"
-                value={form.organizer}
-                onChange={(e) => setField("organizer", e.target.value)}
-                placeholder="Organizer"
-                fullWidth
-                required
-                disabled={disabled}
-                sx={{mt: 1}}
-            />
-
-            <FormLabel htmlFor="contactInfo" required sx={{mt: 2, display: "block"}}>
-              Contact
-            </FormLabel>
-            <OutlinedInput
-                id="contactInfo"
-                name="contactInfo"
-                value={form.contactInfo}
-                onChange={(e) => setField("contactInfo", e.target.value)}
-                placeholder="Contact"
-                fullWidth
-                required
-                disabled={disabled}
-                sx={{mt: 1}}
-            />
-
-            <FormLabel htmlFor="eventImage" sx={{mt: 2, display: "block"}}>
-              Add Flyer
-            </FormLabel>
-            <Input
-                type="file"
-                accept="image/*"
-                id="eventImage"
-                name="eventImage"
-                onChange={handleFileUpload}
-                disabled={disabled}
-                sx={{mt: 1}}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <FormLabel htmlFor="type" required>
-              Event Type
-            </FormLabel>
-            <Select
-                id="type"
-                name="type"
-                value={form.type}
-                onChange={(e) => setField("type", String(e.target.value))}
-                fullWidth
-                required
-                disabled={disabled}
-                sx={{mt: 1}}
-            >
-              {EVENT_TYPES.map((t) => (
-                  <MenuItem key={t} value={t}>
-                    {t}
-                  </MenuItem>
-              ))}
-            </Select>
-
-            <FormLabel sx={{mt: 2, display: "block"}} required>
-              Date
-            </FormLabel>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DateTimePicker
-                  label="Event Date"
-                  value={dateValue}
-                  onChange={(v) => {
-                    const next = v?.toDate();
-                    if (next) setField("date", next.toISOString());
-                  }}
-                  disablePast
+            <FormControl fullWidth error={!!errors.description} sx={{ mt: 2 }}>
+              <FormLabel htmlFor="description" required>Description</FormLabel>
+              <OutlinedInput
+                  id="description"
                   disabled={disabled}
-                  sx={{mt: 1, width: "100%"}}
+                  multiline
+                  minRows={6}
+                  {...register("description")}
               />
-            </LocalizationProvider>
+              <FormHelperText>{errors.description?.message}</FormHelperText>
+            </FormControl>
 
-            <FormLabel htmlFor="address" required sx={{mt: 2, display: "block"}}>
-              Address
-            </FormLabel>
-            <OutlinedInput
-                id="address"
-                name="address"
-                value={form.location.address}
-                onChange={(e) => setLocationField("address", e.target.value)}
-                placeholder="Address"
-                fullWidth
-                required
-                disabled={disabled}
-                sx={{mt: 1}}
-            />
+            <FormControl fullWidth error={!!errors.organizer} sx={{ mt: 2 }}>
+              <FormLabel htmlFor="organizer" required>Name of the Organizer</FormLabel>
+              <OutlinedInput id="organizer" disabled={disabled} {...register("organizer")} />
+              <FormHelperText>{errors.organizer?.message}</FormHelperText>
+            </FormControl>
 
-            <FormLabel htmlFor="city" required sx={{mt: 2, display: "block"}}>
-              City
-            </FormLabel>
-            <OutlinedInput
-                id="city"
-                name="city"
-                value={form.location.city}
-                onChange={(e) => setLocationField("city", e.target.value)}
-                placeholder="City"
-                fullWidth
-                required
-                disabled={disabled}
-                sx={{mt: 1}}
-            />
+            <FormControl fullWidth error={!!errors.contactInfo} sx={{ mt: 2 }}>
+              <FormLabel htmlFor="contactInfo" required>Contact</FormLabel>
+              <OutlinedInput
+                  id="contactInfo"
+                  disabled={disabled}
+                  inputProps={{ inputMode: "numeric", pattern: "[0-9]*", maxLength: 10 }}
+                  {...register("contactInfo", {
+                    onChange: (e) => {
+                      e.target.value = String(e.target.value).replace(/\D/g, "").slice(0, 10);
+                    },
+                  })}
+              />
+              <FormHelperText>{errors.contactInfo?.message}</FormHelperText>
+            </FormControl>
 
-            <FormLabel htmlFor="state" required sx={{mt: 2, display: "block"}}>
-              State
-            </FormLabel>
-            <OutlinedInput
-                id="state"
-                name="state"
-                value={form.location.state}
-                onChange={(e) => setLocationField("state", e.target.value)}
-                placeholder="State"
-                fullWidth
-                required
-                disabled={disabled}
-                sx={{mt: 1}}
-            />
-
-            <FormLabel htmlFor="postalCode" required sx={{mt: 2, display: "block"}}>
-              Postal Code
-            </FormLabel>
-            <OutlinedInput
-                id="postalCode"
-                name="postalCode"
-                value={form.location.postalCode}
-                onChange={(e) => setLocationField("postalCode", e.target.value)}
-                placeholder="Postal Code"
-                fullWidth
-                required
-                disabled={disabled}
-                sx={{mt: 1}}
-            />
+            <FormControl fullWidth error={!!errors.eventImage} sx={{ mt: 2 }}>
+              <FormLabel htmlFor="eventImage" required={mode === "create"}>Add Flyer</FormLabel>
+              <Input
+                  type="file"
+                  accept="image/*"
+                  id="eventImage"
+                  disabled={disabled}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    setValue("eventImage", file, { shouldValidate: true, shouldDirty: true });
+                    props.onFileChange?.(file ?? null);
+                  }}
+              />
+              <FormHelperText>{errors.eventImage?.message}</FormHelperText>
+            </FormControl>
           </Grid>
 
-          <Grid item xs={12} sx={{mt: 1}}>
-            <Button type="submit" variant="contained" disabled={disabled}>
+          <Grid item xs={12} md={6}>
+            <Controller
+                control={control}
+                name="type"
+                render={({ field }) => (
+                    <FormControl fullWidth error={!!errors.type} sx={{ mt: 1 }}>
+                      <FormLabel htmlFor="type" required>Event Type</FormLabel>
+                      <Select {...field} id="type" disabled={disabled}>
+                        {EVENT_TYPES.map((t) => (
+                            <MenuItem key={t} value={t}>
+                              {t}
+                            </MenuItem>
+                        ))}
+                      </Select>
+                      <FormHelperText>{errors.type?.message}</FormHelperText>
+                    </FormControl>
+                )}
+            />
+
+            <FormControl fullWidth error={!!errors.date} sx={{ mt: 2 }}>
+              <FormLabel required>Date</FormLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Controller
+                    control={control}
+                    name="date"
+                    render={({ field }) => (
+                        <DateTimePicker
+                            label="Event Date"
+                            value={dayjs(field.value)}
+                            onChange={(v) => {
+                              const next = v?.toDate();
+                              field.onChange(next ? next.toISOString() : field.value);
+                            }}
+                            disablePast
+                            minDateTime={dayjs()}
+                            disabled={disabled}
+                            sx={{ mt: 1, width: "100%" }}
+                        />
+                    )}
+                />
+              </LocalizationProvider>
+              <FormHelperText>{errors.date?.message}</FormHelperText>
+            </FormControl>
+
+            <FormControl fullWidth error={!!errors.location?.address} sx={{ mt: 2 }}>
+              <FormLabel required>Address</FormLabel>
+              <OutlinedInput disabled={disabled} {...register("location.address")} />
+              <FormHelperText>{errors.location?.address?.message}</FormHelperText>
+            </FormControl>
+
+            <FormControl fullWidth error={!!errors.location?.city} sx={{ mt: 2 }}>
+              <FormLabel required>City</FormLabel>
+              <OutlinedInput disabled={disabled} {...register("location.city")} />
+              <FormHelperText>{errors.location?.city?.message}</FormHelperText>
+            </FormControl>
+
+            <FormControl fullWidth error={!!errors.location?.state} sx={{ mt: 2 }}>
+              <FormLabel required>State</FormLabel>
+              <OutlinedInput disabled={disabled} {...register("location.state")} />
+              <FormHelperText>{errors.location?.state?.message}</FormHelperText>
+            </FormControl>
+
+            <FormControl fullWidth error={!!errors.location?.postalCode} sx={{ mt: 2 }}>
+              <FormLabel required>Postal Code</FormLabel>
+              <OutlinedInput
+                  disabled={disabled}
+                  placeholder="12345 or 12345-6789"
+                  {...register("location.postalCode")}
+              />
+              <FormHelperText>{errors.location?.postalCode?.message}</FormHelperText>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12} sx={{ mt: 1 }}>
+            <Button type="submit" variant="contained" disabled={disabled || !isValid}>
               {submitLabel}
             </Button>
           </Grid>

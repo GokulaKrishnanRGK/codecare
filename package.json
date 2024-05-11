@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "workspaces": ["codecare-app", "codecare-service", "packages/*"],
+  "scripts": {
+    "build": "npm run build -w @codecare/validation && npm run build -w codecare-app && npm run build -w codecare-service",
+    "dev": "npm run dev -w @codecare/validation & npm run dev -w codecare-app",
+    "dev:all": "npm run dev -w @codecare/validation & npm run dev -w codecare-app & npm run start -w codecare-service"
+  }
+}

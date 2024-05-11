@@ -1,16 +1,22 @@
 import express from "express";
 import * as eventController from '../controller/event-controller.js';
-import auth from "../middleware/auth.js";
-import {Roles} from "../entities/roles-enum.js";
+import {requireAuth, requireRole} from "../middleware/auth.js";
+import {Roles} from "../entities/roles.js";
+import multer from "multer";
 
 const router = express.Router();
 
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: (Number(process.env.MAX_UPLOAD_MB) || 10) * 1024 * 1024 },
+});
+
 router.route('/')
     .get(eventController.search)
-    .post(auth([Roles.ADMIN]), eventController.post);
+    .post(requireAuth, requireRole([Roles.ADMIN]), upload.single("eventImage"), eventController.post);
 router.route('/:id')
     .get(eventController.get)
-    .put(auth([Roles.ADMIN]), eventController.put)
-    .delete(auth([Roles.ADMIN]), eventController.deleteEvent);
+    .put(requireAuth, requireRole([Roles.ADMIN]), upload.single("eventImage"), eventController.put)
+    .delete(requireAuth, requireRole([Roles.ADMIN]), eventController.deleteEvent);
 
 export default router;

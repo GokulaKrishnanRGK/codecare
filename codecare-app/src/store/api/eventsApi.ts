@@ -1,17 +1,9 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import type Event from "../../models/events/Event";
-import type {EventSearchParams} from "../../models/events/EventDto.ts";
+import type {EventSearchParams} from "../../models/events/EventDto";
 import type {ApiResponse, Paginated} from "./apiTypes";
+import {baseApi} from "./baseApi";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL;
-
-export const eventsApi = createApi({
-  reducerPath: "eventsApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl,
-    credentials: "include",
-  }),
-  tagTypes: ["Events", "Event"],
+export const eventsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getEvents: builder.query<Paginated<Event>, EventSearchParams | void>({
       query: (params) => {
@@ -19,7 +11,6 @@ export const eventsApi = createApi({
 
         if (params?.keyword) query.set("keyword", params.keyword);
         if (params?.eventStatus) query.set("eventStatus", params.eventStatus);
-
         if (params?.location) query.set("location", params.location);
         if (params?.fromDate) query.set("fromDate", params.fromDate);
         if (params?.toDate) query.set("toDate", params.toDate);
@@ -45,13 +36,13 @@ export const eventsApi = createApi({
       providesTags: (_result, _err, id) => [{type: "Event", id}],
     }),
 
-    createEvent: builder.mutation<Event, Partial<Event>>({
+    createEvent: builder.mutation<Event, FormData>({
       query: (body) => ({url: `/events`, method: "POST", body}),
       transformResponse: (response: ApiResponse<Event>): Event => response.data,
       invalidatesTags: [{type: "Events", id: "LIST"}],
     }),
 
-    updateEvent: builder.mutation<Event, { id: string; body: Partial<Event> }>({
+    updateEvent: builder.mutation<Event, { id: string; body: FormData }>({
       query: ({id, body}) => ({url: `/events/${id}`, method: "PUT", body}),
       transformResponse: (response: ApiResponse<Event>): Event => response.data,
       invalidatesTags: (_res, _err, arg) => [
@@ -60,7 +51,7 @@ export const eventsApi = createApi({
       ],
     }),
 
-    deleteEvent: builder.mutation<{ data: unknown } | unknown, string>({
+    deleteEvent: builder.mutation<Event, string>({
       query: (id) => ({url: `/events/${id}`, method: "DELETE"}),
       transformResponse: (response: ApiResponse<Event>): Event => response.data,
       invalidatesTags: (_res, _err, id) => [
@@ -69,6 +60,7 @@ export const eventsApi = createApi({
       ],
     }),
   }),
+  overrideExisting: false,
 });
 
 export const {

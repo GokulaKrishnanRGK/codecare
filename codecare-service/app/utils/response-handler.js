@@ -40,14 +40,12 @@ export const setErrorCode = (status, response) => {
     })
 }
 
-export const setErrorResponseMsg = (message, response) => {
-    response.status(StatusCodes.INTERNAL_SERVER_ERROR);
-    response.json({
-        error: {
-            message: message
-        }
-    });
-}
+export const setErrorResponseMsg = (message, response, status = StatusCodes.BAD_REQUEST) => {
+  response.status(status);
+  response.json({
+    error: { message },
+  });
+};
 
 export const setErrorResponse = (data, response) => {
     response.status(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -57,3 +55,13 @@ export const setErrorResponse = (data, response) => {
         }
     });
 }
+
+export const setError = (status, message, data, response) => {
+  response.status(status);
+  response.json({
+    error: {
+      message: message || getReasonPhrase(status),
+      ...(data ? { data } : {}),
+    },
+  });
+};

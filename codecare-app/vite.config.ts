@@ -8,7 +8,7 @@ export default defineConfig(({mode}) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   const port = Number(env.VITE_PORT) || 3002;
-  const host = env.VITE_HOST || "thelocaleagle.com";
+  const host = env.VITE_HOST || "thelocaleagle.test";
 
   return {
     server: {
@@ -34,7 +34,7 @@ export default defineConfig(({mode}) => {
         injectRegister: "auto",
         strategies: "generateSW",
         devOptions: {
-          enabled: true
+          enabled: false
         },
         manifest: {
           "name": "Codecare",

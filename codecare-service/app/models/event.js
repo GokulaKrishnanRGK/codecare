@@ -3,9 +3,6 @@ import schemaConfig from "./schema-config.js";
 
 const locationSchema = new mongoose.Schema({
   id: String,
-  latitude: {type: Number, required: true},
-  longitude: {type: Number, required: true},
-  name: {type: String, required: true},
   address: {type: String, required: true},
   city: {type: String, required: true},
   state: {type: String, required: true},
@@ -40,7 +37,10 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  eventImage: String,
+  eventImage: {
+    type: String,
+    required: true
+  },
   location: locationSchema
 }, schemaConfig);
 

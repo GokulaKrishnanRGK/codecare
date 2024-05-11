@@ -13,14 +13,13 @@ import {useTranslation} from "react-i18next";
 
 import MainFeaturedPost from "../components/Homepage/MainFeaturedPost";
 import Footer from "../components/Homepage/Footer";
-import MyButton from "../utils/MyButton";
 
-import booking_appointment from "./../assets/booking_appointment.jpg";
 import donations from "./../assets/donations.jpg";
 
 import {Status} from "../constants/eventStatus-enum.ts";
 import {useGetEventsQuery} from "../store/api/eventsApi";
 import {useMemo} from "react";
+import {toPublicImageUrl} from "../utils/image-url.ts";
 
 export default function HomePage(): JSX.Element {
   const {t} = useTranslation("common");
@@ -106,7 +105,7 @@ export default function HomePage(): JSX.Element {
                       <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
                           <img
-                              src={event.eventImage || "/images/pwa-512x512.png"}
+                              src={toPublicImageUrl(event.eventImage) ?? "/images/pwa-512x512.png"}
                               alt={event.title ? `Flyer for ${event.title}` : "Event flyer"}
                               loading="lazy"
                               style={{
@@ -114,7 +113,7 @@ export default function HomePage(): JSX.Element {
                                 height: "100%",
                                 maxHeight: 300,
                                 objectFit: "cover",
-                                borderRadius: 8,
+                                borderRadius: 8
                               }}
                           />
                         </Grid>
@@ -147,12 +146,11 @@ export default function HomePage(): JSX.Element {
                           </Typography>
 
                           <Box sx={{display: "flex", justifyContent: "flex-end", mt: 2}}>
-                            <MyButton
-                                label={t("homepage.link.label.homepageFeaturedMoreDetails")}
+                            <Button
                                 variant="contained"
                                 onClick={() => navigate(`/events/${event.id}`)}
                                 sx={{fontSize: "0.75rem", padding: "6px 12px"}}
-                            />
+                            >{t("homepage.link.label.homepageFeaturedMoreDetails")}</Button>
                           </Box>
                         </Grid>
                       </Grid>
@@ -175,48 +173,7 @@ export default function HomePage(): JSX.Element {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  flexDirection: {xs: "column", md: "row"}, // ✅ responsive
-                  gap: 2,
-                }}
-            >
-              <Box sx={{flex: 1, px: 2}}>
-                <Typography component="h2" variant="h4" align="left" noWrap>
-                  {t("homepage.link.label.homepageAppointmentTitle")} !!!
-                </Typography>
-
-                <Typography component="p" variant="body1" align="left">
-                  {t("homepage.link.label.homepageAppointmentDetails")}
-                </Typography>
-              </Box>
-
-              <Box
-                  sx={{
-                    flex: 1,
-                    width: "100%",
-                    backgroundImage: `url(${booking_appointment})`,
-                    backgroundSize: "cover",
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "left center",
-                    height: {xs: 240, md: "100%"},
-                    borderRadius: "8px",
-                  }}
-              />
-            </Box>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Box
-                sx={{
-                  maxWidth: "1200px",
-                  height: "500px",
-                  margin: "20px auto",
-                  padding: "20px",
-                  borderRadius: "8px",
-                  boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  flexDirection: {xs: "column", md: "row"}, // ✅ responsive
+                  flexDirection: {xs: "column", md: "row"},
                   gap: 2,
                 }}
             >
@@ -243,11 +200,10 @@ export default function HomePage(): JSX.Element {
                 </Typography>
 
                 <Box sx={{mt: 2}}>
-                  <MyButton
-                      label={t("header.button.label.donate")}
+                  <Button
                       variant="contained"
                       onClick={() => navigate("/donate")}
-                  />
+                  >{t("header.button.label.donate")}</Button>
                 </Box>
               </Box>
             </Box>

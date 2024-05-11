@@ -1,22 +1,24 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 import schemaConfig from "./schema-config.js";
+import {Roles} from "../entities/roles.js";
 
-export const userSchema = new mongoose.Schema({
-    id: String,
-    username: {
-        type: String,
-        required: true,
-        unique: true,
-    },
-    firstname: {
-        type: String,
-        required: true,
-    },
-    lastname: {
-        type: String,
-        required: true,
-    }
-}, schemaConfig);
+const userSchema = new mongoose.Schema(
+    {
+      clerkUserId: {type: String, required: true, unique: true, index: true},
 
-const User = mongoose.model("user", userSchema);
-export default User;
+      username: {type: String, required: true, unique: true, index: true},
+      firstname: {type: String, required: true, default: ""},
+      lastname: {type: String, required: true, default: ""},
+
+      role: {
+        type: String,
+        enum: Object.values(Roles),
+        required: true,
+        default: Roles.USER,
+        index: true,
+      },
+    },
+    schemaConfig
+);
+
+export default mongoose.model("user", userSchema);
