@@ -20,6 +20,7 @@ function eventToFormState(ev: Event): EventFormState {
     organizer: ev.organizer ?? "",
     description: ev.description ?? "",
     date: ev.date,
+    endTime: ev.endTime,
     contactInfo: ev.contactInfo ?? "",
     eventImage: ev.eventImage ?? "",
     location: {
@@ -51,6 +52,7 @@ export default function EditEvent(props: Readonly<EditEventProps>): JSX.Element 
       formData.append("description", value.description);
       formData.append("contactInfo", value.contactInfo);
       formData.append("date", value.date);
+      formData.append("endTime", value.endTime);
       formData.append("location", JSON.stringify(value.location));
 
       if (imageFile) formData.append("eventImage", imageFile);

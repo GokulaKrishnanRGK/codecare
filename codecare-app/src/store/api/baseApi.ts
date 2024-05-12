@@ -1,6 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL;
+const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
 export const baseApi = createApi({
   reducerPath: "api",
@@ -14,6 +14,12 @@ export const baseApi = createApi({
     "Users",
     "User",
     "Auth",
+    "Donations",
+    "Donation",
+    "Me",
+    "Vaccinations",
+    "Vaccination",
+    "VolunteerEvent"
   ],
   endpoints: () => ({}),
 });

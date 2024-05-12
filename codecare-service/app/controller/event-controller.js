@@ -1,17 +1,22 @@
 import * as eventService from '../services/event-service.js';
 import {
-  setSuccessResponse,
   setErrorCode,
-  setErrorResponseMsg
+  setErrorResponseMsg,
+  setSuccessResponse
 } from '../utils/response-handler.js';
 import {StatusCodes} from "http-status-codes";
 import {Status} from "../entities/status-enum.js";
 import {storage} from "../storage/index.js";
 import * as userService from "../services/user-service.js";
-import {sendNewEventEmailToUsers} from "../services/email-service.js";
+import {
+  sendEventRegistrationEmail,
+  sendNewEventEmailToUsers
+} from "../services/email-service.js";
 import {validateEventRequest} from "../validation/validateEventPayload.js";
+import Event from "../models/event.js";
+import {getCurrentUserFromClerk} from "../utils/auth-user.js";
+import {calcTotalPages, getPagination} from "../utils/pagination.js";
 
-const PAGE_SIZE = 5;
 const allowedTypes = new Set(
     ["image/png", "image/jpeg", "image/webp", "image/gif"]);
 
@@ -23,12 +28,28 @@ const parseDate = (value) => {
   return Number.isNaN(d.getTime()) ? undefined : d;
 };
 
-const parsePage = (value) => {
-  const n = Number(value);
-  if (!Number.isFinite(n) || n < 1) {
-    return 1;
-  }
-  return Math.floor(n);
+const toPublicEventDto = (eventObj, currentUserId) => {
+  const registeredIds = Array.isArray(eventObj.registeredUsers)
+      ? eventObj.registeredUsers : [];
+  const attendedIds = Array.isArray(eventObj.attendedUsers)
+      ? eventObj.attendedUsers : [];
+
+  const registeredCount = registeredIds.length;
+  const attendedCount = attendedIds.length;
+
+  const isRegistered =
+      currentUserId != null && registeredIds.some(
+          (id) => String(id) === String(currentUserId));
+
+  const {registeredUsers, attendedUsers, _id, ...rest} = eventObj;
+
+  return {
+    id: _id,
+    ...rest,
+    registeredCount,
+    attendedCount,
+    isRegistered,
+  };
 };
 
 export const search = async (request, response) => {
@@ -65,39 +86,39 @@ export const search = async (request, response) => {
       }
     }
 
-    const eventStatus =
+    const rawStatus =
         typeof request.query.eventStatus === "string"
             ? request.query.eventStatus : "";
-    if (eventStatus && eventStatus !== Status.ALL) {
-      const now = new Date();
-      if (eventStatus === Status.UPCOMING) {
-        params.date = {...(params.date || {}), $gte: now};
-      } else if (eventStatus === Status.COMPLETE) {
-        params.date = {...(params.date || {}), $lt: now};
-      }
+    const eventStatus =
+        rawStatus === Status.COMPLETE ? Status.COMPLETE : Status.UPCOMING;
+
+    const now = new Date();
+    if (eventStatus === Status.UPCOMING) {
+      params.endTime = {...(params.endTime || {}), $gte: now};
+    } else {
+      params.endTime = {...(params.endTime || {}), $lt: now};
     }
 
-    const page = parsePage(request.query.page);
-    const skip = (page - 1) * PAGE_SIZE;
+    const {page, pageSize, skip, limit} = getPagination(request.query.page);
 
     const total = await eventService.countEvents(params);
     const items = await eventService.searchEvents(params, {
       skip,
-      limit: PAGE_SIZE,
+      limit,
       sort: {date: 1},
     });
 
-    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const totalPages = calcTotalPages(total, pageSize);
+
+    const user = await getCurrentUserFromClerk(request);
+    const currentUserId = user?.id;
+
+    const normalizedItems = items.map(
+        (e) => toPublicEventDto(e, currentUserId));
 
     setSuccessResponse(
         StatusCodes.OK,
-        {
-          items,
-          page,
-          pageSize: PAGE_SIZE,
-          total,
-          totalPages,
-        },
+        {items: normalizedItems, page, pageSize, total, totalPages},
         response
     );
   } catch (error) {
@@ -109,12 +130,15 @@ export const search = async (request, response) => {
 export const post = async (req, res) => {
   try {
     if (req.file && !allowedTypes.has(req.file.mimetype)) {
-      setErrorResponseMsg("Unsupported image type", res, StatusCodes.UNSUPPORTED_MEDIA_TYPE);
+      setErrorResponseMsg("Unsupported image type", res,
+          StatusCodes.UNSUPPORTED_MEDIA_TYPE);
       return;
     }
 
-    const v = validateEventRequest({ req, res, mode: "create" });
-    if (!v.ok) return;
+    const v = validateEventRequest({req, res, mode: "create"});
+    if (!v.ok) {
+      return;
+    }
 
     const saved = await storage.save({
       folder: "events",
@@ -129,7 +153,8 @@ export const post = async (req, res) => {
 
     userService
     .listEmailRecipients()
-    .then((recipients) => sendNewEventEmailToUsers({ event: created, recipients }))
+    .then(
+        (recipients) => sendNewEventEmailToUsers({event: created, recipients}))
     .catch((err) => console.log("Email send failed:", err));
 
     setSuccessResponse(StatusCodes.OK, created, res);
@@ -142,16 +167,25 @@ export const post = async (req, res) => {
 export const get = async (request, response) => {
   try {
     const event = await eventService.getEventDetails(request.params.id);
-    setSuccessResponse(StatusCodes.OK, event, response);
+    if (!event) {
+      setErrorCode(StatusCodes.NOT_FOUND, response);
+      return;
+    }
+    let user = await getCurrentUserFromClerk(request);
+    let currentUserId = user?.id;
+    const payload = toPublicEventDto(event, currentUserId);
+    setSuccessResponse(StatusCodes.OK, payload, response);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
   }
-}
+};
 
 export const put = async (req, res) => {
   try {
-    const current = await eventService.getEventDetails(req.params.id);
+    const id = req.params.id;
+
+    const current = await eventService.getEventDetails(id);
     if (!current) {
       setErrorCode(StatusCodes.NOT_FOUND, res);
       return;
@@ -164,24 +198,26 @@ export const put = async (req, res) => {
 
     const v = validateEventRequest({ req, res, mode: "update" });
     if (!v.ok) return;
-    Object.assign(current, v.data);
+
+    const patch = { ...v.data };
+
     if (req.file) {
       const saved = await storage.save({
         folder: "events",
         filename: req.file.originalname,
         buffer: req.file.buffer,
       });
-      current.eventImage = saved.key;
+      patch.eventImage = saved.key;
     }
 
-    const updated = await eventService.updateEvent(current);
+    const updated = await eventService.updateEventById(id, patch);
+
     setSuccessResponse(StatusCodes.OK, updated, res);
   } catch (error) {
     console.log(error);
     setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, res);
   }
 };
-
 
 export const deleteEvent = async (request, response) => {
   try {
@@ -193,3 +229,65 @@ export const deleteEvent = async (request, response) => {
     setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
   }
 }
+
+export const registerForEvent = async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const userId = req.user?._id;
+    if (!userId) {
+      setErrorCode(StatusCodes.UNAUTHORIZED, res);
+      return;
+    }
+    const event = await Event.findById(eventId).select(
+        "_id endTime").lean().exec();
+    if (!event) {
+      setErrorCode(StatusCodes.NOT_FOUND, res);
+      return;
+    }
+    if (new Date(event.endTime).getTime() < Date.now()) {
+      setErrorResponseMsg("Cannot register for a past event", res,
+          StatusCodes.BAD_REQUEST);
+      return;
+    }
+    const updated = await eventService.registerUser(eventId, userId);
+    const [eventDoc, userDoc] = await Promise.all([
+      Event.findById(eventId).lean().exec(),
+      userService.getById(userId),
+    ]);
+    if (userDoc?.emailSubscribed !== false) {
+      sendEventRegistrationEmail({event: eventDoc, user: userDoc})
+      .catch((e) => console.log("Registration email failed:", e));
+    }
+    setSuccessResponse(StatusCodes.OK, {id: updated._id}, res);
+  } catch (err) {
+    setErrorResponseMsg(err, res, StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+};
+
+export const unregisterForEvent = async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const userId = req.user?._id;
+    if (!userId) {
+      setErrorCode(StatusCodes.UNAUTHORIZED, res);
+      return;
+    }
+    const event = await Event.findById(eventId).select(
+        "_id endTime").lean().exec();
+    if (!event) {
+      setErrorCode(StatusCodes.NOT_FOUND, res);
+      return;
+    }
+
+    if (new Date(event.endTime).getTime() < Date.now()) {
+      setErrorResponseMsg("Cannot unregister from a past event", res,
+          StatusCodes.BAD_REQUEST);
+      return;
+    }
+
+    const updated = await eventService.unregisterUser(eventId, userId);
+    setSuccessResponse(StatusCodes.OK, {id: updated._id}, res);
+  } catch (err) {
+    setErrorResponseMsg(err, res, StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+};

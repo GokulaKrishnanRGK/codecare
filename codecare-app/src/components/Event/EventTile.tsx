@@ -12,12 +12,11 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 
 import type Event from "../../models/events/Event";
-import * as authUtil from "../../utils/auth-util";
 import Roles from "../../models/auth/Roles";
 import {toPublicImageUrl} from "../../utils/image-url.ts";
-import {useMeQuery} from "../../store/api/meApi.ts";
-import {useAuth} from "@clerk/clerk-react";
-import {skipToken} from "@reduxjs/toolkit/query";
+import RoleGate from "../Auth/RoleGate.tsx";
+import {Chip, Stack} from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 interface EventTileProps {
   event: Event;
@@ -31,15 +30,7 @@ function formatDateTime(dateIso: string): string {
 
 export default function EventTile(props: Readonly<EventTileProps>): JSX.Element {
   const {event, onOpen, onRequestDelete} = props;
-  const { isSignedIn } = useAuth();
-  const { data: user } = useMeQuery(isSignedIn ? undefined : skipToken);
-
   const imgUrl = toPublicImageUrl(event.eventImage) ?? "/images/pwa-192x192.png";
-
-  const canDelete = useMemo(
-      () => authUtil.isUserInRole(user, [Roles.ADMIN]),
-      [user]
-  );
 
   const handleOpen = (): void => onOpen(event.id);
 
@@ -58,6 +49,8 @@ export default function EventTile(props: Readonly<EventTileProps>): JSX.Element 
   const altText = event.title
       ? `Flyer for event: ${event.title}`
       : "Event flyer";
+
+  const isComplete = useMemo(() => new Date(event.endTime).getTime() < Date.now(), [event.endTime]);
 
   return (
       <Card
@@ -84,24 +77,39 @@ export default function EventTile(props: Readonly<EventTileProps>): JSX.Element 
               image={imgUrl}
               alt={altText}
               loading="lazy"
-              sx={{ objectFit: "cover", backgroundColor: "grey.100" }}
+              sx={{objectFit: "cover", backgroundColor: "grey.100"}}
           />
 
-          {canDelete && (
-              <IconButton
-                  aria-label={`Delete event ${event.title}`}
-                  onClick={handleDeleteClick}
+          {event.isRegistered && (
+              <Chip
+                  icon={<CheckCircleIcon/>}
+                  label="Registered"
+                  color="success"
+                  size="small"
                   sx={{
                     position: "absolute",
                     top: 8,
-                    right: 8,
-                    backgroundColor: "rgba(255,255,255,0.85)",
-                    "&:hover": {backgroundColor: "rgba(255,255,255,1)"},
+                    left: 8,
+                    fontWeight: 600,
                   }}
-              >
-                <DeleteIcon/>
-              </IconButton>
+              />
           )}
+
+          <RoleGate allowedRoles={[Roles.ADMIN]}>
+            <IconButton
+                aria-label={`Delete event ${event.title}`}
+                onClick={handleDeleteClick}
+                sx={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  backgroundColor: "rgba(255,255,255,0.85)",
+                  "&:hover": {backgroundColor: "rgba(255,255,255,1)"},
+                }}
+            >
+              <DeleteIcon/>
+            </IconButton>
+          </RoleGate>
         </Box>
 
         <CardContent sx={{flexGrow: 1}}>
@@ -110,7 +118,7 @@ export default function EventTile(props: Readonly<EventTileProps>): JSX.Element 
           </Typography>
 
           <Typography variant="body2" color="text.secondary" sx={{mb: 1}}>
-            {formatDateTime(event.date)}
+            {formatDateTime(event.date)} to {formatDateTime(event.endTime)}{" "}
           </Typography>
 
           <Typography
@@ -125,7 +133,12 @@ export default function EventTile(props: Readonly<EventTileProps>): JSX.Element 
             {event.description}
           </Typography>
         </CardContent>
-
+        <Stack direction="row" spacing={1} sx={{mt: 1, flexWrap: "wrap", px: 2}}>
+          <Chip size="small" label={`Registered: ${event.registeredCount}`}/>
+          {isComplete && (
+              <Chip size="small" label={`Attended: ${event.attendedCount}`}/>
+          )}
+        </Stack>
         <CardActions sx={{pt: 0, px: 2, pb: 2}}>
           <Button size="small" onClick={(e) => {
             e.stopPropagation();

@@ -4,5 +4,5 @@ export interface User {
   username: string,
   firstname: string,
   lastname: string,
-  role: "USER" | "ADMIN",
+  role: "USER" | "ADMIN" | "VOLUNTEER",
 }

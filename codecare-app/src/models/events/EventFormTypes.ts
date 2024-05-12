@@ -12,6 +12,7 @@ export interface EventFormState {
   organizer: string;
   description: string;
   date: string;
+  endTime: string;
   contactInfo: string;
   eventImage: string;
   location: EventLocationForm;

@@ -1,43 +1,71 @@
-import {setSuccessResponse} from "../utils/response-handler.js";
-import {StatusCodes} from "http-status-codes";
 import Stripe from "stripe";
-import {getAuth} from "@clerk/express";
-import User from "../models/user.js";
+import {StatusCodes} from "http-status-codes";
+import {
+  setErrorResponseMsg,
+  setSuccessResponse
+} from "../utils/response-handler.js";
+import * as donationService from "../services/donation-service.js";
+import {getCurrentUserFromClerk} from "../utils/auth-user.js";
 
-export const donate = async (request, response, next) => {
+
+export const createCheckoutSession = async (req, res) => {
   const successUrl = `${process.env.SSL_URL}:${process.env.UI_PORT}/donate/success`;
   const cancelUrl = `${process.env.SSL_URL}:${process.env.UI_PORT}/donate/cancel`;
-  const stripe = new Stripe(process.env.STRIPE_KEY);
+
   try {
-    const auth = getAuth(req);
-    let user = null;
-    if (auth) {
-      const clerkUserId = auth.userId;
-      user = await User.findOne({clerkUserId}).exec();
+    const stripe = new Stripe(process.env.STRIPE_KEY);
+    const amount = Number(req.body.amount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return setErrorResponseMsg("Invalid amount", res,
+          StatusCodes.BAD_REQUEST);
     }
-    const amount = request.body.amount;
-    let message = "Thank you stranger!";
-    if (user) {
-      message = "Thank you " + user.firstname + " " + user.lastname + " !";
-    }
+
+    let user = await getCurrentUserFromClerk(req);
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
-      line_items: [{
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name: "Donation",
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {name: "Donation"},
+            unit_amount: Math.round(amount * 100),
           },
-          unit_amount: amount * 100,
+          quantity: 1,
         },
-        quantity: 1,
-      }],
+      ],
       success_url: successUrl,
       cancel_url: cancelUrl,
+
+      client_reference_id: user ? String(user._id) : undefined,
+      metadata: {
+        appUserId: user ? String(user._id) : "",
+        clerkUserId: user ? user.clerkUserId : "",
+        donationAmount: String(amount),
+      },
     });
-    setSuccessResponse(StatusCodes.OK, {url: session.url}, response);
+
+    await donationService.createDonation({
+      user: user ? (user._id ?? user.id) : undefined,
+      amount,
+      currency: "usd",
+      stripeCheckoutSessionId: session.id,
+      status: "PENDING",
+    })
+
+    setSuccessResponse(StatusCodes.OK, {url: session.url}, res);
   } catch (error) {
-    setErrorCode(StatusCodes.INTERNAL_SERVER_ERROR, response);
+    setErrorResponseMsg(error, res, StatusCodes.INTERNAL_SERVER_ERROR);
   }
-}
+};
+
+export const getDonationStats = async (req, res) => {
+  try {
+    const totalDonations = await donationService.sumDonationsAmount(
+        {status: "PAID"});
+    setSuccessResponse(StatusCodes.OK, {totalDonations}, res);
+  } catch (err) {
+    setErrorResponseMsg(err, res, StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+};

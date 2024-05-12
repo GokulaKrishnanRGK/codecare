@@ -1,20 +1,18 @@
 import * as React from 'react';
-import {useMemo} from 'react';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
-import {Box, Button, FormControlLabel, Switch} from '@mui/material';
+import {Box, Button, Chip, FormControlLabel, Switch} from '@mui/material';
 
 import {Typewriter} from 'react-simple-typewriter';
-import Roles from "./../../models/auth/Roles.ts";
 
 import {useNavigate} from 'react-router-dom';
-import {SignedIn, SignedOut, useAuth, UserButton} from "@clerk/clerk-react";
+import {SignedIn, SignedOut, UserButton} from "@clerk/clerk-react";
 import i18n from '../../i18n';
 import {useTranslation} from 'react-i18next';
-import * as authUtil from "../../utils/auth-util.ts";
+import RoleGate from "../Auth/RoleGate.tsx";
+import Roles from "../../models/auth/Roles.ts";
 import {useMeQuery} from "../../store/api/meApi.ts";
-import {skipToken} from "@reduxjs/toolkit/query";
 
 
 interface HeaderProps {
@@ -28,12 +26,17 @@ export default function Header(props: Readonly<HeaderProps>) {
   const navigate = useNavigate();
 
   const titleBlock = [title]
-  const { isSignedIn } = useAuth();
-  const { data: user } = useMeQuery(isSignedIn ? undefined : skipToken);
-  const canAdmin = useMemo(() => authUtil.isUserInRole(user, [Roles.ADMIN]), [user]);
-  const handleLanguageChange = (event) => {
+  const handleLanguageChange = (event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     i18n.changeLanguage(event.target.checked ? 'ta' : 'en');
   };
+
+  const {data: user} = useMeQuery();
+  let role: string = "";
+  if (user) {
+    role = user?.role;
+  }
+  const isDevEnv = import.meta.env.VITE_APP_ENV === "dev";
 
   return (
 
@@ -70,8 +73,19 @@ export default function Header(props: Readonly<HeaderProps>) {
               sx={{marginRight: 4}}
           />
           <SignedIn>
-            <Box sx={{transform: 'scale(1.2)'}}>
-              <UserButton afterSignOutUrl='/'/>
+            <Box sx={{display: "flex", alignItems: "center", gap: 1}}>
+              {isDevEnv && (
+                  <Chip
+                      size="small"
+                      variant="outlined"
+                      label={`Role: ${role}`}
+                      sx={{fontFamily: "monospace"}}
+                  />
+              )}
+
+              <Box sx={{transform: "scale(1.2)"}}>
+                <UserButton afterSignOutUrl="/"/>
+              </Box>
             </Box>
           </SignedIn>
 
@@ -113,8 +127,8 @@ export default function Header(props: Readonly<HeaderProps>) {
             {t('header.link.label.events')}
           </Link>
 
-          {
-              canAdmin &&
+          <RoleGate allowedRoles={[Roles.ADMIN]}>
+            <>
               <Link
                   color="inherit"
                   noWrap
@@ -126,7 +140,43 @@ export default function Header(props: Readonly<HeaderProps>) {
               >
                 {t('header.link.label.user')}
               </Link>
-          }
+              <Link
+                  color="inherit"
+                  noWrap
+                  variant="body1"
+                  onClick={() => {
+                    return navigate(`/admin/donations`)
+                  }}
+                  sx={{p: 1, flexShrink: 0, cursor: 'pointer'}}
+              >
+                {t('header.link.label.donation')}
+              </Link>
+              <Link
+                  color="inherit"
+                  noWrap
+                  variant="body1"
+                  onClick={() => navigate(`/admin/vaccinations`)}
+                  sx={{p: 1, flexShrink: 0, cursor: "pointer"}}
+              >
+                Vaccinations
+              </Link>
+
+            </>
+          </RoleGate>
+
+          <RoleGate allowedRoles={[Roles.ADMIN, Roles.VOLUNTEER, Roles.USER]}>
+            <Link
+                color="inherit"
+                noWrap
+                variant="body1"
+                onClick={() => {
+                  return navigate(`/profile`)
+                }}
+                sx={{p: 1, flexShrink: 0, cursor: 'pointer'}}
+            >
+              {t('header.link.label.profile')}
+            </Link>
+          </RoleGate>
 
           <Button
               onClick={() => navigate(`/donate`)}

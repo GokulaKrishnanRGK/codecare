@@ -20,8 +20,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import Pagination from "@mui/material/Pagination";
-import CardActions from "@mui/material/CardActions";
 import Button from "@mui/material/Button";
 import SearchIcon from "@mui/icons-material/Search";
 import {InfinitySpin} from "react-loader-spinner";
@@ -30,16 +28,16 @@ import {useTranslation} from "react-i18next";
 
 import EventTile from "../../components/Event/EventTile";
 import Roles from "../../models/auth/Roles";
-import * as authUtil from "../../utils/auth-util";
 
 import {Status} from "../../constants/eventStatus-enum";
 
 import type {EventSearchParams, EventStatusFilter,} from "../../models/events/EventDto";
 
 import {useDeleteEventMutation, useGetEventsQuery} from "../../store/api/eventsApi";
-import {useMeQuery} from "../../store/api/meApi.ts";
-import {useAuth} from "@clerk/clerk-react";
-import {skipToken} from "@reduxjs/toolkit/query";
+import ListToolbar from "../../components/common/ListToolbar";
+import ListPagination from "../../components/common/ListPagination";
+import RoleGate from "../../components/Auth/RoleGate.tsx";
+
 
 type SnackState = {
   open: boolean;
@@ -62,14 +60,9 @@ export default function Events(): JSX.Element {
   const navigate = useNavigate();
   const {t} = useTranslation("events");
 
-  const {isSignedIn} = useAuth();
-  const {data: user} = useMeQuery(isSignedIn ? undefined : skipToken);
-
-  const canAdmin = useMemo(() => authUtil.isUserInRole(user, [Roles.ADMIN]), [user]);
-
   const [searchParams, setSearchParams] = useState<Omit<EventSearchParams, "page">>({
     keyword: "",
-    eventStatus: Status.ALL as EventStatusFilter,
+    eventStatus: Status.UPCOMING as EventStatusFilter,
   });
 
   const [page, setPage] = useState<number>(1);
@@ -181,42 +174,49 @@ export default function Events(): JSX.Element {
 
         <main>
           <Box sx={{display: "flex", gap: 2, flexWrap: "wrap", mb: 2}}>
-            <TextField
-                size="small"
-                placeholder={t("filter.search")}
-                value={searchParams.keyword ?? ""}
-                onChange={handleKeywordChange}
-                InputProps={{
-                  startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon/>
-                      </InputAdornment>
-                  ),
-                }}
+            <ListToolbar
+                title="Events"
+                onRefresh={refetch}
+                isRefreshing={showLoader}
+                refreshLabel="Refresh events"
+                left={
+                  <>
+                    <TextField
+                        size="small"
+                        placeholder={t("filter.search")}
+                        value={searchParams.keyword ?? ""}
+                        onChange={handleKeywordChange}
+                        InputProps={{
+                          startAdornment: (
+                              <InputAdornment position="start">
+                                <SearchIcon/>
+                              </InputAdornment>
+                          ),
+                        }}
+                    />
+
+                    <FormControl size="small" sx={{width: 160}}>
+                      <InputLabel>{t("filter.status")}</InputLabel>
+                      <Select
+                          id="eventStatus"
+                          label={t("filter.status")}
+                          value={searchParams.eventStatus ?? (Status.UPCOMING as EventStatusFilter)}
+                          onChange={handleStatusChange}
+                      >
+                        <MenuItem value={Status.UPCOMING}>{t("filter.status.upcoming")}</MenuItem>
+                        <MenuItem value={Status.COMPLETE}>{t("filter.status.past")}</MenuItem>
+                      </Select>
+                    </FormControl>
+
+                    <RoleGate allowedRoles={[Roles.ADMIN]}>
+                      <Button size="small" variant="contained"
+                              onClick={() => navigate("/events/create")}>
+                        Create
+                      </Button>
+                    </RoleGate>
+                  </>
+                }
             />
-
-            <FormControl size="small" sx={{width: 160}}>
-              <InputLabel>{t("filter.status")}</InputLabel>
-              <Select
-                  id="eventStatus"
-                  label={t("filter.status")}
-                  value={searchParams.eventStatus ?? (Status.ALL as EventStatusFilter)}
-                  onChange={handleStatusChange}
-              >
-                <MenuItem value={Status.ALL}>{t("filter.status.all")}</MenuItem>
-                <MenuItem value={Status.UPCOMING}>{t("filter.status.upcoming")}</MenuItem>
-                <MenuItem value={Status.COMPLETE}>{t("filter.status.past")}</MenuItem>
-              </Select>
-            </FormControl>
-
-            {canAdmin && (
-                <CardActions sx={{p: 0}}>
-                  <Button size="small" variant="contained"
-                          onClick={() => navigate("/events/create")}>
-                    Create
-                  </Button>
-                </CardActions>
-            )}
           </Box>
 
           {showLoader && (
@@ -225,12 +225,18 @@ export default function Events(): JSX.Element {
               </Box>
           )}
 
-          {isError && (
+          {isError && !showLoader && (
               <Box sx={{mt: 2}}>
                 <Alert
                     severity="error"
+                    variant="outlined"
                     action={
-                      <Button color="inherit" size="small" onClick={() => refetch()}>
+                      <Button
+                          color="inherit"
+                          size="small"
+                          onClick={() => refetch()}
+                          disabled={showLoader}
+                      >
                         Retry
                       </Button>
                     }
@@ -265,23 +271,13 @@ export default function Events(): JSX.Element {
                   ))}
                 </Grid>
 
-                <Box sx={{mt: 3, display: "flex", justifyContent: "center"}}>
-                  <Pagination
-                      count={totalPages}
-                      page={page}
-                      onChange={(_e, value) => setPage(value)}
-                      color="primary"
-                      showFirstButton
-                      showLastButton
-                      disabled={showLoader}
-                  />
-                </Box>
-
-                <Box sx={{mt: 1, textAlign: "center"}}>
-                  <Typography variant="caption" color="text.secondary">
-                    Showing 5 events per page
-                  </Typography>
-                </Box>
+                <ListPagination
+                    page={page}
+                    totalPages={totalPages}
+                    onChange={setPage}
+                    disabled={showLoader}
+                    caption="Showing 10 events per page"
+                />
               </>
           )}
         </main>

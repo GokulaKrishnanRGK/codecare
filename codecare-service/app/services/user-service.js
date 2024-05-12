@@ -7,6 +7,7 @@ export const createUser = async (data) => {
 export const listEmailRecipients = async () => {
   const users = await User.find()
   .select("username firstname lastname")
+  .where("emailSubscribed").equals(true)
   .lean()
   .exec();
 
@@ -26,7 +27,7 @@ export const findByClerkUserId = async (clerkUserId) => {
 export const getById = async (id) => User.findById(id).exec();
 
 export const searchUsers = async (params = {}, options = {}) => {
-  const {skip = 0, limit = 10, sort = {createdAt: -1}} = options;
+  const {skip = 0, limit, sort = {createdAt: -1}} = options;
 
   return await User.find(params)
   .select("username firstname lastname role clerkUserId")
@@ -48,6 +49,48 @@ export const updateUserRoleById = async (userId, role) => {
       {new: true, runValidators: true}
   )
   .select("username firstname lastname role clerkUserId")
+  .lean()
+  .exec();
+};
+
+export const addVaccinationToUser = async (userId, vaccinationId) => {
+  return User.findByIdAndUpdate(
+      userId,
+      {$addToSet: {vaccinations: vaccinationId}},
+      {new: true, runValidators: true}
+  )
+  .select("username firstname lastname role vaccinations clerkUserId emailSubscribed")
+  .lean()
+  .exec();
+};
+
+export const removeVaccinationFromUser = async (userId, vaccinationId) => {
+  return User.findByIdAndUpdate(
+      userId,
+      {$pull: {vaccinations: vaccinationId}},
+      {new: true, runValidators: true}
+  )
+  .select("username firstname lastname role vaccinations clerkUserId")
+  .lean()
+  .exec();
+};
+
+export const getByIdWithVaccinations = async (id) => {
+  return User.findById(id)
+  .populate("vaccinations", "name description")
+  .select(
+      "username firstname lastname role vaccinations clerkUserId emailSubscribed")
+  .lean()
+  .exec();
+};
+
+export const updateEmailSubscription = async (userId, emailSubscribed) => {
+  return User.findByIdAndUpdate(
+      userId,
+      {$set: {emailSubscribed: Boolean(emailSubscribed)}},
+      {new: true, runValidators: true}
+  )
+  .select("emailSubscribed")
   .lean()
   .exec();
 };

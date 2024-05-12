@@ -44,7 +44,6 @@ export default function Footer(props: FooterProps) {
                 <Link href="https://www.x.com"><TwitterIcon fontSize="large" sx={{ml: 2}}/></Link>
                 <Link href="https://www.instagram.com"><InstagramIcon fontSize="large"
                                                                       sx={{ml: 2}}/></Link>
-                {/* Add another icon here if needed */}
               </Box>
             </Grid>
 

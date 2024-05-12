@@ -33,6 +33,10 @@ const eventSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  endTime: {
+    type: Date,
+    required: true,
+  },
   contactInfo: {
     type: String,
     required: true
@@ -41,7 +45,17 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  location: locationSchema
+  location: locationSchema,
+  registeredUsers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+    default: []
+  }],
+  attendedUsers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+    default: []
+  }],
 }, schemaConfig);
 
 const Event = mongoose.model('event', eventSchema);

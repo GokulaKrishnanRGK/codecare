@@ -5,16 +5,16 @@ export default interface Event {
   organizer: string;
   description: string;
   date: string;
+  endTime: string;
   contactInfo: string;
-  eventStatus: string;
   eventImage: string;
   location: Location;
+  registeredCount: number;
+  attendedCount: number;
+  isRegistered: boolean;
 }
 
 export interface Location {
-  latitude: number;
-  longitude: number;
-  name: string;
   address: string;
   city: string;
   state: string;

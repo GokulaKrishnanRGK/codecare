@@ -40,6 +40,7 @@ export function validateEventRequest({ req, res, mode }) {
     description: req.body?.description,
     contactInfo: req.body?.contactInfo,
     date: req.body?.date,
+    endTime: req.body?.endTime,
     ...(req.body?.location !== undefined ? { location } : {}),
   };
 
@@ -53,5 +54,6 @@ export function validateEventRequest({ req, res, mode }) {
 
   const data = { ...parsed.data };
   if (data.date) data.date = new Date(data.date);
+  if (data.endTime) data.endTime = new Date(data.endTime);
   return { ok: true, data };
 }

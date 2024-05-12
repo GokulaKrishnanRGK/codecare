@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema(
         default: Roles.USER,
         index: true,
       },
+      vaccinations: [
+        {type: mongoose.Schema.Types.ObjectId, ref: "vaccination", default: []}
+      ],
+      emailSubscribed: { type: Boolean, default: true },
     },
     schemaConfig
 );

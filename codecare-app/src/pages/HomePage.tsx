@@ -1,4 +1,5 @@
 import {Box} from "@mui/material";
+
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Alert from "@mui/material/Alert";
@@ -20,6 +21,7 @@ import {Status} from "../constants/eventStatus-enum.ts";
 import {useGetEventsQuery} from "../store/api/eventsApi";
 import {useMemo} from "react";
 import {toPublicImageUrl} from "../utils/image-url.ts";
+import DonationFlyer from "../components/Homepage/DonationFlyer.tsx";
 
 export default function HomePage(): JSX.Element {
   const {t} = useTranslation("common");
@@ -60,6 +62,7 @@ export default function HomePage(): JSX.Element {
 
   return (
       <main>
+        <DonationFlyer/>
         <MainFeaturedPost/>
 
         <Box sx={{position: "relative", zIndex: 1, boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)"}}>
@@ -142,7 +145,7 @@ export default function HomePage(): JSX.Element {
 
                           <Typography variant="body1">
                             <b>{t("homepage.link.label.homepageFeaturedLocation")}:</b>{" "}
-                            {`${event.location.name}, ${event.location.address}, ${event.location.city}, ${event.location.state}, ${event.location.country}`}
+                            {`${event.location.address}, ${event.location.city}, ${event.location.state}, ${event.location.country}`}
                           </Typography>
 
                           <Box sx={{display: "flex", justifyContent: "flex-end", mt: 2}}>

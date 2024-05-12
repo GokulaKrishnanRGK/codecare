@@ -19,4 +19,19 @@ router.route('/:id')
     .put(requireAuth, requireRole([Roles.ADMIN]), upload.single("eventImage"), eventController.put)
     .delete(requireAuth, requireRole([Roles.ADMIN]), eventController.deleteEvent);
 
+router.post(
+    "/:id/register",
+    requireAuth,
+    requireRole([Roles.USER]),
+    eventController.registerForEvent
+);
+
+router.post(
+    "/:id/unregister",
+    requireAuth,
+    requireRole([Roles.USER]),
+    eventController.unregisterForEvent
+);
+
+
 export default router;

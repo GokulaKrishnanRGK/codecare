@@ -37,7 +37,7 @@ export default function AuthGuard({
   }
 
   if (isError || !me) {
-    return <Navigate to="/signin" replace/>;
+    return <Navigate to="/forbidden" replace />;
   }
 
   if (!allowedRoles.includes(me.role)) {

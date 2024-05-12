@@ -2,12 +2,17 @@ import { z } from "zod";
 
 const digitsOnly = (v: string) => v.replace(/\D/g, "");
 
-export const usPhoneSchema = z
+const isValidPhone = (v: string) => /^\d{10}$/.test(digitsOnly(v));
+const isValidEmail = (v: string) => z.email().safeParse(v).success;
+
+export const contactInfoSchema = z
 .string()
 .trim()
 .min(1, "Contact is required")
-.transform(digitsOnly)
-.refine((v) => /^\d{10}$/.test(v), "Contact must be a 10-digit phone number");
+.refine((v) => isValidPhone(v) || isValidEmail(v), {
+  message: "Enter a valid 10-digit phone number or email address",
+})
+.transform((v) => (isValidPhone(v) ? digitsOnly(v) : v));
 
 export const postalCodeSchema = z
 .string()
@@ -33,13 +38,51 @@ export const eventFormSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(250),
   organizer: z.string().trim().min(1, "Organizer is required").max(150),
   description: z.string().trim().min(1, "Description is required").max(5000),
-  contactInfo: usPhoneSchema,
+  contactInfo: contactInfoSchema,
   date: futureIsoDateString,
+  endTime: futureIsoDateString,
   location: locationSchema,
+})
+.superRefine(({ date, endTime }, ctx) => {
+  const start = new Date(date).getTime();
+  const end = new Date(endTime).getTime();
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return;
+
+  if (end <= start) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["endTime"],
+      message: "End time must be after the start time",
+    });
+  }
 });
 
 export const createEventBodySchema = eventFormSchema;
-export const updateEventBodySchema = eventFormSchema.partial();
+
+export const updateEventBodySchema = z
+.object({
+  type: z.string().trim().min(1).max(100).optional(),
+  title: z.string().trim().min(1).max(250).optional(),
+  organizer: z.string().trim().min(1).max(150).optional(),
+  description: z.string().trim().min(1).max(5000).optional(),
+  contactInfo: contactInfoSchema.optional(),
+  date: futureIsoDateString.optional(),
+  endTime: futureIsoDateString.optional(),
+  location: locationSchema.partial().optional(),
+})
+.superRefine((data, ctx) => {
+  if (data.date && data.endTime) {
+    const start = new Date(data.date).getTime();
+    const end = new Date(data.endTime).getTime();
+    if (Number.isFinite(start) && Number.isFinite(end) && end <= start) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["endTime"],
+        message: "End time must be after the start time",
+      });
+    }
+  }
+});
 
 export const createEventClientSchema = eventFormSchema.extend({
   eventImage: z.instanceof(File).optional(),

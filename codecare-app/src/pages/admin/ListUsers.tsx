@@ -8,7 +8,6 @@ import {
   InputLabel,
   MenuItem,
   Modal,
-  Pagination,
   Paper,
   Select,
   Table,
@@ -22,6 +21,8 @@ import {
 import type {User} from "../../models/auth/User";
 import {useGetUsersQuery, useUpdateUserRoleMutation} from "../../store/api/adminApi";
 import {InfinitySpin} from "react-loader-spinner";
+import ListToolbar from "../../components/common/ListToolbar";
+import ListPagination from "../../components/common/ListPagination";
 
 export default function ListUsers() {
   const [page, setPage] = useState(1);
@@ -34,7 +35,7 @@ export default function ListUsers() {
 
   const [editedUser, setEditedUser] = useState<User | null>(null);
   const [open, setOpen] = useState(false);
-  const [role, setRole] = useState<"USER" | "ADMIN">("USER");
+  const [role, setRole] = useState<"USER" | "ADMIN" | "VOLUNTEER">("USER");
 
   const showLoader = isLoading || isFetching;
 
@@ -73,6 +74,13 @@ export default function ListUsers() {
   return (
       <AuthGuard allowedRoles={[Roles.ADMIN]}>
         <>
+          <ListToolbar
+              title="Users"
+              onRefresh={refetch}
+              isRefreshing={showLoader}
+              refreshLabel="Refresh users"
+          />
+
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
@@ -86,13 +94,17 @@ export default function ListUsers() {
               </TableHead>
 
               <TableBody>
-                {isLoading && (
-                    <Box className="listUsersContainer" sx={{mt: 2}}>
-                      <InfinitySpin/>
-                    </Box>
+                {showLoader && (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center">
+                        <Box sx={{display: "flex", justifyContent: "center", py: 2}}>
+                          <InfinitySpin/>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
                 )}
 
-                {isError && !isLoading && (
+                {isError && !showLoader && (
                     <TableRow>
                       <TableCell colSpan={5} align="center">
                         Failed to load users.{" "}
@@ -103,7 +115,7 @@ export default function ListUsers() {
                     </TableRow>
                 )}
 
-                {!isLoading &&
+                {!showLoader &&
                     !isError &&
                     users.map((user) => (
                         <TableRow key={user.id}>
@@ -128,23 +140,13 @@ export default function ListUsers() {
             </Table>
           </TableContainer>
 
-          <Box sx={{mt: 3, display: "flex", justifyContent: "center"}}>
-            <Pagination
-                count={totalPages}
-                page={page}
-                onChange={(_e, value) => setPage(value)}
-                color="primary"
-                showFirstButton
-                showLastButton
-                disabled={showLoader}
-            />
-          </Box>
-
-          <Box sx={{mt: 1, textAlign: "center"}}>
-            <Typography variant="caption" color="text.secondary">
-              Showing 10 users per page
-            </Typography>
-          </Box>
+          <ListPagination
+              page={page}
+              totalPages={totalPages}
+              onChange={setPage}
+              disabled={showLoader}
+              caption="Showing 10 users per page"
+          />
 
           <Modal open={open} onClose={closeEditModal}>
             <Box sx={style}>
@@ -161,10 +163,11 @@ export default function ListUsers() {
                 <Select
                     value={role}
                     label="Role"
-                    onChange={(e) => setRole(e.target.value as "USER" | "ADMIN")}
+                    onChange={(e) => setRole(e.target.value as "USER" | "ADMIN" | "VOLUNTEER")}
                     disabled={isTargetAdmin}
                 >
                   <MenuItem value={Roles.USER}>User</MenuItem>
+                  <MenuItem value={Roles.VOLUNTEER}>Volunteer</MenuItem>
                   <MenuItem value={Roles.ADMIN}>Admin</MenuItem>
                 </Select>
               </FormControl>

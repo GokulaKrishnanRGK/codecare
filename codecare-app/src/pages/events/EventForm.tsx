@@ -66,6 +66,7 @@ function toEventFormState(values: FormValues): EventFormState {
     description: values.description,
     contactInfo: values.contactInfo,
     date: values.date,
+    endTime: values.endTime,
     eventImage: "",
     location: values.location,
   };
@@ -112,6 +113,7 @@ export default function EventForm(props: Readonly<EventFormProps>): JSX.Element 
         description: initialValue.description,
         contactInfo: initialValue.contactInfo,
         date: safeIso(initialValue.date),
+        endTime: safeIso(initialValue.endTime),
         location: initialValue.location,
         eventImage: undefined,
       }),
@@ -130,6 +132,7 @@ export default function EventForm(props: Readonly<EventFormProps>): JSX.Element 
     setValue,
     setError,
     clearErrors,
+    watch,
     formState: {errors, isValid},
   } = useForm<FormValues>({
     resolver,
@@ -137,6 +140,22 @@ export default function EventForm(props: Readonly<EventFormProps>): JSX.Element 
     reValidateMode: "onChange",
     defaultValues,
   });
+
+  const startDateIso = watch("date");
+  const endTimeIso = watch("endTime");
+
+  useEffect(() => {
+    if (!startDateIso) return;
+    if (endTimeIso) return;
+
+    const start = dayjs(startDateIso);
+    const suggestedEnd = start.add(1, "hour");
+
+    setValue("endTime", suggestedEnd.toISOString(), {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  }, [startDateIso, endTimeIso, setValue]);
 
   const submit = handleSubmit(async (values) => {
     if (mode === "create" && !values.eventImage) {
@@ -239,18 +258,16 @@ export default function EventForm(props: Readonly<EventFormProps>): JSX.Element 
 
             <FormControl fullWidth error={!!errors.contactInfo} sx={{mt: 2}}>
               <FormLabel htmlFor="contactInfo" required>
-                Contact
+                Contact (Phone or Email)
               </FormLabel>
+
               <OutlinedInput
                   id="contactInfo"
                   disabled={disabled}
-                  inputProps={{inputMode: "numeric", pattern: "[0-9]*", maxLength: 10}}
-                  {...register("contactInfo", {
-                    onChange: (e) => {
-                      e.target.value = String(e.target.value).replace(/\D/g, "").slice(0, 10);
-                    },
-                  })}
+                  placeholder="e.g. 9876543210 or name@example.com"
+                  {...register("contactInfo")}
               />
+
               <FormHelperText>{errors.contactInfo?.message}</FormHelperText>
             </FormControl>
 
@@ -332,6 +349,30 @@ export default function EventForm(props: Readonly<EventFormProps>): JSX.Element 
                 />
               </LocalizationProvider>
               <FormHelperText>{errors.date?.message}</FormHelperText>
+            </FormControl>
+
+            <FormControl fullWidth error={!!errors.endTime} sx={{mt: 2}}>
+              <FormLabel required>End Date</FormLabel>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Controller
+                    control={control}
+                    name="endTime"
+                    render={({field}) => (
+                        <DateTimePicker
+                            label="End Date"
+                            value={field.value ? dayjs(field.value) : null}
+                            minDateTime={startDateIso ? dayjs(startDateIso) : dayjs()}
+                            onChange={(v) => {
+                              const next = v?.toDate();
+                              field.onChange(next ? next.toISOString() : field.value);
+                            }}
+                            disabled={disabled}
+                            sx={{mt: 1, width: "100%"}}
+                        />
+                    )}
+                />
+              </LocalizationProvider>
+              <FormHelperText>{errors.endTime?.message}</FormHelperText>
             </FormControl>
 
             <FormControl fullWidth error={!!errors.location?.address} sx={{mt: 2}}>

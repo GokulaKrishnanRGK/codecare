@@ -24,6 +24,7 @@ const defaultFormState: EventFormState = {
   organizer: "",
   description: "",
   date: new Date().toISOString(),
+  endTime: new Date().toISOString(),
   contactInfo: "",
   eventImage: "",
   location: {
@@ -59,6 +60,7 @@ export default function CreateEvent(): JSX.Element {
       formData.append("description", payload.description);
       formData.append("contactInfo", payload.contactInfo);
       formData.append("date", payload.date);
+      formData.append("endTime", payload.endTime);
 
       formData.append("location", JSON.stringify(payload.location));
 

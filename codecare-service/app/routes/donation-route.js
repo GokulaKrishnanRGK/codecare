@@ -3,7 +3,8 @@ import * as donationController from "../controller/donation-controller.js";
 
 const router = express.Router();
 
-router.route('/donate')
-    .post(donationController.donate);
+router.post('/checkout', donationController.createCheckoutSession);
+
+router.get("/stats", donationController.getDonationStats);
 
 export default router;

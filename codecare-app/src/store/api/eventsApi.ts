@@ -59,6 +59,17 @@ export const eventsApi = baseApi.injectEndpoints({
         {type: "Event", id},
       ],
     }),
+
+    registerForEvent: builder.mutation<void, { id: string }>({
+      query: ({id}) => ({url: `/events/${id}/register`, method: "POST"}),
+      invalidatesTags: (_r, _e, arg) => [{type: "Event", id: arg.id}, {type: "Events", id: "LIST"}],
+    }),
+
+    unregisterForEvent: builder.mutation<void, { id: string }>({
+      query: ({id}) => ({url: `/events/${id}/unregister`, method: "POST"}),
+      invalidatesTags: (_r, _e, arg) => [{type: "Event", id: arg.id}, {type: "Events", id: "LIST"}],
+    }),
+
   }),
   overrideExisting: false,
 });
@@ -69,4 +80,6 @@ export const {
   useCreateEventMutation,
   useUpdateEventMutation,
   useDeleteEventMutation,
+  useRegisterForEventMutation,
+  useUnregisterForEventMutation,
 } = eventsApi;
