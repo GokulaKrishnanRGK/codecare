@@ -42,9 +42,7 @@ export const createEventBodySchema = eventFormSchema;
 export const updateEventBodySchema = eventFormSchema.partial();
 
 export const createEventClientSchema = eventFormSchema.extend({
-  eventImage: z
-  .instanceof(File, { message: "Event image is required" })
-  .refine((f) => f.size > 0, "Event image is required"),
+  eventImage: z.instanceof(File).optional(),
 });
 
 export const updateEventClientSchema = eventFormSchema.extend({

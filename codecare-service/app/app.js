@@ -3,10 +3,11 @@ import express from 'express'
 
 import mongoose from 'mongoose'
 import initializeRoutes from "./routes/index.js";
-import { clerkMiddleware } from "@clerk/express";
+import {clerkMiddleware} from "@clerk/express";
 
 import path from "path";
 import fs from "fs";
+import {errorHandler} from "./middleware/error-handler.js";
 
 const initialize = (app) => {
   app.use(clerkMiddleware());
@@ -26,7 +27,10 @@ const initialize = (app) => {
     fs.mkdirSync(uploadDir, {recursive: true});
   }
 
-  app.use(uploadPublicUrl, express.static(path.resolve(uploadDir), {maxAge: "1hr", etag: true}));
+  app.use(uploadPublicUrl,
+      express.static(path.resolve(uploadDir), {maxAge: "1hr", etag: true}));
+
+  app.use(errorHandler);
 }
 
 export default initialize;
