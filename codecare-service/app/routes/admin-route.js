@@ -3,6 +3,7 @@ import * as adminController from "../controller/admin-controller.js";
 import {requireAuth, requireRole} from "../middleware/auth.js";
 import {Roles} from "../entities/roles.js";
 import {updateVaccination} from "../controller/admin-controller.js";
+import {getActivities} from "../controller/activity-log-controller.js";
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ router.route("/vaccinations")
 .post(requireAuth, requireRole([Roles.ADMIN]),
     adminController.createVaccination);
 
-router.put("/vaccinations/:id", requireAuth, requireRole(Roles.ADMIN), updateVaccination);
+router.get("/activities", requireAuth, requireRole([Roles.ADMIN]), getActivities);
+router.put("/vaccinations/:id", requireAuth, requireRole([Roles.ADMIN]), updateVaccination);
 
 export default router;

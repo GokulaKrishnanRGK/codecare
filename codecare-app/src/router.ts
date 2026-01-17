@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound.tsx";
 import Profile from "./pages/profile/Profile.tsx";
 import VaccinationsAdmin from "./pages/admin/Vaccinations.tsx";
 import EventVaccinations from "./pages/volunteer/EventVaccinations.tsx";
+import ListActivities from "./pages/admin/ListActivities.tsx";
 
 const router = createBrowserRouter([
   {
@@ -96,6 +97,10 @@ const router = createBrowserRouter([
       {
         path: "/admin/vaccinations",
         Component: VaccinationsAdmin,
+      },
+      {
+        path: "/admin/activities",
+        Component: ListActivities,
       }
     ]
   },

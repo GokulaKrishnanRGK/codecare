@@ -2,6 +2,7 @@ import {baseApi} from "./baseApi";
 import type {ApiResponse, DonationsAdminResponse, GetDonationsParams, Paginated} from "./apiTypes";
 import type {User} from "../../models/auth/User";
 import {Vaccination} from "../../models/vaccinations/Vaccination.ts";
+import {Activity} from "../../models/activities/Activity.ts";
 
 export const adminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -16,7 +17,17 @@ export const adminApi = baseApi.injectEndpoints({
               ]
               : [{type: "Users", id: "LIST"}],
     }),
-
+    getActivities: builder.query<Paginated<Activity>, { page: number }>({
+      query: ({page}) => ({url: `/admin/activities?page=${page}`, method: "GET"}),
+      transformResponse: (resp: ApiResponse<Paginated<Activity>>) => resp.data,
+      providesTags: (result) =>
+          result
+              ? [
+                {type: "Activities", id: "LIST"},
+                ...result.items.map((u) => ({type: "Activity" as const, id: u.id})),
+              ]
+              : [{type: "Activities", id: "LIST"}],
+    }),
     updateUserRole: builder.mutation<User, {
       userId: string;
       role: "USER" | "ADMIN" | "VOLUNTEER"
@@ -84,5 +95,6 @@ export const {
   useGetDonationsQuery,
   useGetVaccinationsQuery,
   useCreateVaccinationMutation,
-  useUpdateVaccinationMutation
+  useUpdateVaccinationMutation,
+  useGetActivitiesQuery
 } = adminApi;

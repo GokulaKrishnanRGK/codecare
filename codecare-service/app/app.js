@@ -7,6 +7,7 @@ import path from "path";
 import fs from "fs";
 import {errorHandler} from "./middleware/error-handler.js";
 import {stripeWebhook} from "./controller/stripe-webhook-controller.js";
+import {activityLog} from "./middleware/activity-log.js";
 
 const initialize = (app) => {
   if (process.env.NODE_ENV === "test") {
@@ -25,6 +26,8 @@ const initialize = (app) => {
     });
   }
   app.use(clerkMiddleware());
+
+  app.use(activityLog);
 
   app.post("/api/stripe/webhook", express.raw({type: "application/json"}),
       stripeWebhook);

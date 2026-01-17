@@ -155,6 +155,17 @@ export default function Header(props: Readonly<HeaderProps>) {
                   color="inherit"
                   noWrap
                   variant="body1"
+                  onClick={() => {
+                    return navigate(`/admin/activities`)
+                  }}
+                  sx={{p: 1, flexShrink: 0, cursor: 'pointer'}}
+              >
+                Activities
+              </Link>
+              <Link
+                  color="inherit"
+                  noWrap
+                  variant="body1"
                   onClick={() => navigate(`/admin/vaccinations`)}
                   sx={{p: 1, flexShrink: 0, cursor: "pointer"}}
               >

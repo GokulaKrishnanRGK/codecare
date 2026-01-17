@@ -19,7 +19,9 @@ export const baseApi = createApi({
     "Me",
     "Vaccinations",
     "Vaccination",
-    "VolunteerEvent"
+    "VolunteerEvent",
+    "Activity",
+    "Activities"
   ],
   endpoints: () => ({}),
 });
